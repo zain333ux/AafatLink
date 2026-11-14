@@ -8,6 +8,7 @@
 *.log
 hs_err_pid*
 /tmp/
+/Deliverable/
 
 # Local Supabase state and generated artifacts
 /supabase/.branches/

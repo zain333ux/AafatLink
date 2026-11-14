@@ -54,4 +54,4 @@ Only the Supabase project URL and publishable client key belong in the desktop e
 
 ## Academic source material
 
-The original reviewed deliverables are preserved unchanged under `Deliverable/`. Deliverable 3 remains the functional authority for UC01 through UC12.
+The original reviewed deliverables are preserved unchanged under the local `Deliverable/` folder. They are ignored by Git because they contain academic identity material; publish only an owner-reviewed, redacted copy. Deliverable 3 remains the functional authority for UC01 through UC12.
