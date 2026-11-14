@@ -6,6 +6,7 @@ import java.util.Objects;
 
 import org.kordamp.ikonli.javafx.FontIcon;
 
+import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
@@ -16,6 +17,7 @@ import pk.edu.nu.aafatlink.app.SessionManager;
 import pk.edu.nu.aafatlink.app.SessionUser;
 import pk.edu.nu.aafatlink.app.navigation.NavigationItem;
 import pk.edu.nu.aafatlink.app.navigation.NavigationPolicy;
+import pk.edu.nu.aafatlink.application.auth.AuthenticationController;
 import pk.edu.nu.aafatlink.ui.ViewRouter;
 
 /** Presentation controller for the reusable role-aware application frame. */
@@ -24,6 +26,7 @@ public final class AppShellController {
     private final ViewRouter router;
     private final SessionManager sessions;
     private final NavigationPolicy navigationPolicy;
+    private final AuthenticationController authentication;
 
     @FXML
     private VBox navigationBox;
@@ -37,11 +40,15 @@ public final class AppShellController {
     private Label pageDescriptionLabel;
     @FXML
     private Label welcomeLabel;
+    @FXML
+    private Button logoutButton;
 
-    public AppShellController(ViewRouter router, SessionManager sessions, NavigationPolicy navigationPolicy) {
+    public AppShellController(ViewRouter router, SessionManager sessions, NavigationPolicy navigationPolicy,
+            AuthenticationController authentication) {
         this.router = Objects.requireNonNull(router, "router");
         this.sessions = Objects.requireNonNull(sessions, "sessions");
         this.navigationPolicy = Objects.requireNonNull(navigationPolicy, "navigationPolicy");
+        this.authentication = authentication;
     }
 
     @FXML
@@ -82,8 +89,25 @@ public final class AppShellController {
 
     @FXML
     private void logout() {
-        sessions.logout();
-        router.showLogin();
+        SessionUser user = sessions.currentUser().orElse(null);
+        if (user == null || user.demonstrationAccount() || authentication == null) {
+            sessions.logout();
+            router.showLogin();
+            return;
+        }
+        logoutButton.setDisable(true);
+        Task<Void> task = new Task<>() {
+            @Override
+            protected Void call() {
+                authentication.logout();
+                return null;
+            }
+        };
+        task.setOnSucceeded(event -> router.showLogin());
+        task.setOnFailed(event -> router.showLogin());
+        Thread worker = new Thread(task, "aafatlink-auth-logout");
+        worker.setDaemon(true);
+        worker.start();
     }
 
     private static Map<NavigationItem, String> descriptions() {

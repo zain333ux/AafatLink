@@ -20,6 +20,8 @@ class DatabaseMigrationContractTest {
             "20261114231516_add_authorized_workflow_rpcs.sql");
     private static final Path STORAGE = Path.of("supabase", "migrations",
             "20261114231716_configure_evidence_storage.sql");
+    private static final Path ONBOARDING = Path.of("supabase", "migrations",
+            "20261114232825_add_account_onboarding.sql");
 
     @Test
     void everyPublicTableEnablesRowLevelSecurity() throws IOException {
@@ -56,7 +58,7 @@ class DatabaseMigrationContractTest {
 
     @Test
     void everyDefinerFunctionDerivesIdentityAndPinsSearchPath() throws IOException {
-        String sql = normalized(DOMAIN) + "\n" + normalized(RPCS);
+        String sql = normalized(DOMAIN) + "\n" + normalized(RPCS) + "\n" + normalized(ONBOARDING);
         String[] functions = sql.split("create or replace function ");
         int definerCount = 0;
         for (int index = 1; index < functions.length; index++) {
@@ -66,7 +68,8 @@ class DatabaseMigrationContractTest {
             }
             definerCount++;
             assertTrue(function.contains("set search_path = ''"));
-            assertTrue(function.contains("auth.uid()"));
+            boolean internalAuthTrigger = function.startsWith("private.handle_new_auth_user()");
+            assertTrue(internalAuthTrigger ? function.contains("new.id") : function.contains("auth.uid()"));
         }
         assertTrue(definerCount >= 6);
         assertFalse(sql.contains("service_role"));

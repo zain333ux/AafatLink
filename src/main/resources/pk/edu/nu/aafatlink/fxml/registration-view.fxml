@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="pk.edu.nu.aafatlink.ui.auth.RegistrationViewController" styleClass="auth-root">
+    <left>
+        <VBox prefWidth="410.0" minWidth="370.0" spacing="26.0" styleClass="auth-brand-panel">
+            <padding><Insets top="48.0" right="44.0" bottom="40.0" left="44.0" /></padding>
+            <HBox alignment="CENTER_LEFT" spacing="14.0">
+                <StackPane minWidth="46.0" minHeight="46.0" styleClass="brand-mark">
+                    <Label text="A" styleClass="brand-mark-text" />
+                </StackPane>
+                <VBox spacing="1.0">
+                    <Label text="AafatLink" styleClass="brand-name-light" />
+                    <Label text="JOIN THE RESPONSE NETWORK" styleClass="brand-kicker-light" />
+                </VBox>
+            </HBox>
+            <Region VBox.vgrow="ALWAYS" />
+            <Label text="One account. A clear role in the response." wrapText="true" styleClass="auth-hero-title" />
+            <Label text="Requesters can seek and track assistance. Volunteers build a readiness profile and become eligible only after administrator approval."
+                   wrapText="true" styleClass="auth-hero-copy" />
+            <VBox spacing="13.0">
+                <Label text="✓  Email verification required" styleClass="feature-line" />
+                <Label text="✓  Volunteer approval enforced" styleClass="feature-line" />
+                <Label text="✓  Privileged roles are never public" styleClass="feature-line" />
+            </VBox>
+            <Region VBox.vgrow="ALWAYS" />
+            <Label text="Coordinator and Administrator access is provisioned securely by an Administrator."
+                   wrapText="true" styleClass="auth-footer-text" />
+        </VBox>
+    </left>
+    <center>
+        <StackPane styleClass="auth-content">
+            <VBox maxWidth="500.0" spacing="16.0" styleClass="auth-card">
+                <VBox spacing="6.0">
+                    <Label text="PUBLIC REGISTRATION" styleClass="eyebrow" />
+                    <Label text="Create your account" styleClass="auth-title" />
+                    <Label text="Use an email address you can verify." styleClass="auth-subtitle" />
+                </VBox>
+                <VBox spacing="7.0">
+                    <Label text="Account type" styleClass="field-label" />
+                    <ComboBox fx:id="accountTypeBox" maxWidth="Infinity" styleClass="role-combo" />
+                </VBox>
+                <VBox spacing="7.0">
+                    <Label text="Full name" styleClass="field-label" />
+                    <TextField fx:id="displayNameField" promptText="Your name" styleClass="text-input" />
+                </VBox>
+                <VBox spacing="7.0">
+                    <Label text="Email address" styleClass="field-label" />
+                    <TextField fx:id="emailField" promptText="you@example.com" styleClass="text-input" />
+                </VBox>
+                <HBox spacing="12.0">
+                    <VBox spacing="7.0" HBox.hgrow="ALWAYS">
+                        <Label text="Password" styleClass="field-label" />
+                        <PasswordField fx:id="passwordField" promptText="At least 8 characters" styleClass="text-input" />
+                    </VBox>
+                    <VBox spacing="7.0" HBox.hgrow="ALWAYS">
+                        <Label text="Confirm password" styleClass="field-label" />
+                        <PasswordField fx:id="confirmPasswordField" promptText="Repeat password"
+                                       onAction="#register" styleClass="text-input" />
+                    </VBox>
+                </HBox>
+                <Button fx:id="registerButton" text="Create account" onAction="#register"
+                        maxWidth="Infinity" styleClass="primary-button" />
+                <Label fx:id="registrationMessageLabel" text="" wrapText="true" styleClass="form-message" />
+                <Button text="Back to sign in" onAction="#backToSignIn" maxWidth="Infinity" styleClass="text-button" />
+            </VBox>
+        </StackPane>
+    </center>
+</BorderPane>

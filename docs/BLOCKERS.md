@@ -15,3 +15,10 @@ No Phase 1 build or launch blocker remains.
 - **Why:** Docker is not installed or available on this machine.
 - **Needed from owner:** Install and start Docker Desktop, or provide a disposable development Supabase project.
 - **Work that can continue:** Static migration contract tests, Java domain/application work and HTTP adapter tests with local fakes.
+
+## Live authentication proof unavailable
+
+- **Blocked:** Real email confirmation, redirect allowlisting, token refresh against Supabase and password recovery through an actual email link.
+- **Why:** No designated development Supabase project or test inbox is configured.
+- **Needed from owner:** A disposable development project, its URL and publishable key, and access to a test email inbox. Add only reviewed loopback redirect patterns.
+- **Work that can continue:** Unit/integration tests against local HTTP servers and UI work in demonstration mode.

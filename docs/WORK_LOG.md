@@ -34,3 +34,21 @@ Implement and validate the PostgreSQL schema, RLS foundation and transactional w
 - Added private evidence-bucket policies that prevent deleting committed evidence.
 - Added Java migration contract tests and executable request/assignment lifecycle tests.
 - Local migration execution is blocked because Docker and development Supabase credentials are unavailable.
+
+### Phase 3 progress
+
+- Implemented Supabase Auth registration, sign-in, token refresh, logout, recovery start, PKCE exchange and password update over Java HTTP Client.
+- Added database-authoritative account loading and an application authentication controller.
+- Connected real sign-in to the JavaFX login form only when public Supabase configuration is present.
+- Added public Requester/Volunteer registration UI; privileged roles are not selectable.
+- Added an Auth user trigger and restricted pending-Volunteer onboarding RPC.
+- Implemented and tested RFC 7636 S256 plus a one-use `127.0.0.1` callback server.
+- Added safe in-memory sessions whose string representation cannot print tokens.
+- UI automation was stopped from the keyboard before the newly added registration view could be visually inspected. No further computer-use actions were attempted.
+
+### Current continuation point
+
+- Run the final clean test/package verification for the Phase 3 increment.
+- Visually inspect the connected login and registration views in a fresh session.
+- Apply migrations to a disposable Supabase project and test signup, email confirmation, RLS and loopback redirect allowlisting.
+- Complete the Volunteer onboarding call after verified sign-in, then start UC01 and UC02.

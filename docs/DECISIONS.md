@@ -32,6 +32,6 @@
 
 ## D006: Desktop password recovery
 
-**Decision:** Use Supabase PKCE with an ephemeral loopback HTTP listener on `127.0.0.1` and an exact high-port redirect URI, opened in the system browser. The listener accepts one callback, validates state, exchanges the code, and closes. Custom URI schemes are avoided unless loopback redirect registration proves unavailable.
+**Decision:** Use Supabase PKCE with an ephemeral loopback HTTP listener on `127.0.0.1`, opened in the system browser. The listener accepts one callback, validates a one-use flow ID, exchanges the code, and closes. Custom URI schemes are avoided unless loopback redirect registration proves unavailable.
 
-**Reason:** Loopback redirects are the established simple pattern for installed applications and avoid registering a platform-specific protocol handler. End-to-end validation remains blocked until a development Supabase project is configured.
+**Reason:** Loopback redirects are the established simple pattern for installed applications and avoid registering a platform-specific protocol handler. The local callback and PKCE exchange are tested. Redirect-allowlist compatibility remains blocked until a development Supabase project is configured.

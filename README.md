@@ -4,7 +4,7 @@ AafatLink is a Java desktop system for disaster assistance requests, volunteer c
 
 ## Current status
 
-Phase 1 is implemented: the Maven and Eclipse foundation, safe public configuration, professional JavaFX login surface, role-aware application shell, shared CSS theme and initial automated tests. The shell's preview accounts and figures are explicitly demonstration data. Supabase authentication and operational workflows are not yet represented as complete.
+Phase 1 is complete and Phase 2 has a migration-ready database foundation. Phase 3 now includes tested Supabase Auth and account-profile adapters plus connected sign-in and registration UI. Live Supabase verification remains blocked until a development project is configured. The shell's preview accounts and figures are explicitly demonstration data; mandatory operational workflows are not yet represented as complete.
 
 ## Technology
 
@@ -41,6 +41,8 @@ The application intentionally uses the classpath instead of `module-info.java`. 
 ## Documentation
 
 - [Architecture](docs/ARCHITECTURE.md)
+- [Authentication](docs/AUTHENTICATION.md)
+- [Database](docs/DATABASE.md)
 - [Engineering decisions](docs/DECISIONS.md)
 - [Use-case traceability](docs/USE_CASE_TRACEABILITY.md)
 - [Work log](docs/WORK_LOG.md)

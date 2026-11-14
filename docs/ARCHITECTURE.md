@@ -45,3 +45,7 @@ Startup configuration failures produce an actionable dialog and a logged excepti
 Schema migrations live in `supabase/migrations`. Multi-record state transitions use RPCs with idempotency operation IDs and optimistic version checks. Functions remain `SECURITY INVOKER` unless a reviewed permission boundary requires definer rights.
 
 The current public workflow RPCs require definer rights because desktop roles deliberately lack direct transition-table update grants. They are hardened with database-derived identity, explicit role checks, empty search paths and restricted execution. Details are in `docs/DATABASE.md`.
+
+## Authentication boundary
+
+`SupabaseAuthClient` handles GoTrue requests; `SupabaseAccountRepository` loads the RLS-protected account; `AuthenticationController` coordinates both and starts the local session only after role/status retrieval succeeds. JavaFX controllers only collect input, run the controller on a background task and present the outcome. Password recovery is isolated in a PKCE coordinator and loopback callback component.

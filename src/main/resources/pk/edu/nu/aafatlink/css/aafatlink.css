@@ -37,8 +37,13 @@
 .primary-button { -fx-background-color: -aafat-teal; -fx-text-fill: white; }
 .secondary-button { -fx-background-color: -aafat-navy; -fx-text-fill: white; }
 .secondary-button:hover { -fx-background-color: #173B59; }
+.text-button { -fx-background-color: transparent; -fx-text-fill: -aafat-teal; -fx-font-weight: 700; -fx-cursor: hand; }
+.text-button:hover { -fx-underline: true; }
 .separator-label { -fx-font-size: 9px; -fx-font-weight: bold; -fx-letter-spacing: 1.0px; -fx-text-fill: #8798A5; }
 .helper-text { -fx-font-size: 11px; -fx-line-spacing: 2px; -fx-text-fill: #728493; }
+.form-message { -fx-font-size: 12px; -fx-min-height: 18px; }
+.form-error { -fx-text-fill: #B42318; }
+.form-success { -fx-text-fill: -aafat-teal; }
 
 .sidebar { -fx-background-color: -aafat-navy-deep; }
 .nav-section-label { -fx-font-size: 9px; -fx-font-weight: 800; -fx-letter-spacing: 1.4px; -fx-text-fill: #6F8CA1; }

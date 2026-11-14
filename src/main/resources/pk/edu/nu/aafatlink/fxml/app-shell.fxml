@@ -36,7 +36,7 @@
                 <Label text="Preview navigation only. No operational data is connected."
                        wrapText="true" styleClass="demo-notice-copy" />
             </VBox>
-            <Button text="Sign out" onAction="#logout" maxWidth="Infinity" styleClass="logout-button">
+            <Button fx:id="logoutButton" text="Sign out" onAction="#logout" maxWidth="Infinity" styleClass="logout-button">
                 <VBox.margin><Insets top="16.0" /></VBox.margin>
             </Button>
         </VBox>
