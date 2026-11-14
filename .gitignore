@@ -1,0 +1,14 @@
+/target/
+/bin/
+/.settings/
+/.idea/
+*.iml
+.env
+.env.local
+*.log
+hs_err_pid*
+/tmp/
+
+# Local Supabase state and generated artifacts
+/supabase/.branches/
+/supabase/.temp/
