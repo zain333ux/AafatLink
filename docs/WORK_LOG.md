@@ -23,3 +23,14 @@
 ### Next
 
 Implement and validate the PostgreSQL schema, RLS foundation and transactional workflow functions for Phase 2.
+
+### Phase 2 progress
+
+- Initialized the Supabase CLI 3.1.0 project configuration.
+- Added 20 domain and audit tables, reference data, constraints, foreign-key indexes and queue indexes.
+- Added RLS to every public table and removed broad Data API grants.
+- Added a private, hardened role helper plus five restricted transactional RPCs.
+- Implemented scheduled overlap exclusion and the documented unscheduled-assignment fallback rule for UC05.
+- Added private evidence-bucket policies that prevent deleting committed evidence.
+- Added Java migration contract tests and executable request/assignment lifecycle tests.
+- Local migration execution is blocked because Docker and development Supabase credentials are unavailable.

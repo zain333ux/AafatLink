@@ -43,3 +43,5 @@ Startup configuration failures produce an actionable dialog and a logged excepti
 ## Planned data boundary
 
 Schema migrations live in `supabase/migrations`. Multi-record state transitions use RPCs with idempotency operation IDs and optimistic version checks. Functions remain `SECURITY INVOKER` unless a reviewed permission boundary requires definer rights.
+
+The current public workflow RPCs require definer rights because desktop roles deliberately lack direct transition-table update grants. They are hardened with database-derived identity, explicit role checks, empty search paths and restricted execution. Details are in `docs/DATABASE.md`.
