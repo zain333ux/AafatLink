@@ -11,7 +11,7 @@ No Phase 1 build or launch blocker remains. The `aafatlink-dev` hosted project i
 
 ## Live authentication proof unavailable
 
-- **Blocked:** Real email confirmation, redirect allowlisting and password recovery through an actual email link.
-- **Why:** The development project is available, but no controlled test inbox has been provided and the dashboard redirect allowlist has not been reviewed.
-- **Needed from owner:** One disposable email inbox that can receive Supabase confirmation and recovery messages. Add only reviewed loopback redirect patterns.
+- **Blocked:** Completing real email confirmation, redirect allowlisting and password recovery through an actual email link.
+- **Why:** A test Requester account and matching application profile were created and the confirmation email was sent, but the inbox owner must open the confirmation link. The dashboard redirect allowlist also remains to be reviewed.
+- **Needed from owner:** Open the latest AafatLink/Supabase confirmation message sent to the supplied test inbox and confirm the account. Do not send the inbox password. Add only reviewed loopback redirect patterns.
 - **Work that can continue:** Unit/integration tests against local HTTP servers and UI work in demonstration mode.

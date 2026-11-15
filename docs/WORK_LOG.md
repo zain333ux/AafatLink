@@ -83,3 +83,10 @@ Implement and validate the PostgreSQL schema, RLS foundation and transactional w
 - Build the JavaFX request form and owner-scoped request list/detail screens.
 - Add the staged evidence upload adapter and uncertain-result reconciliation by operation ID.
 - Use a controlled test inbox to run the first authenticated live UC01/UC02 transaction.
+
+### Remote repository and live registration
+
+- Connected the local repository to `https://github.com/zain333ux/AafatLink.git`, renamed the branch to `main` and pushed the verified history.
+- Created a live Requester test identity with a transient generated password that was not displayed or stored.
+- Verified the Auth trigger created exactly one linked `public.accounts` row with role `REQUESTER` and status `ACTIVE`.
+- Email confirmation is now waiting for the inbox owner. Password recovery will be used after confirmation so the owner chooses the test password without sharing it.
