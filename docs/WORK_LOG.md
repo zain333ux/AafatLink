@@ -68,3 +68,18 @@ Implement and validate the PostgreSQL schema, RLS foundation and transactional w
 
 - Use a controlled test inbox to prove email confirmation and password recovery.
 - Implement UC01 and UC02 as the next complete vertical slice.
+
+### UC01 and UC02 foundation
+
+- Rechecked Deliverable 3 and corrected the request schema to include all mandatory fields, request source, possible-duplicate flag and the documented 5 MB evidence limit.
+- Added and deployed `align_request_submission_with_uc01` with idempotent submission, staged-evidence commit and same-ID resubmission RPCs.
+- Added the validated `AssistanceRequestDraft` domain model, `AssistanceRequest` tracking model, GRASP `RequestController`, `WorkflowRepository` and `SupabaseWorkflowRepository`.
+- Added controller, validation, HTTP adapter and migration contract tests.
+- `mvnw clean test`: 41 tests passed with no failures, errors or skips.
+- `mvnw package`: build succeeded.
+
+### Current continuation point
+
+- Build the JavaFX request form and owner-scoped request list/detail screens.
+- Add the staged evidence upload adapter and uncertain-result reconciliation by operation ID.
+- Use a controlled test inbox to run the first authenticated live UC01/UC02 transaction.

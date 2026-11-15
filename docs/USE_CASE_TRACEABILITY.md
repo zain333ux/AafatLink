@@ -4,26 +4,26 @@ Deliverable 3 is the functional authority. A use case is marked complete only wh
 
 ## UC01: Submit Disaster Assistance Request
 
-- **Status:** Planned; shell destination exists only.
-- **Java:** `application.RequestController`; planned `domain.request.AssistanceRequest`, request validation service and `WorkflowRepository`.
-- **Methods:** planned `submitRequest`, `resubmitRequest` and duplicate-warning acknowledgement.
+- **Status:** In progress; domain, controller, repository and database transaction exist. JavaFX form and evidence staging UI remain.
+- **Java:** `application.request.RequestController`, `domain.request.AssistanceRequestDraft`, `AssistanceRequest`, `DisasterType`, `RequestSubmissionResult`, `repository.WorkflowRepository` and `infrastructure.supabase.SupabaseWorkflowRepository`.
+- **Methods:** `RequestController.submitRequest`, `RequestController.resubmitRequest`, `WorkflowRepository.submitRequest` and `WorkflowRepository.resubmitRequest`.
 - **Screen:** Requester > Submit request.
-- **Database:** `assistance_requests`, `request_evidence`, `workflow_operations`; planned `submit_assistance_request` RPC.
+- **Database:** `assistance_requests`, `request_evidence`, `workflow_operations`; deployed `submit_assistance_request` and `resubmit_assistance_request` RPCs.
 - **Success:** validate, check duplicates, stage evidence, commit the request as `PENDING_VERIFICATION`, return the request ID.
 - **Alternatives:** coordinator recording with separate requester/recorder IDs; duplicate warning; safe evidence retry; resubmission of `ADDITIONAL_INFORMATION_REQUIRED` using the same ID.
-- **Tests:** planned validation, ownership, resubmission, idempotency and evidence-recovery tests.
+- **Tests:** `AssistanceRequestDraftTest`, `RequestControllerTest`, `SupabaseWorkflowRepositoryTest` and `DatabaseMigrationContractTest`. Live idempotency and evidence-recovery tests remain.
 - **Demonstration:** create a request, acknowledge any duplicate warning, submit, then resubmit the same request after an information-return decision.
 
 ## UC02: Track Assistance Request Status
 
-- **Status:** Planned; shell destination exists only.
-- **Java:** `application.RequestController`; planned request query model and `WorkflowRepository`.
-- **Methods:** planned `listOwnRequests` and `getRequestTimeline`.
+- **Status:** In progress; owner-scoped request list/detail queries exist. JavaFX screens and assignment/progress timeline mapping remain.
+- **Java:** `application.request.RequestController`, `domain.request.AssistanceRequest`, `repository.WorkflowRepository` and `infrastructure.supabase.SupabaseWorkflowRepository`.
+- **Methods:** `RequestController.getMyRequests`, `RequestController.getRequestDetails`, `WorkflowRepository.findRequestsByRequester` and `WorkflowRepository.findRequestForRequester`.
 - **Screen:** Requester > My requests > Request detail.
 - **Database:** `assistance_requests`, verification, priority, assignment, progress, completion and closure history under requester-owned RLS.
 - **Success:** show the request's current status and chronological progress without exposing other requesters' records.
 - **Alternatives:** empty state, network retry and requests awaiting more information.
-- **Tests:** planned requester ownership, timeline ordering and unavailable-service tests.
+- **Tests:** `RequestControllerTest` proves authenticated identity scoping. Repository list/detail, timeline ordering and unavailable-service tests remain.
 - **Demonstration:** sign in as a requester and open the status timeline for a seeded request.
 
 ## UC03: Verify Assistance Request

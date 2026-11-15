@@ -24,6 +24,8 @@ class DatabaseMigrationContractTest {
             "20261114232825_add_account_onboarding.sql");
     private static final Path HARDENING = Path.of("supabase", "migrations",
             "20261115093254_harden_database_baseline.sql");
+    private static final Path UC01_ALIGNMENT = Path.of("supabase", "migrations",
+            "20261115093854_align_request_submission_with_uc01.sql");
 
     @Test
     void everyPublicTableEnablesRowLevelSecurity() throws IOException {
@@ -96,6 +98,19 @@ class DatabaseMigrationContractTest {
         assertTrue(sql.contains("role_permissions_permission_idx"));
         assertTrue(sql.contains("volunteer_approval_volunteer_idx"));
         assertFalse(sql.contains("for all to authenticated"));
+    }
+
+    @Test
+    void requestSubmissionSchemaMatchesUc01() throws IOException {
+        String sql = normalized(UC01_ALIGNMENT);
+
+        assertTrue(sql.contains("required_assistance"));
+        assertTrue(sql.contains("affected_person_details"));
+        assertTrue(sql.contains("possible_duplicate"));
+        assertTrue(sql.contains("request_source"));
+        assertTrue(sql.contains("5242880"), "UC01 limits each evidence file to 5 MB.");
+        assertTrue(sql.contains("resubmit_assistance_request"));
+        assertTrue(sql.contains("status = 'pending_verification'"));
     }
 
     private static String normalized(Path path) throws IOException {

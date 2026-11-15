@@ -7,6 +7,7 @@
 3. `configure_evidence_storage` creates the private evidence bucket and storage policies.
 4. `add_account_onboarding` creates the Auth user trigger and restricted volunteer-registration RPC.
 5. `harden_database_baseline` moves `btree_gist` out of `public`, removes Data API execution from Supabase's automatic-RLS event function, adds missing foreign-key indexes and removes duplicate SELECT policy evaluation.
+6. `align_request_submission_with_uc01` adds the mandatory request fields, request source, duplicate flag, 5 MB evidence limit and same-ID resubmission transaction required by Deliverable 3.
 
 All exposed `public` tables enable RLS. Broad `anon` and `authenticated` table privileges are revoked before minimal grants are added.
 

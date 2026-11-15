@@ -16,6 +16,10 @@
 
 **Decision:** Read only `AAFATLINK_SUPABASE_URL` and `AAFATLINK_SUPABASE_PUBLISHABLE_KEY`. Reject a service-role environment variable at startup.
 
+## UC01 request fields and evidence limit
+
+**Decision:** Deliverable 3 overrides the initial database draft. Store description, required assistance and affected-person details separately; derive request source from authenticated actor identity; store possible duplicate as a flag; and enforce 5 MB per evidence file. Resubmission updates the same request row and request ID.
+
 **Reason:** The desktop application is a public client. Privileged credentials would be extractable.
 
 ## D004: UC05 conflict scope
