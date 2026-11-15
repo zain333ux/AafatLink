@@ -73,6 +73,8 @@
                 <Label fx:id="loginMessageLabel" text="" wrapText="true" styleClass="form-message" />
                 <Button fx:id="registrationButton" text="Create a Requester or Volunteer account" onAction="#openRegistration"
                         maxWidth="Infinity" styleClass="text-button" />
+                <Button fx:id="recoveryButton" text="Forgot your password?" onAction="#openPasswordRecovery"
+                        maxWidth="Infinity" styleClass="text-button" />
 
                 <HBox alignment="CENTER" spacing="14.0">
                     <Separator HBox.hgrow="ALWAYS" />

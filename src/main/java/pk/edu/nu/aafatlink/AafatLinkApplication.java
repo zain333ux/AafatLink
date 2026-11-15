@@ -7,6 +7,7 @@ import javafx.application.Application;
 import javafx.scene.control.Alert;
 import javafx.stage.Stage;
 import pk.edu.nu.aafatlink.application.auth.AuthenticationController;
+import pk.edu.nu.aafatlink.application.auth.PasswordRecoveryCoordinator;
 import pk.edu.nu.aafatlink.app.AppConfiguration;
 import pk.edu.nu.aafatlink.app.ConfigurationException;
 import pk.edu.nu.aafatlink.app.SessionManager;
@@ -26,16 +27,21 @@ public final class AafatLinkApplication extends Application {
         try {
             AppConfiguration configuration = AppConfiguration.fromEnvironment();
             SessionManager sessions = new SessionManager();
-            AuthenticationController authentication = configuration.isRemoteConfigured()
-                    ? new AuthenticationController(
-                            new SupabaseAuthClient(configuration.supabaseUrl().orElseThrow(),
-                                    configuration.publishableKey().orElseThrow()),
+            SupabaseAuthClient authClient = configuration.isRemoteConfigured()
+                    ? new SupabaseAuthClient(configuration.supabaseUrl().orElseThrow(),
+                            configuration.publishableKey().orElseThrow())
+                    : null;
+            AuthenticationController authentication = authClient == null
+                    ? null
+                    : new AuthenticationController(
+                            authClient,
                             new SupabaseAccountRepository(configuration.supabaseUrl().orElseThrow(),
                                     configuration.publishableKey().orElseThrow()),
-                            sessions)
-                    : null;
+                            sessions);
+            PasswordRecoveryCoordinator passwordRecovery = authClient == null
+                    ? null : new PasswordRecoveryCoordinator(authClient);
             ViewRouter router = new ViewRouter(primaryStage, configuration, sessions,
-                    new NavigationPolicy(), authentication);
+                    new NavigationPolicy(), authentication, passwordRecovery);
             primaryStage.setTitle("AafatLink");
             primaryStage.setMinWidth(1_020);
             primaryStage.setMinHeight(680);

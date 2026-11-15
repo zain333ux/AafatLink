@@ -12,6 +12,8 @@ import pk.edu.nu.aafatlink.service.auth.PkceChallenge;
 /** Coordinates Supabase PKCE with a one-use JavaFX desktop loopback callback. */
 public final class PasswordRecoveryCoordinator {
     private static final Duration MAXIMUM_ATTEMPT = Duration.ofMinutes(10);
+    /** Exact port allow-listed in Supabase Auth for the installed desktop client. */
+    public static final int CALLBACK_PORT = 49152;
     private final AuthService authService;
 
     public PasswordRecoveryCoordinator(AuthService authService) {
@@ -20,7 +22,7 @@ public final class PasswordRecoveryCoordinator {
 
     public PasswordRecoveryAttempt begin(String email) {
         PkceChallenge challenge = PkceChallenge.generate();
-        LoopbackCallbackServer callback = LoopbackCallbackServer.start();
+        LoopbackCallbackServer callback = LoopbackCallbackServer.start(CALLBACK_PORT);
         callback.failAfter(MAXIMUM_ATTEMPT);
         try {
             authService.requestPasswordRecovery(new PasswordRecoveryRequest(

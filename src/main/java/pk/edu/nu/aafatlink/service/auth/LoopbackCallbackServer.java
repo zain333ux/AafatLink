@@ -29,11 +29,14 @@ public final class LoopbackCallbackServer implements AutoCloseable {
         this.flowId = flowId;
     }
 
-    public static LoopbackCallbackServer start() {
+    public static LoopbackCallbackServer start(int port) {
+        if (port < 1024 || port > 65535) {
+            throw new IllegalArgumentException("Recovery callback port must be between 1024 and 65535.");
+        }
         try {
             String flowId = UUID.randomUUID().toString();
             HttpServer server = HttpServer.create(
-                    new InetSocketAddress(InetAddress.getByName("127.0.0.1"), 0), 0);
+                    new InetSocketAddress(InetAddress.getByName("127.0.0.1"), port), 0);
             LoopbackCallbackServer callback = new LoopbackCallbackServer(server, flowId);
             server.createContext(CALLBACK_PATH, callback::handle);
             server.start();

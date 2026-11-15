@@ -38,6 +38,8 @@ public final class LoginViewController {
     private Label loginMessageLabel;
     @FXML
     private Button registrationButton;
+    @FXML
+    private Button recoveryButton;
 
     public LoginViewController(ViewRouter router, AppConfiguration configuration, SessionManager sessions,
             AuthenticationController authentication) {
@@ -68,6 +70,7 @@ public final class LoginViewController {
         passwordField.setDisable(!connected);
         signInButton.setDisable(!connected);
         registrationButton.setDisable(!connected);
+        recoveryButton.setDisable(!connected);
         signInButton.setText(connected ? "Sign in securely" : "Sign in requires Supabase configuration");
     }
 
@@ -80,6 +83,11 @@ public final class LoginViewController {
     @FXML
     private void openRegistration() {
         router.showRegistration();
+    }
+
+    @FXML
+    private void openPasswordRecovery() {
+        router.showPasswordRecovery();
     }
 
     @FXML
@@ -117,6 +125,7 @@ public final class LoginViewController {
         emailField.setDisable(busy);
         passwordField.setDisable(busy);
         signInButton.setDisable(busy);
+        recoveryButton.setDisable(busy);
         demoRoleBox.setDisable(busy);
     }
 }

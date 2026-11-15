@@ -10,9 +10,9 @@
 
 ## Password recovery design
 
-The recovery implementation uses PKCE S256 and an ephemeral server bound to `127.0.0.1` on an operating-system-selected port. It validates a one-use flow identifier, exchanges the returned code with the in-memory verifier, updates the password, revokes the recovery session and shuts down the listener.
+The recovery implementation uses PKCE S256 and a one-use server bound to `127.0.0.1:49152`. The fixed high port permits a narrowly scoped Supabase redirect rule while avoiding a privileged port. It validates a one-use flow identifier, exchanges the returned code with the in-memory verifier, updates the password, revokes the recovery session and shuts down the listener.
 
-Local automated tests verify the RFC 7636 challenge, loopback callback, code exchange and password update orchestration. The exact loopback URL must be added to the development project's Auth redirect allowlist. Because the port is ephemeral, the project must permit the reviewed loopback wildcard pattern supported by Supabase, or the application must switch to a configured fixed high port. This requires a real development-project proof before the recovery button is exposed in the JavaFX UI.
+Local automated tests verify the RFC 7636 challenge, fixed loopback callback, code exchange and password update orchestration. The hosted development project allows only `http://127.0.0.1:49152/auth/recovery**`, which covers the one-use flow query while remaining restricted to the exact loopback host, port and callback path. The JavaFX recovery screen keeps the password local and waits for the email link for up to ten minutes.
 
 ## Token handling
 

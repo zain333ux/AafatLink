@@ -12,10 +12,11 @@ import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.Test;
 
 class LoopbackCallbackServerTest {
+    private static final int TEST_PORT = 49153;
 
     @Test
     void acceptsOneMatchingCallbackOnTheIpv4LoopbackInterface() throws Exception {
-        try (LoopbackCallbackServer callback = LoopbackCallbackServer.start()) {
+        try (LoopbackCallbackServer callback = LoopbackCallbackServer.start(TEST_PORT)) {
             URI redirect = callback.redirectUri();
             URI returned = URI.create(redirect + "&code=4c25ef5b-7bd6-42fa-ab32-229eaf4c7f1a");
 
@@ -26,12 +27,13 @@ class LoopbackCallbackServerTest {
             assertEquals("4c25ef5b-7bd6-42fa-ab32-229eaf4c7f1a",
                     callback.authCode().get(2, TimeUnit.SECONDS));
             assertEquals("127.0.0.1", redirect.getHost());
+            assertEquals(TEST_PORT, redirect.getPort());
         }
     }
 
     @Test
     void timesOutRatherThanWaitingForever() throws Exception {
-        try (LoopbackCallbackServer callback = LoopbackCallbackServer.start()) {
+        try (LoopbackCallbackServer callback = LoopbackCallbackServer.start(TEST_PORT)) {
             callback.failAfter(Duration.ofMillis(25));
             callback.authCode().handle((value, error) -> error).get(2, TimeUnit.SECONDS);
         }

@@ -9,10 +9,12 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 import pk.edu.nu.aafatlink.application.auth.AuthenticationController;
+import pk.edu.nu.aafatlink.application.auth.PasswordRecoveryCoordinator;
 import pk.edu.nu.aafatlink.app.AppConfiguration;
 import pk.edu.nu.aafatlink.app.SessionManager;
 import pk.edu.nu.aafatlink.app.navigation.NavigationPolicy;
 import pk.edu.nu.aafatlink.ui.auth.LoginViewController;
+import pk.edu.nu.aafatlink.ui.auth.PasswordRecoveryViewController;
 import pk.edu.nu.aafatlink.ui.auth.RegistrationViewController;
 import pk.edu.nu.aafatlink.ui.shell.AppShellController;
 
@@ -24,14 +26,17 @@ public final class ViewRouter {
     private final SessionManager sessions;
     private final NavigationPolicy navigationPolicy;
     private final AuthenticationController authentication;
+    private final PasswordRecoveryCoordinator passwordRecovery;
 
     public ViewRouter(Stage stage, AppConfiguration configuration, SessionManager sessions,
-            NavigationPolicy navigationPolicy, AuthenticationController authentication) {
+            NavigationPolicy navigationPolicy, AuthenticationController authentication,
+            PasswordRecoveryCoordinator passwordRecovery) {
         this.stage = Objects.requireNonNull(stage, "stage");
         this.configuration = Objects.requireNonNull(configuration, "configuration");
         this.sessions = Objects.requireNonNull(sessions, "sessions");
         this.navigationPolicy = Objects.requireNonNull(navigationPolicy, "navigationPolicy");
         this.authentication = authentication;
+        this.passwordRecovery = passwordRecovery;
     }
 
     public void showLogin() {
@@ -53,6 +58,14 @@ public final class ViewRouter {
             return;
         }
         show("/pk/edu/nu/aafatlink/fxml/registration-view.fxml", 1_180, 780);
+    }
+
+    public void showPasswordRecovery() {
+        if (passwordRecovery == null) {
+            showLogin();
+            return;
+        }
+        show("/pk/edu/nu/aafatlink/fxml/password-recovery-view.fxml", 1_180, 780);
     }
 
     private void show(String resourcePath, double width, double height) {
@@ -87,6 +100,9 @@ public final class ViewRouter {
         }
         if (type == RegistrationViewController.class) {
             return new RegistrationViewController(this, authentication);
+        }
+        if (type == PasswordRecoveryViewController.class) {
+            return new PasswordRecoveryViewController(this, passwordRecovery);
         }
         throw new IllegalArgumentException("Unsupported FXML controller: " + type.getName());
     }

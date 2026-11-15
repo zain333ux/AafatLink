@@ -89,4 +89,18 @@ Implement and validate the PostgreSQL schema, RLS foundation and transactional w
 - Connected the local repository to `https://github.com/zain333ux/AafatLink.git`, renamed the branch to `main` and pushed the verified history.
 - Created a live Requester test identity with a transient generated password that was not displayed or stored.
 - Verified the Auth trigger created exactly one linked `public.accounts` row with role `REQUESTER` and status `ACTIVE`.
-- Email confirmation is now waiting for the inbox owner. Password recovery will be used after confirmation so the owner chooses the test password without sharing it.
+- The inbox owner completed email confirmation. Password recovery is used so the owner chooses the test password without sharing it.
+
+### Live password recovery
+
+- Verified the test identity is email-confirmed.
+- Added the restricted hosted Auth redirect rule `http://127.0.0.1:49152/auth/recovery**`.
+- Switched the PKCE callback from an ephemeral port to fixed high port 49152 and added the JavaFX recovery screen.
+- The new password remains inside the desktop process; the UI waits up to ten minutes for the one-use email callback.
+- `mvn clean test`: 41 tests passed with no failures, errors or skips.
+- `mvn package -DskipTests`: build succeeded and produced `target/aafatlink-0.1.0-SNAPSHOT.jar`.
+
+### Next
+
+- Run the live recovery screen, open the email link and verify sign-in with the owner-chosen password.
+- Continue the UC01/UC02 JavaFX vertical slice.

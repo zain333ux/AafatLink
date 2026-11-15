@@ -26,6 +26,7 @@ class PasswordRecoveryCoordinatorTest {
         PasswordRecoveryCoordinator coordinator = new PasswordRecoveryCoordinator(auth);
 
         try (PasswordRecoveryAttempt attempt = coordinator.begin("user@example.com")) {
+            assertEquals(49152, attempt.redirectUri().getPort());
             URI callback = URI.create(attempt.redirectUri() + "&code=4c25ef5b-7bd6-42fa-ab32-229eaf4c7f1a");
             HttpClient.newHttpClient().send(HttpRequest.newBuilder(callback).GET().build(),
                     HttpResponse.BodyHandlers.discarding());

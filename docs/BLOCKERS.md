@@ -9,9 +9,9 @@ No Phase 1 build or launch blocker remains. The `aafatlink-dev` hosted project i
 - **Needed from owner:** Install and start Docker Desktop, or provide a disposable development Supabase project.
 - **Work that can continue:** Static migration contract tests, Java domain/application work and HTTP adapter tests with local fakes.
 
-## Live authentication proof unavailable
+## Live password-recovery link pending
 
-- **Blocked:** Completing real email confirmation, redirect allowlisting and password recovery through an actual email link.
-- **Why:** A test Requester account and matching application profile were created and the confirmation email was sent, but the inbox owner must open the confirmation link. The dashboard redirect allowlist also remains to be reviewed.
-- **Needed from owner:** Open the latest AafatLink/Supabase confirmation message sent to the supplied test inbox and confirm the account. Do not send the inbox password. Add only reviewed loopback redirect patterns.
-- **Work that can continue:** Unit/integration tests against local HTTP servers and UI work in demonstration mode.
+- **Blocked:** Final end-to-end proof of the password update and subsequent sign-in.
+- **Why:** Email confirmation and the restricted redirect allowlist are complete. The inbox owner must use the next recovery link while the AafatLink recovery screen is waiting.
+- **Needed from owner:** Choose the new password only inside AafatLink and open the recovery email within ten minutes. Do not send the password in chat.
+- **Work that can continue:** All local tests, database work and unrelated JavaFX implementation.
