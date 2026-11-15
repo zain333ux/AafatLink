@@ -22,6 +22,8 @@ class DatabaseMigrationContractTest {
             "20261114231716_configure_evidence_storage.sql");
     private static final Path ONBOARDING = Path.of("supabase", "migrations",
             "20261114232825_add_account_onboarding.sql");
+    private static final Path HARDENING = Path.of("supabase", "migrations",
+            "20261115093254_harden_database_baseline.sql");
 
     @Test
     void everyPublicTableEnablesRowLevelSecurity() throws IOException {
@@ -82,6 +84,18 @@ class DatabaseMigrationContractTest {
         assertTrue(sql.contains("evidence_objects_delete_uncommitted_own"));
         assertTrue(sql.contains("not exists"));
         assertTrue(sql.contains("evidence.state = 'committed'"));
+    }
+
+    @Test
+    void hostedBaselineClosesAdvisorFindings() throws IOException {
+        String sql = normalized(HARDENING);
+
+        assertTrue(sql.contains("alter extension btree_gist set schema extensions"));
+        assertTrue(sql.contains("revoke execute on function public.rls_auto_enable() from public, anon, authenticated"));
+        assertTrue(sql.contains("request_evidence_uploader_idx"));
+        assertTrue(sql.contains("role_permissions_permission_idx"));
+        assertTrue(sql.contains("volunteer_approval_volunteer_idx"));
+        assertFalse(sql.contains("for all to authenticated"));
     }
 
     private static String normalized(Path path) throws IOException {

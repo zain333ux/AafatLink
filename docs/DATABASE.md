@@ -5,6 +5,8 @@
 1. `create_aafatlink_domain` creates accounts, authorization, volunteer readiness, requests, evidence, verification, priority, assignments, progress, completion, closure and audit tables.
 2. `add_authorized_workflow_rpcs` creates idempotent transactional functions for request submission, evidence commit, verification, priority and volunteer assignment.
 3. `configure_evidence_storage` creates the private evidence bucket and storage policies.
+4. `add_account_onboarding` creates the Auth user trigger and restricted volunteer-registration RPC.
+5. `harden_database_baseline` moves `btree_gist` out of `public`, removes Data API execution from Supabase's automatic-RLS event function, adds missing foreign-key indexes and removes duplicate SELECT policy evaluation.
 
 All exposed `public` tables enable RLS. Broad `anon` and `authenticated` table privileges are revoked before minimal grants are added.
 
@@ -30,6 +32,8 @@ Direct workflow table updates are not granted to desktop users. The public workf
 
 The private role lookup is the sole base helper requiring definer rights because an invoker lookup inside the accounts policy would recurse through account RLS. It lives in a non-exposed schema and applies the same identity and search-path controls.
 
-## Local validation limit
+## Validation status
 
-Java contract tests check RLS coverage, request status vocabulary, assignment conflict constraints, definer hardening and evidence cleanup protection. Applying and exercising the SQL needs Docker for the local Supabase stack or a designated development project; neither is currently available.
+The five migrations are applied to the designated `aafatlink-dev` project. Hosted checks confirm 20 public tables, RLS on all 20 tables, 29 operation-specific policies, one private evidence bucket and the Auth onboarding trigger. Security and performance advisors were rerun after hardening. The only security warning class left covers six intentional authenticated workflow RPCs described above. Unused-index notices are expected before workload data exists.
+
+Java contract tests check RLS coverage, request status vocabulary, assignment conflict constraints, definer hardening, hosted hardening and evidence cleanup protection. Docker is still unavailable, so `supabase db reset` and local pgTAP execution remain blocked.

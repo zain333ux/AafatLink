@@ -1,13 +1,6 @@
 # External blockers
 
-## Development Supabase project unavailable
-
-- **Blocked:** Applying migrations, exercising RLS with real JWT claims, testing Auth registration/email/recovery and verifying Storage policies.
-- **Why:** No clearly designated development project URL, publishable key, database connection or test inbox is configured in this repository.
-- **Needed from owner:** A disposable development Supabase project and its public client configuration. A database-owner connection is needed only for migrations, never inside the application.
-- **Work that can continue:** SQL migration authoring, local unit tests, repository contracts, HTTP adapters, JavaFX workflows and fake integration tests.
-
-No Phase 1 build or launch blocker remains.
+No Phase 1 build or launch blocker remains. The `aafatlink-dev` hosted project is configured and all current migrations are applied.
 
 ## Local Supabase runtime unavailable
 
@@ -18,7 +11,7 @@ No Phase 1 build or launch blocker remains.
 
 ## Live authentication proof unavailable
 
-- **Blocked:** Real email confirmation, redirect allowlisting, token refresh against Supabase and password recovery through an actual email link.
-- **Why:** No designated development Supabase project or test inbox is configured.
-- **Needed from owner:** A disposable development project, its URL and publishable key, and access to a test email inbox. Add only reviewed loopback redirect patterns.
+- **Blocked:** Real email confirmation, redirect allowlisting and password recovery through an actual email link.
+- **Why:** The development project is available, but no controlled test inbox has been provided and the dashboard redirect allowlist has not been reviewed.
+- **Needed from owner:** One disposable email inbox that can receive Supabase confirmation and recovery messages. Add only reviewed loopback redirect patterns.
 - **Work that can continue:** Unit/integration tests against local HTTP servers and UI work in demonstration mode.

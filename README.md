@@ -4,7 +4,7 @@ AafatLink is a Java desktop system for disaster assistance requests, volunteer c
 
 ## Current status
 
-Phase 1 is complete and Phase 2 has a migration-ready database foundation. Phase 3 now includes tested Supabase Auth and account-profile adapters plus connected sign-in and registration UI. Live Supabase verification remains blocked until a development project is configured. The shell's preview accounts and figures are explicitly demonstration data; mandatory operational workflows are not yet represented as complete.
+Phase 1 is complete. Phase 2 migrations are deployed to the designated development Supabase project with RLS, storage policy and advisor verification. Phase 3 includes tested Supabase Auth and account-profile adapters plus connected sign-in and registration UI. Real email confirmation and password-recovery proof still need a controlled test inbox. The shell's preview accounts and figures are explicitly demonstration data; mandatory operational workflows are not yet represented as complete.
 
 ## Technology
 
@@ -27,7 +27,7 @@ Requirements: a JDK 17 or newer. The project includes Maven Wrapper scripts.
 .\mvnw.cmd javafx:run
 ```
 
-Without Supabase settings, AafatLink opens in clearly labelled demonstration mode. To prepare remote configuration, copy `.env.example` values into your launch environment. Never provide a service-role key to the desktop client.
+Without Supabase settings, AafatLink opens in clearly labelled demonstration mode. For connected mode, define `AAFATLINK_SUPABASE_URL` and `AAFATLINK_SUPABASE_PUBLISHABLE_KEY` in the launch environment. Never provide a secret or service-role key to the desktop client.
 
 ## Eclipse import
 

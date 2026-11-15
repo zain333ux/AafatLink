@@ -52,3 +52,19 @@ Implement and validate the PostgreSQL schema, RLS foundation and transactional w
 - Visually inspect the connected login and registration views in a fresh session.
 - Apply migrations to a disposable Supabase project and test signup, email confirmation, RLS and loopback redirect allowlisting.
 - Complete the Volunteer onboarding call after verified sign-in, then start UC01 and UC02.
+
+### Hosted Supabase validation
+
+- Confirmed the supplied URL maps to the active `aafatlink-dev` project.
+- Applied all four existing migrations, then added and applied `harden_database_baseline` from hosted advisor findings.
+- Verified 20 public tables with RLS enabled, 29 public policies, the private evidence bucket and the Auth onboarding trigger.
+- Verified Auth settings return HTTP 200 and anonymous access to `accounts` is denied with HTTP 401.
+- Reran Supabase security, performance and health advisors. Remaining security warnings are the six intentional authenticated workflow RPCs; new-project unused-index notices remain informational.
+- Ran `mvnw clean test`: 33 tests passed with no failures, errors or skips.
+- Ran `mvnw package`: build succeeded and produced `target/aafatlink-0.1.0-SNAPSHOT.jar`.
+- Ran `mvnw javafx:run` with connected public configuration and visually verified both the connected login and public registration screens. The process was terminated manually after inspection.
+
+### Next
+
+- Use a controlled test inbox to prove email confirmation and password recovery.
+- Implement UC01 and UC02 as the next complete vertical slice.
