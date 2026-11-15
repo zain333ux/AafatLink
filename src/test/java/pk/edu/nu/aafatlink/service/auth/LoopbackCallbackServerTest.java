@@ -1,6 +1,7 @@
 package pk.edu.nu.aafatlink.service.auth;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -36,6 +37,23 @@ class LoopbackCallbackServerTest {
         try (LoopbackCallbackServer callback = LoopbackCallbackServer.start(TEST_PORT)) {
             callback.failAfter(Duration.ofMillis(25));
             callback.authCode().handle((value, error) -> error).get(2, TimeUnit.SECONDS);
+        }
+    }
+
+    @Test
+    void explainsAnExpiredSupabaseLinkInsteadOfReportingInvalidCallback() throws Exception {
+        try (LoopbackCallbackServer callback = LoopbackCallbackServer.start(TEST_PORT)) {
+            URI redirect = callback.redirectUri();
+            URI returned = URI.create(redirect
+                    + "&error=access_denied&error_code=otp_expired"
+                    + "&error_description=Email+link+is+invalid+or+has+expired");
+
+            HttpResponse<String> response = HttpClient.newHttpClient().send(
+                    HttpRequest.newBuilder(returned).GET().build(), HttpResponse.BodyHandlers.ofString());
+
+            assertEquals(400, response.statusCode());
+            assertTrue(response.body().contains("expired"));
+            assertTrue(callback.authCode().handle((value, error) -> error).get(2, TimeUnit.SECONDS) != null);
         }
     }
 }

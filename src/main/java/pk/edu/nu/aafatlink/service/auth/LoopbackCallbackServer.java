@@ -71,12 +71,22 @@ public final class LoopbackCallbackServer implements AutoCloseable {
         Map<String, String> query = parseQuery(exchange.getRequestURI().getRawQuery());
         String returnedFlow = query.get("flow_id");
         String code = query.get("code");
-        if (!flowId.equals(returnedFlow) || code == null || code.isBlank()) {
+        if (!flowId.equals(returnedFlow)) {
             respond(exchange, 400, "AafatLink could not validate this recovery callback.");
             return;
         }
+        if (query.containsKey("error")) {
+            String message = "This recovery link is invalid or expired. Request a new email and open it once on this computer.";
+            authCode.completeExceptionally(new IllegalStateException(message));
+            respond(exchange, 400, message);
+            return;
+        }
+        if (code == null || code.isBlank()) {
+            respond(exchange, 400, "AafatLink did not receive a recovery code. Request a new email and open it on this computer.");
+            return;
+        }
         authCode.complete(code);
-        respond(exchange, 200, "Recovery verified. Return to AafatLink to choose a new password.");
+        respond(exchange, 200, "Recovery verified. Return to AafatLink while it applies your new password.");
     }
 
     private static Map<String, String> parseQuery(String rawQuery) {

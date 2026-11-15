@@ -12,6 +12,6 @@ No Phase 1 build or launch blocker remains. The `aafatlink-dev` hosted project i
 ## Live password-recovery link pending
 
 - **Blocked:** Final end-to-end proof of the password update and subsequent sign-in.
-- **Why:** Email confirmation and the restricted redirect allowlist are complete. The inbox owner must use the next recovery link while the AafatLink recovery screen is waiting.
-- **Needed from owner:** Choose the new password only inside AafatLink and open the recovery email within ten minutes. Do not send the password in chat.
+- **Why:** Email confirmation and the restricted redirect allowlist are complete. The first valid recovery token was consumed on a phone, but PKCE requires the link to return to the computer that initiated the flow.
+- **Needed from owner:** Choose the new password only inside AafatLink, open Gmail on the same computer, and click the newest recovery link once within ten minutes. Do not send the password in chat or open the link on a phone.
 - **Work that can continue:** All local tests, database work and unrelated JavaFX implementation.

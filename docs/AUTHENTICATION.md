@@ -14,6 +14,8 @@ The recovery implementation uses PKCE S256 and a one-use server bound to `127.0.
 
 Local automated tests verify the RFC 7636 challenge, fixed loopback callback, code exchange and password update orchestration. The hosted development project allows only `http://127.0.0.1:49152/auth/recovery**`, which covers the one-use flow query while remaining restricted to the exact loopback host, port and callback path. The JavaFX recovery screen keeps the password local and waits for the email link for up to ten minutes.
 
+The email link must be opened exactly once on the computer running the recovery attempt. Opening it on a phone consumes the one-time Supabase token but redirects to the phone's own loopback interface, so the desktop application cannot complete the exchange.
+
 ## Token handling
 
 Tokens live only in memory at this stage. `AuthSession.toString()` omits both access and refresh tokens. Persistent session storage will require an operating-system credential store; plaintext files and Java Preferences are not acceptable for refresh tokens.

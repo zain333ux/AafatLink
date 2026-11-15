@@ -104,3 +104,11 @@ Implement and validate the PostgreSQL schema, RLS foundation and transactional w
 
 - Run the live recovery screen, open the email link and verify sign-in with the owner-chosen password.
 - Continue the UC01/UC02 JavaFX vertical slice.
+
+### Recovery callback diagnosis
+
+- Supabase Auth logs confirmed the first valid recovery link was opened in Samsung Browser on a phone, not on the computer running AafatLink.
+- The phone consumed the one-time PKCE token; subsequent desktop clicks correctly returned `otp_expired`.
+- Updated the recovery UI to require opening Gmail on the same computer and clicking the newest link once.
+- Updated the loopback callback to distinguish an expired Supabase link from an invalid AafatLink flow identifier.
+- `mvn clean test`: 42 tests passed with no failures, errors or skips.

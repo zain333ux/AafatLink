@@ -55,7 +55,7 @@ public final class PasswordRecoveryViewController {
             @Override
             protected Void call() {
                 try (PasswordRecoveryAttempt attempt = recovery.begin(emailField.getText())) {
-                    updateMessage("Email sent. Open its recovery link within 10 minutes; AafatLink is waiting securely.");
+                    updateMessage("Email sent. Open Gmail on this computer and click the newest recovery link once within 10 minutes.");
                     recovery.complete(attempt, newPassword, COMPLETION_TIMEOUT);
                     return null;
                 }
