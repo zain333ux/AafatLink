@@ -158,3 +158,20 @@ Implement and validate the PostgreSQL schema, RLS foundation and transactional w
 - Implement secure staged evidence upload with operation-ID reconciliation and committed-reference protection.
 - Apply the pending requester progress policy migration when the Supabase connector is available.
 - Complete a same-computer recovery flow and run a live authenticated UC01/UC02 transaction.
+
+### Reliable evidence staging
+
+- Added authenticated private Storage upload/delete through `SupabaseEvidenceStorage`.
+- Added operation preparation, staged-row registration and row-lock reconciliation RPC contracts.
+- Added a restricted definer cleanup RPC that derives the actor from `auth.uid()`, rejects committed operations and marks staged rows as orphan candidates before object cleanup.
+- Connected optional evidence to both initial submission and same-ID resubmission.
+- Added controller, HTTP Storage, reconciliation and migration security tests.
+- `mvnw.cmd clean test`: 55 tests passed with no failures, errors or skips.
+- `mvnw.cmd package`: succeeded and produced `target/aafatlink-0.1.0-SNAPSHOT.jar`.
+- `mvnw.cmd javafx:run`: login, requester shell and the updated request/evidence form loaded successfully; the process was stopped manually after inspection.
+
+### Next
+
+- Apply the two pending migrations when the connector is available; do not pause mandatory implementation for this external blocker.
+- Move directly to UC03 and UC04 verification and priority workflows.
+- Defer optional portfolio features and further decorative polish until UC01 through UC12 are implemented.

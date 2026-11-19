@@ -15,6 +15,7 @@ import pk.edu.nu.aafatlink.app.SessionManager;
 import pk.edu.nu.aafatlink.app.navigation.NavigationPolicy;
 import pk.edu.nu.aafatlink.infrastructure.supabase.SupabaseAccountRepository;
 import pk.edu.nu.aafatlink.infrastructure.supabase.SupabaseAuthClient;
+import pk.edu.nu.aafatlink.infrastructure.supabase.SupabaseEvidenceStorage;
 import pk.edu.nu.aafatlink.infrastructure.supabase.SupabaseWorkflowRepository;
 import pk.edu.nu.aafatlink.ui.ViewRouter;
 
@@ -44,9 +45,11 @@ public final class AafatLinkApplication extends Application {
                     ? null : new PasswordRecoveryCoordinator(authClient);
             RequestController requests = authClient == null
                     ? null
-                    : new RequestController(new SupabaseWorkflowRepository(
-                            configuration.supabaseUrl().orElseThrow(),
-                            configuration.publishableKey().orElseThrow()));
+                    : new RequestController(
+                            new SupabaseWorkflowRepository(configuration.supabaseUrl().orElseThrow(),
+                                    configuration.publishableKey().orElseThrow()),
+                            new SupabaseEvidenceStorage(configuration.supabaseUrl().orElseThrow(),
+                                    configuration.publishableKey().orElseThrow()));
             ViewRouter router = new ViewRouter(primaryStage, configuration, sessions,
                     new NavigationPolicy(), authentication, passwordRecovery, requests);
             primaryStage.setTitle("AafatLink");

@@ -117,7 +117,7 @@ public final class RequestFormViewController {
         }
         try {
             evidence = evidenceValidator.validate(selected.toPath());
-            setEvidenceMessage("Selected locally. Secure upload is not connected in this increment.", false);
+            setEvidenceMessage("Ready for secure upload with this request.", false);
         } catch (IllegalArgumentException exception) {
             evidence = null;
             setEvidenceMessage(exception.getMessage(), true);
@@ -138,11 +138,6 @@ public final class RequestFormViewController {
             showMessage("Sign in with a connected Requester account to submit a request.", true);
             return;
         }
-        if (evidence != null) {
-            showMessage("Secure evidence upload is not connected yet. Remove the selected file to submit without evidence.", true);
-            return;
-        }
-
         AssistanceRequestDraft draft;
         try {
             draft = new AssistanceRequestDraft(disasterTypeBox.getValue(), otherTypeField.getText(),
@@ -159,9 +154,13 @@ public final class RequestFormViewController {
         Task<RequestSubmissionResult> task = new Task<>() {
             @Override protected RequestSubmissionResult call() {
                 if (resubmission == null) {
-                    return requests.submitRequest(session, draft);
+                    return evidence == null
+                            ? requests.submitRequest(session, draft)
+                            : requests.submitRequest(session, draft, evidence);
                 }
-                return requests.resubmitRequest(session, resubmission.id(), resubmission.version(), draft);
+                return evidence == null
+                        ? requests.resubmitRequest(session, resubmission.id(), resubmission.version(), draft)
+                        : requests.resubmitRequest(session, resubmission.id(), resubmission.version(), draft, evidence);
             }
         };
         task.setOnSucceeded(event -> {

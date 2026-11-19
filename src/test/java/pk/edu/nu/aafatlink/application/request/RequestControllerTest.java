@@ -2,6 +2,7 @@ package pk.edu.nu.aafatlink.application.request;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.time.Instant;
 import java.util.List;
@@ -17,6 +18,9 @@ import pk.edu.nu.aafatlink.domain.request.DisasterType;
 import pk.edu.nu.aafatlink.domain.request.RequestStatus;
 import pk.edu.nu.aafatlink.domain.request.RequestSubmissionResult;
 import pk.edu.nu.aafatlink.repository.WorkflowRepository;
+import pk.edu.nu.aafatlink.repository.RepositoryException;
+import pk.edu.nu.aafatlink.service.evidence.EvidenceAttachment;
+import pk.edu.nu.aafatlink.service.evidence.EvidenceStorage;
 
 class RequestControllerTest {
     private final UUID userId = UUID.randomUUID();
@@ -61,16 +65,93 @@ class RequestControllerTest {
         assertEquals(requestId, repository.resubmittedRequestId);
     }
 
+    @Test
+    void committedEvidenceSubmissionIsRecoveredWithoutDeletingItsObject() {
+        FakeWorkflowRepository repository = new FakeWorkflowRepository();
+        FakeEvidenceStorage storage = new FakeEvidenceStorage();
+        RequestController controller = new RequestController(repository, storage);
+        EvidenceAttachment evidence = new EvidenceAttachment(java.nio.file.Path.of("evidence.pdf"),
+                "application/pdf", 512);
+        repository.failSubmission = true;
+        repository.reconciledResult = new RequestSubmissionResult(
+                UUID.randomUUID(), RequestStatus.PENDING_VERIFICATION, false, 1);
+
+        RequestSubmissionResult result = controller.submitRequest(session, draft, evidence);
+
+        assertSame(repository.reconciledResult, result);
+        assertEquals(0, storage.deleteCount);
+        assertEquals(repository.operationId, storage.operationId);
+    }
+
+    @Test
+    void uncommittedEvidenceIsDeletedOnlyAfterOperationIsAbandoned() {
+        FakeWorkflowRepository repository = new FakeWorkflowRepository();
+        FakeEvidenceStorage storage = new FakeEvidenceStorage();
+        RequestController controller = new RequestController(repository, storage);
+        EvidenceAttachment evidence = new EvidenceAttachment(java.nio.file.Path.of("evidence.pdf"),
+                "application/pdf", 512);
+        repository.failSubmission = true;
+        repository.abandoned = true;
+
+        assertThrows(RepositoryException.class, () -> controller.submitRequest(session, draft, evidence));
+
+        assertEquals(1, storage.deleteCount);
+        assertEquals("request-evidence/" + userId + "/object.pdf", storage.deletedPath);
+    }
+
+    @Test
+    void evidenceResubmissionKeepsExistingRequestIdentity() {
+        FakeWorkflowRepository repository = new FakeWorkflowRepository();
+        FakeEvidenceStorage storage = new FakeEvidenceStorage();
+        RequestController controller = new RequestController(repository, storage);
+        UUID requestId = UUID.randomUUID();
+        EvidenceAttachment evidence = new EvidenceAttachment(java.nio.file.Path.of("evidence.pdf"),
+                "application/pdf", 512);
+
+        RequestSubmissionResult result = controller.resubmitRequest(session, requestId, 4, draft, evidence);
+
+        assertEquals(requestId, result.requestId());
+        assertEquals(requestId, repository.resubmittedRequestId);
+    }
+
     private static final class FakeWorkflowRepository implements WorkflowRepository {
         private UUID requesterId;
         private AssistanceRequestDraft submittedDraft;
         private UUID resubmittedRequestId;
+        private UUID operationId;
+        private boolean failSubmission;
+        private RequestSubmissionResult reconciledResult;
+        private boolean abandoned;
+
+        @Override
+        public void beginRequestOperation(AuthSession session, UUID operationId, String operationType) {
+            this.operationId = operationId;
+        }
+
+        @Override
+        public void registerStagedEvidence(AuthSession session, UUID evidenceId, UUID operationId,
+                String objectPath, EvidenceAttachment evidence) {
+        }
+
+        @Override
+        public Optional<RequestSubmissionResult> reconcileRequestOperation(AuthSession session, UUID operationId) {
+            return Optional.ofNullable(reconciledResult);
+        }
+
+        @Override
+        public boolean abandonRequestOperation(AuthSession session, UUID operationId) {
+            return abandoned;
+        }
 
         @Override
         public RequestSubmissionResult submitRequest(AuthSession session, UUID operationId, UUID requesterId,
                 AssistanceRequestDraft draft) {
             this.requesterId = requesterId;
             this.submittedDraft = draft;
+            this.operationId = operationId;
+            if (failSubmission) {
+                throw new RepositoryException("Connection lost after submission.");
+            }
             return new RequestSubmissionResult(UUID.randomUUID(), RequestStatus.PENDING_VERIFICATION, false, 0);
         }
 
@@ -92,6 +173,24 @@ class RequestControllerTest {
                 UUID requesterId) {
             this.requesterId = requesterId;
             return Optional.empty();
+        }
+    }
+
+    private final class FakeEvidenceStorage implements EvidenceStorage {
+        private int deleteCount;
+        private UUID operationId;
+        private String deletedPath;
+
+        @Override
+        public String upload(AuthSession session, UUID operationId, EvidenceAttachment evidence) {
+            this.operationId = operationId;
+            return "request-evidence/" + userId + "/object.pdf";
+        }
+
+        @Override
+        public void delete(AuthSession session, String objectPath) {
+            deleteCount++;
+            deletedPath = objectPath;
         }
     }
 }

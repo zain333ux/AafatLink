@@ -36,6 +36,10 @@ class SupabaseWorkflowRepositoryTest {
     void startServer() throws IOException {
         server = HttpServer.create(new InetSocketAddress("127.0.0.1", 0), 0);
         server.createContext("/rest/v1/rpc/submit_assistance_request", this::handleSubmit);
+        server.createContext("/rest/v1/rpc/reconcile_request_operation", exchange -> respond(exchange,
+                "{\"status\":\"COMMITTED\",\"result\":{\"request_id\":\"" + REQUEST_ID
+                        + "\",\"status\":\"PENDING_VERIFICATION\",\"possible_duplicate\":false,\"evidence_count\":1}}"));
+        server.createContext("/rest/v1/rpc/abandon_request_operation", exchange -> respond(exchange, "true"));
         server.createContext("/rest/v1/assistance_requests", this::handleRequestDetail);
         server.createContext("/rest/v1/volunteer_assignments", this::handleAssignment);
         server.createContext("/rest/v1/task_progress_updates", this::handleProgress);
@@ -75,6 +79,19 @@ class SupabaseWorkflowRepositoryTest {
 
         assertEquals("IN_PROGRESS", request.assignmentState());
         assertEquals("60% · Drinking water delivered", request.latestProgress());
+    }
+
+    @Test
+    void reconcilesCommittedOperationBeforeCleanupDecision() {
+        AuthSession session = new AuthSession(USER_ID, "requester@example.com", "user-access", "refresh",
+                Instant.parse("2026-11-15T02:00:00Z"));
+        UUID operationId = UUID.randomUUID();
+
+        RequestSubmissionResult result = repository.reconcileRequestOperation(session, operationId).orElseThrow();
+
+        assertEquals(REQUEST_ID, result.requestId());
+        assertEquals(1, result.evidenceCount());
+        assertTrue(repository.abandonRequestOperation(session, operationId));
     }
 
     private void handleSubmit(HttpExchange exchange) throws IOException {

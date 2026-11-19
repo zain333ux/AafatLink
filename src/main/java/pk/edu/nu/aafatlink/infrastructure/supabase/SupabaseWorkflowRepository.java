@@ -26,6 +26,7 @@ import pk.edu.nu.aafatlink.domain.request.RequestStatus;
 import pk.edu.nu.aafatlink.domain.request.RequestSubmissionResult;
 import pk.edu.nu.aafatlink.repository.RepositoryException;
 import pk.edu.nu.aafatlink.repository.WorkflowRepository;
+import pk.edu.nu.aafatlink.service.evidence.EvidenceAttachment;
 
 /** Supabase RPC and RLS-backed implementation of the workflow persistence boundary. */
 public final class SupabaseWorkflowRepository implements WorkflowRepository {
@@ -49,6 +50,50 @@ public final class SupabaseWorkflowRepository implements WorkflowRepository {
         }
         this.publishableKey = publishableKey;
         this.httpClient = Objects.requireNonNull(httpClient, "httpClient");
+    }
+
+    @Override
+    public void beginRequestOperation(AuthSession session, UUID operationId, String operationType) {
+        ObjectNode body = JSON.createObjectNode();
+        body.put("p_operation_id", Objects.requireNonNull(operationId, "operationId").toString());
+        body.put("p_operation_type", Objects.requireNonNull(operationType, "operationType"));
+        send(session, "/rest/v1/rpc/begin_request_operation", "POST", body.toString());
+    }
+
+    @Override
+    public void registerStagedEvidence(AuthSession session, UUID evidenceId, UUID operationId,
+            String objectPath, EvidenceAttachment evidence) {
+        Objects.requireNonNull(evidence, "evidence");
+        ObjectNode body = JSON.createObjectNode();
+        body.put("p_evidence_id", Objects.requireNonNull(evidenceId, "evidenceId").toString());
+        body.put("p_operation_id", Objects.requireNonNull(operationId, "operationId").toString());
+        body.put("p_object_path", Objects.requireNonNull(objectPath, "objectPath"));
+        body.put("p_original_filename", evidence.fileName());
+        body.put("p_content_type", evidence.contentType());
+        body.put("p_size_bytes", evidence.sizeBytes());
+        send(session, "/rest/v1/rpc/register_staged_request_evidence", "POST", body.toString());
+    }
+
+    @Override
+    public Optional<RequestSubmissionResult> reconcileRequestOperation(AuthSession session, UUID operationId) {
+        ObjectNode body = JSON.createObjectNode();
+        body.put("p_operation_id", Objects.requireNonNull(operationId, "operationId").toString());
+        JsonNode operation = send(session, "/rest/v1/rpc/reconcile_request_operation", "POST", body.toString());
+        if (!"COMMITTED".equals(operation.path("status").asText())) {
+            return Optional.empty();
+        }
+        JsonNode result = operation.get("result");
+        if (result == null || !result.isObject()) {
+            throw new RepositoryException("A committed request operation did not include its result.");
+        }
+        return Optional.of(submissionResult(result));
+    }
+
+    @Override
+    public boolean abandonRequestOperation(AuthSession session, UUID operationId) {
+        ObjectNode body = JSON.createObjectNode();
+        body.put("p_operation_id", Objects.requireNonNull(operationId, "operationId").toString());
+        return send(session, "/rest/v1/rpc/abandon_request_operation", "POST", body.toString()).asBoolean(false);
     }
 
     @Override

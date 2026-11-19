@@ -28,6 +28,8 @@ class DatabaseMigrationContractTest {
             "20261115093854_align_request_submission_with_uc01.sql");
     private static final Path REQUESTER_TRACKING = Path.of("supabase", "migrations",
             "20261119235500_allow_requester_progress_tracking.sql");
+    private static final Path EVIDENCE_RECOVERY = Path.of("supabase", "migrations",
+            "20261120090000_add_reliable_evidence_staging.sql");
 
     @Test
     void everyPublicTableEnablesRowLevelSecurity() throws IOException {
@@ -123,6 +125,20 @@ class DatabaseMigrationContractTest {
         assertTrue(sql.contains("requester_account_id = (select auth.uid())"));
         assertTrue(sql.contains("assignment.request_id"));
         assertTrue(sql.contains("task_progress_updates.assignment_id"));
+    }
+
+    @Test
+    void evidenceRecoveryLocksOperationAndRestrictsDefinerCleanup() throws IOException {
+        String sql = normalized(EVIDENCE_RECOVERY);
+
+        assertTrue(sql.contains("create function public.reconcile_request_operation"));
+        assertTrue(sql.contains("where operation_id = p_operation_id for update"));
+        assertTrue(sql.contains("create function public.abandon_request_operation"));
+        assertTrue(sql.contains("security definer set search_path = ''"));
+        assertTrue(sql.contains("operation.actor_account_id <> actor_id"));
+        assertTrue(sql.contains("operation.operation_type not in ('submit_request', 'resubmit_request')"));
+        assertTrue(sql.contains("state = 'orphan_candidate'"));
+        assertTrue(sql.contains("revoke all on function public.abandon_request_operation(uuid) from public, anon"));
     }
 
     private static String normalized(Path path) throws IOException {

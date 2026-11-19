@@ -1,5 +1,9 @@
 # Engineering decisions
 
+## Mandatory artifacts before portfolio extras
+
+**Decision:** Complete the behavior documented by Deliverable 3 and the reviewed UML artifacts before spending implementation time on optional portfolio features or additional visual polish. Security, database integrity, testing and UI required by a mandatory use case remain part of that use case.
+
 ## D001: Nonmodular Maven application
 
 **Decision:** Use a conventional classpath build without `module-info.java`.
@@ -48,6 +52,6 @@
 
 ## D008: Evidence selection is honest until staging is connected
 
-**Decision:** Validate a selected local JPG, PNG or PDF file against the 5 MB rule, but block submission while that file is selected until the Storage staging adapter and uncertain-operation reconciliation are implemented. Submission without evidence remains available because evidence is optional in UC01.
+**Decision:** Validate a selected local JPG, PNG or PDF file against the 5 MB rule, upload it to the private bucket, register a staged row, and submit using the same operation UUID. Reconciliation locks the operation row before reporting its state. Cleanup first marks an uncommitted operation failed, then asks Storage to delete; Storage policy independently rejects deletion of a committed reference.
 
-**Reason:** Silently submitting a request without the evidence shown in the form would create a misleading success state and violate the reliability requirement.
+**Reason:** A network timeout must not produce a false failure or delete evidence that a committed request already references.

@@ -5,13 +5,13 @@ Deliverable 3 is the functional authority. A use case is marked complete only wh
 ## UC01: Submit Disaster Assistance Request
 
 - **Status:** In progress; the working JavaFX form, application controller, repository and database transaction exist. Storage staging and live authenticated proof remain.
-- **Java:** `application.request.RequestController`, `ui.request.RequestFormViewController`, `domain.request.AssistanceRequestDraft`, `AssistanceRequest`, `DisasterType`, `RequestSubmissionResult`, `service.evidence.EvidenceFileValidator`, `repository.WorkflowRepository` and `infrastructure.supabase.SupabaseWorkflowRepository`.
+- **Java:** `application.request.RequestController`, `ui.request.RequestFormViewController`, request domain records, `service.evidence.EvidenceFileValidator`, `EvidenceStorage`, `repository.WorkflowRepository`, `SupabaseWorkflowRepository` and `SupabaseEvidenceStorage`.
 - **Methods:** `RequestController.submitRequest`, `RequestController.resubmitRequest`, `WorkflowRepository.submitRequest` and `WorkflowRepository.resubmitRequest`.
 - **Screen:** `request-form-view.fxml`, opened from Requester > Submit request; returned requests reuse the screen with pre-filled fields and the coordinator reason.
-- **Database:** `assistance_requests`, `request_evidence`, `workflow_operations`; deployed `submit_assistance_request` and `resubmit_assistance_request` RPCs.
+- **Database:** `assistance_requests`, `request_evidence`, `workflow_operations`; deployed submit/resubmit RPCs plus locally verified begin, register, reconcile and abandon evidence-operation RPCs awaiting hosted deployment.
 - **Success:** validate, check duplicates, stage evidence, commit the request as `PENDING_VERIFICATION`, return the request ID.
 - **Alternatives:** coordinator recording with separate requester/recorder IDs; duplicate warning; safe evidence retry; resubmission of `ADDITIONAL_INFORMATION_REQUIRED` using the same ID.
-- **Tests:** `AssistanceRequestDraftTest`, `RequestStatusTest`, `EvidenceFileValidatorTest`, `RequestControllerTest`, `SupabaseWorkflowRepositoryTest` and `DatabaseMigrationContractTest`. Live idempotency and evidence-recovery tests remain.
+- **Tests:** `AssistanceRequestDraftTest`, `RequestStatusTest`, `EvidenceFileValidatorTest`, `RequestControllerTest`, `SupabaseWorkflowRepositoryTest`, `SupabaseEvidenceStorageTest` and `DatabaseMigrationContractTest`. Live hosted evidence recovery remains.
 - **Demonstration:** create a request, acknowledge any duplicate warning, submit, then resubmit the same request after an information-return decision.
 
 ## UC02: Track Assistance Request Status

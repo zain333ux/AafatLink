@@ -18,7 +18,7 @@ No Phase 1 build or launch blocker remains. The `aafatlink-dev` hosted project i
 
 ## Latest requester-progress policy not deployed
 
-- **Blocked:** Applying `20261119235500_allow_requester_progress_tracking.sql` to the designated development project and running hosted advisors afterward.
+- **Blocked:** Applying `20261119235500_allow_requester_progress_tracking.sql` and `20261120090000_add_reliable_evidence_staging.sql` to the designated development project, then running hosted advisors.
 - **Why:** The Supabase connector returned a transport failure on two consecutive read-only attempts on 2026-11-20. The standalone CLI is not installed, and the on-demand CLI download did not complete.
 - **Needed from owner:** No immediate action. Retry the connected Supabase tools in a later session; if the connection remains unavailable, reconnect the Supabase plugin.
 - **Work that can continue:** Java adapter tests, static migration contracts, UI work and all non-hosted development.

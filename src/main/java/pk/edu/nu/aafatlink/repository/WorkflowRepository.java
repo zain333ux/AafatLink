@@ -8,9 +8,19 @@ import pk.edu.nu.aafatlink.domain.auth.AuthSession;
 import pk.edu.nu.aafatlink.domain.request.AssistanceRequest;
 import pk.edu.nu.aafatlink.domain.request.AssistanceRequestDraft;
 import pk.edu.nu.aafatlink.domain.request.RequestSubmissionResult;
+import pk.edu.nu.aafatlink.service.evidence.EvidenceAttachment;
 
 /** Persistence boundary shared by the GRASP workflow controllers. */
 public interface WorkflowRepository {
+    void beginRequestOperation(AuthSession session, UUID operationId, String operationType);
+
+    void registerStagedEvidence(AuthSession session, UUID evidenceId, UUID operationId,
+            String objectPath, EvidenceAttachment evidence);
+
+    Optional<RequestSubmissionResult> reconcileRequestOperation(AuthSession session, UUID operationId);
+
+    boolean abandonRequestOperation(AuthSession session, UUID operationId);
+
     RequestSubmissionResult submitRequest(AuthSession session, UUID operationId,
             UUID requesterId, AssistanceRequestDraft draft);
 

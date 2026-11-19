@@ -4,7 +4,7 @@ AafatLink is a Java desktop system for disaster assistance requests, volunteer c
 
 ## Current status
 
-Phase 1 is complete. The Phase 2 database baseline is deployed to the designated development Supabase project with RLS, storage policy and advisor verification. Phase 3 includes tested Supabase Auth, account-profile adapters, connected sign-in and registration UI, and a same-computer PKCE recovery flow awaiting final live proof. UC01 and UC02 now have working requester form and tracking screens connected to their application controller, including latest assignment/progress mapping. The newest requester-progress RLS migration is locally verified but not yet deployed because the Supabase connector is temporarily unavailable. Evidence Storage staging and a live authenticated request transaction remain before those use cases can be marked complete.
+Phase 1 is complete. The Phase 2 database baseline is deployed to the designated development Supabase project with RLS, storage policy and advisor verification. Phase 3 includes tested Supabase Auth, account-profile adapters, connected sign-in and registration UI, and a same-computer PKCE recovery flow awaiting final live proof. UC01 and UC02 now have working requester form and tracking screens, secure private evidence staging, operation-ID reconciliation, and latest assignment/progress mapping. The two newest migrations are locally verified but not yet deployed because the Supabase connector is temporarily unavailable. A live authenticated request transaction remains before these use cases can be marked complete.
 
 Demonstration accounts are read-only and never imitate successful remote writes. All operational access still depends on a real Supabase session and database policies.
 
