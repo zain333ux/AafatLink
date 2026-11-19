@@ -28,26 +28,26 @@ Deliverable 3 is the functional authority. A use case is marked complete only wh
 
 ## UC03: Verify Assistance Request
 
-- **Status:** Planned; Coordinator navigation destination exists only.
-- **Java:** `application.RequestReviewController`; request review domain service and `WorkflowRepository`.
-- **Methods:** planned `loadVerificationQueue`, `verify`, `reject`, `requestAdditionalInformation`.
+- **Status:** Implemented locally for queue and decision paths; hosted migration/live transaction and related-evidence presentation remain before completion.
+- **Java:** `application.request.RequestReviewController`, `ui.request.RequestReviewViewController`, `VerificationDecision`, `RequestReviewResult`, `WorkflowRepository` and `SupabaseWorkflowRepository`.
+- **Methods:** `loadVerificationQueue`, `getRequestForReview`, `verify`, `reject`, `requestAdditionalInformation`, `findPendingVerificationRequests` and `decideRequestVerification`.
 - **Screen:** Coordinator > Verification queue > Review request.
-- **Database:** `request_verifications`, `assistance_requests`; planned `decide_request_verification` RPC.
+- **Database:** `request_verifications`, `assistance_requests`; existing authorized `decide_request_verification` RPC with row locking and expected-version validation.
 - **Success:** an authorized coordinator records verification and moves a pending request to `VERIFIED`.
 - **Alternatives:** reject with reason, return for information with reason, duplicate evidence review and stale-version conflict.
-- **Tests:** planned transition, mandatory reason, authorization and concurrency tests.
+- **Tests:** `RequestReviewControllerTest`, `SupabaseWorkflowRepositoryTest` and `DatabaseMigrationContractTest`; hosted authorization/concurrency proof remains.
 - **Demonstration:** review a pending request and exercise verify and return-for-information paths.
 
 ## UC04: Prioritize Emergency Request
 
-- **Status:** Planned; Coordinator navigation destination exists only.
-- **Java:** `application.RequestReviewController`; planned `PriorityAssessmentService` and `WorkflowRepository`.
-- **Methods:** planned `suggestPriority` and `recordPriorityAssessment`.
+- **Status:** Implemented locally; hosted migration/live transaction remain before completion.
+- **Java:** `application.request.RequestReviewController`, `ui.request.RequestReviewViewController`, `PriorityAssessmentService`, `PriorityAssessmentResult`, `WorkflowRepository` and `SupabaseWorkflowRepository`.
+- **Methods:** `loadPriorityQueue`, `suggestPriority`, `setPriority`, `findPrioritizableRequests` and `recordPriorityAssessment`.
 - **Screen:** Coordinator > Priority queue > Priority assessment.
-- **Database:** `priority_assessments`, `assistance_requests`; planned `record_priority_assessment` RPC.
+- **Database:** `priority_assessments`, `assistance_requests`; `record_priority_assessment` RPC plus pending `align_priority_with_uc04` migration for previous-level audit and documented reprioritization statuses.
 - **Success:** calculate a suggestion and record Critical, High, Medium or Low separately from request status.
 - **Alternatives:** a manual override requires justification; stale-version conflict.
-- **Tests:** planned scoring, override justification and priority-not-status tests.
+- **Tests:** `PriorityAssessmentServiceTest`, `RequestReviewControllerTest`, `RequestStatusTest` and `DatabaseMigrationContractTest` cover scoring, justification, eligibility and priority-not-status behavior.
 - **Demonstration:** assess a verified request, show the suggestion, then justify an override.
 
 ## UC05: Assign Volunteer to Assistance Request

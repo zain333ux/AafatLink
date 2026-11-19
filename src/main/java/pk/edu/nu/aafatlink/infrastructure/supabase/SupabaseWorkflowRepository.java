@@ -22,8 +22,11 @@ import pk.edu.nu.aafatlink.domain.request.AssistanceRequest;
 import pk.edu.nu.aafatlink.domain.request.AssistanceRequestDraft;
 import pk.edu.nu.aafatlink.domain.request.DisasterType;
 import pk.edu.nu.aafatlink.domain.request.RequestPriority;
+import pk.edu.nu.aafatlink.domain.request.PriorityAssessmentResult;
+import pk.edu.nu.aafatlink.domain.request.RequestReviewResult;
 import pk.edu.nu.aafatlink.domain.request.RequestStatus;
 import pk.edu.nu.aafatlink.domain.request.RequestSubmissionResult;
+import pk.edu.nu.aafatlink.domain.request.VerificationDecision;
 import pk.edu.nu.aafatlink.repository.RepositoryException;
 import pk.edu.nu.aafatlink.repository.WorkflowRepository;
 import pk.edu.nu.aafatlink.service.evidence.EvidenceAttachment;
@@ -164,6 +167,78 @@ public final class SupabaseWorkflowRepository implements WorkflowRepository {
             throw new RepositoryException("AafatLink received an invalid request detail response.");
         }
         return rows.isEmpty() ? Optional.empty() : Optional.of(enrichTracking(session, mapRequest(rows.get(0))));
+    }
+
+    @Override
+    public List<AssistanceRequest> findPendingVerificationRequests(AuthSession session) {
+        return findReviewQueue(session, "status=eq.PENDING_VERIFICATION&order=submitted_at.asc");
+    }
+
+    @Override
+    public List<AssistanceRequest> findPrioritizableRequests(AuthSession session) {
+        return findReviewQueue(session,
+                "status=in.(VERIFIED,ASSIGNED,IN_PROGRESS)&order=priority.desc.nullslast,submitted_at.asc");
+    }
+
+    private List<AssistanceRequest> findReviewQueue(AuthSession session, String filters) {
+        JsonNode rows = send(session, "/rest/v1/assistance_requests?" + filters + "&select=" + TRACKING_COLUMNS,
+                "GET", null);
+        if (!rows.isArray()) {
+            throw new RepositoryException("AafatLink received an invalid coordinator queue response.");
+        }
+        List<AssistanceRequest> requests = new ArrayList<>();
+        rows.forEach(row -> requests.add(mapRequest(row)));
+        return List.copyOf(requests);
+    }
+
+    @Override
+    public Optional<AssistanceRequest> findRequestForReview(AuthSession session, UUID requestId) {
+        JsonNode rows = send(session, "/rest/v1/assistance_requests?id=eq." + requestId
+                + "&select=" + TRACKING_COLUMNS + "&limit=1", "GET", null);
+        if (!rows.isArray() || rows.size() > 1) {
+            throw new RepositoryException("AafatLink received an invalid coordinator request response.");
+        }
+        return rows.isEmpty() ? Optional.empty() : Optional.of(mapRequest(rows.get(0)));
+    }
+
+    @Override
+    public RequestReviewResult decideRequestVerification(AuthSession session, UUID operationId, UUID requestId,
+            long expectedVersion, VerificationDecision decision, String reason) {
+        ObjectNode body = JSON.createObjectNode();
+        body.put("p_operation_id", operationId.toString());
+        body.put("p_request_id", requestId.toString());
+        body.put("p_expected_version", expectedVersion);
+        body.put("p_decision", decision.name());
+        putNullable(body, "p_reason", reason);
+        JsonNode result = send(session, "/rest/v1/rpc/decide_request_verification", "POST", body.toString());
+        try {
+            return new RequestReviewResult(UUID.fromString(required(result, "request_id")),
+                    RequestStatus.valueOf(required(result, "status")), result.path("version").asLong());
+        } catch (IllegalArgumentException exception) {
+            throw new RepositoryException("AafatLink received an invalid verification response.", exception);
+        }
+    }
+
+    @Override
+    public PriorityAssessmentResult recordPriorityAssessment(AuthSession session, UUID operationId, UUID requestId,
+            long expectedVersion, RequestPriority suggested, RequestPriority selected, String justification) {
+        ObjectNode body = JSON.createObjectNode();
+        body.put("p_operation_id", operationId.toString());
+        body.put("p_request_id", requestId.toString());
+        body.put("p_expected_version", expectedVersion);
+        body.put("p_suggested_priority", suggested.name());
+        body.put("p_selected_priority", selected.name());
+        putNullable(body, "p_override_justification", justification);
+        JsonNode result = send(session, "/rest/v1/rpc/record_priority_assessment", "POST", body.toString());
+        try {
+            String previous = nullable(result, "previous_priority");
+            return new PriorityAssessmentResult(UUID.fromString(required(result, "request_id")),
+                    previous == null ? null : RequestPriority.valueOf(previous),
+                    RequestPriority.valueOf(required(result, "priority")),
+                    RequestStatus.valueOf(required(result, "status")), result.path("version").asLong());
+        } catch (IllegalArgumentException exception) {
+            throw new RepositoryException("AafatLink received an invalid priority response.", exception);
+        }
     }
 
     private AssistanceRequest enrichTracking(AuthSession session, AssistanceRequest request) {

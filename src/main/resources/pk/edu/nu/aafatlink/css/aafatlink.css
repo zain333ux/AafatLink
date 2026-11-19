@@ -136,3 +136,6 @@
 .request-id { -fx-font-size: 12px; -fx-font-weight: 700; -fx-text-fill: #2B4B5E; }
 .detail-label { -fx-font-size: 10px; -fx-font-weight: 800; -fx-text-fill: #708493; }
 .detail-value { -fx-font-size: 12px; -fx-text-fill: #263F50; }
+.decision-panel { -fx-background-color: #F5F8FA; -fx-background-radius: 10px; -fx-padding: 16px; }
+.danger-button { -fx-background-color: #FFF1F1; -fx-text-fill: #A33A3A; -fx-font-weight: 700; -fx-background-radius: 7px; -fx-padding: 9px 14px; }
+.danger-button:hover { -fx-background-color: #FADDDD; }

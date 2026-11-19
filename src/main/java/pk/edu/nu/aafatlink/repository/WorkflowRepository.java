@@ -8,6 +8,10 @@ import pk.edu.nu.aafatlink.domain.auth.AuthSession;
 import pk.edu.nu.aafatlink.domain.request.AssistanceRequest;
 import pk.edu.nu.aafatlink.domain.request.AssistanceRequestDraft;
 import pk.edu.nu.aafatlink.domain.request.RequestSubmissionResult;
+import pk.edu.nu.aafatlink.domain.request.PriorityAssessmentResult;
+import pk.edu.nu.aafatlink.domain.request.RequestPriority;
+import pk.edu.nu.aafatlink.domain.request.RequestReviewResult;
+import pk.edu.nu.aafatlink.domain.request.VerificationDecision;
 import pk.edu.nu.aafatlink.service.evidence.EvidenceAttachment;
 
 /** Persistence boundary shared by the GRASP workflow controllers. */
@@ -30,4 +34,16 @@ public interface WorkflowRepository {
     List<AssistanceRequest> findRequestsByRequester(AuthSession session, UUID requesterId);
 
     Optional<AssistanceRequest> findRequestForRequester(AuthSession session, UUID requestId, UUID requesterId);
+
+    List<AssistanceRequest> findPendingVerificationRequests(AuthSession session);
+
+    List<AssistanceRequest> findPrioritizableRequests(AuthSession session);
+
+    Optional<AssistanceRequest> findRequestForReview(AuthSession session, UUID requestId);
+
+    RequestReviewResult decideRequestVerification(AuthSession session, UUID operationId, UUID requestId,
+            long expectedVersion, VerificationDecision decision, String reason);
+
+    PriorityAssessmentResult recordPriorityAssessment(AuthSession session, UUID operationId, UUID requestId,
+            long expectedVersion, RequestPriority suggested, RequestPriority selected, String justification);
 }

@@ -34,4 +34,14 @@ class RequestStatusTest {
         assertFalse(RequestStatus.PENDING_VERIFICATION.canRequesterResubmit());
         assertFalse(RequestStatus.REJECTED.canRequesterResubmit());
     }
+
+    @Test
+    void prioritizationEligibilityMatchesUc04() {
+        assertTrue(RequestStatus.VERIFIED.canBePrioritized());
+        assertTrue(RequestStatus.ASSIGNED.canBePrioritized());
+        assertTrue(RequestStatus.IN_PROGRESS.canBePrioritized());
+        assertFalse(RequestStatus.PENDING_VERIFICATION.canBePrioritized());
+        assertFalse(RequestStatus.AWAITING_CLOSURE_REVIEW.canBePrioritized());
+        assertFalse(RequestStatus.CLOSED.canBePrioritized());
+    }
 }

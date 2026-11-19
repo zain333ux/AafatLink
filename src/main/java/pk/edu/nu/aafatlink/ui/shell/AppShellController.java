@@ -24,11 +24,13 @@ import pk.edu.nu.aafatlink.app.navigation.NavigationItem;
 import pk.edu.nu.aafatlink.app.navigation.NavigationPolicy;
 import pk.edu.nu.aafatlink.application.auth.AuthenticationController;
 import pk.edu.nu.aafatlink.application.request.RequestController;
+import pk.edu.nu.aafatlink.application.request.RequestReviewController;
 import pk.edu.nu.aafatlink.domain.request.AssistanceRequest;
 import pk.edu.nu.aafatlink.service.evidence.EvidenceFileValidator;
 import pk.edu.nu.aafatlink.ui.ViewRouter;
 import pk.edu.nu.aafatlink.ui.request.RequestFormViewController;
 import pk.edu.nu.aafatlink.ui.request.RequestListViewController;
+import pk.edu.nu.aafatlink.ui.request.RequestReviewViewController;
 
 /** Presentation controller for the reusable role-aware application frame. */
 public final class AppShellController {
@@ -38,6 +40,7 @@ public final class AppShellController {
     private final NavigationPolicy navigationPolicy;
     private final AuthenticationController authentication;
     private final RequestController requests;
+    private final RequestReviewController reviews;
     private final Map<NavigationItem, Button> navigationButtons = new EnumMap<>(NavigationItem.class);
 
     @FXML
@@ -60,12 +63,13 @@ public final class AppShellController {
     private Label sessionNoticeTitle;
 
     public AppShellController(ViewRouter router, SessionManager sessions, NavigationPolicy navigationPolicy,
-            AuthenticationController authentication, RequestController requests) {
+            AuthenticationController authentication, RequestController requests, RequestReviewController reviews) {
         this.router = Objects.requireNonNull(router, "router");
         this.sessions = Objects.requireNonNull(sessions, "sessions");
         this.navigationPolicy = Objects.requireNonNull(navigationPolicy, "navigationPolicy");
         this.authentication = authentication;
         this.requests = requests;
+        this.reviews = reviews;
     }
 
     @FXML
@@ -115,6 +119,8 @@ public final class AppShellController {
             case DASHBOARD -> showStaticView("dashboard-view.fxml");
             case SUBMIT_REQUEST -> showRequestForm(null);
             case MY_REQUESTS -> showRequestList();
+            case VERIFICATION_QUEUE -> showRequestReview(RequestReviewViewController.Mode.VERIFICATION);
+            case PRIORITY_QUEUE -> showRequestReview(RequestReviewViewController.Mode.PRIORITY);
             default -> showUnavailable(item);
         }
     }
@@ -147,6 +153,17 @@ public final class AppShellController {
         loader.setControllerFactory(type -> {
             if (type == RequestListViewController.class) {
                 return new RequestListViewController(sessions, requests, this::showRequestForm);
+            }
+            throw new IllegalArgumentException("Unsupported shell content controller: " + type.getName());
+        });
+        setContent(load(loader));
+    }
+
+    private void showRequestReview(RequestReviewViewController.Mode mode) {
+        FXMLLoader loader = loader("request-review-view.fxml");
+        loader.setControllerFactory(type -> {
+            if (type == RequestReviewViewController.class) {
+                return new RequestReviewViewController(sessions, reviews, mode);
             }
             throw new IllegalArgumentException("Unsupported shell content controller: " + type.getName());
         });
@@ -223,8 +240,8 @@ public final class AppShellController {
         descriptions.put(NavigationItem.READINESS_PROFILE, "UC07 readiness management is scheduled for volunteer coordination.");
         descriptions.put(NavigationItem.ASSIGNMENTS, "UC08 assignment response is scheduled for volunteer coordination.");
         descriptions.put(NavigationItem.TASK_PROGRESS, "UC09 and UC10 task execution workflows are scheduled for Phase 7.");
-        descriptions.put(NavigationItem.VERIFICATION_QUEUE, "UC03 verification is scheduled for the coordinator workflow phase.");
-        descriptions.put(NavigationItem.PRIORITY_QUEUE, "UC04 priority assessment is scheduled for the coordinator workflow phase.");
+        descriptions.put(NavigationItem.VERIFICATION_QUEUE, "Review pending requests and record an auditable UC03 decision.");
+        descriptions.put(NavigationItem.PRIORITY_QUEUE, "Apply UC04 priority rules and record the coordinator's final decision.");
         descriptions.put(NavigationItem.VOLUNTEER_ASSIGNMENT, "UC05 assignment is scheduled for volunteer coordination.");
         descriptions.put(NavigationItem.CLOSURE_REVIEW, "UC06 closure review is scheduled for Phase 7.");
         descriptions.put(NavigationItem.REPORTS, "UC11 reporting is scheduled for the reporting and administration phase.");

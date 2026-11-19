@@ -30,6 +30,8 @@ class DatabaseMigrationContractTest {
             "20261119235500_allow_requester_progress_tracking.sql");
     private static final Path EVIDENCE_RECOVERY = Path.of("supabase", "migrations",
             "20261120090000_add_reliable_evidence_staging.sql");
+    private static final Path UC04_ALIGNMENT = Path.of("supabase", "migrations",
+            "20261120103000_align_priority_with_uc04.sql");
 
     @Test
     void everyPublicTableEnablesRowLevelSecurity() throws IOException {
@@ -139,6 +141,16 @@ class DatabaseMigrationContractTest {
         assertTrue(sql.contains("operation.operation_type not in ('submit_request', 'resubmit_request')"));
         assertTrue(sql.contains("state = 'orphan_candidate'"));
         assertTrue(sql.contains("revoke all on function public.abandon_request_operation(uuid) from public, anon"));
+    }
+
+    @Test
+    void priorityMigrationAllowsOnlyDocumentedStatusesAndAuditsPreviousLevel() throws IOException {
+        String sql = normalized(UC04_ALIGNMENT);
+
+        assertTrue(sql.contains("previous_priority public.request_priority"));
+        assertTrue(sql.contains("status not in ('verified', 'assigned', 'in_progress')"));
+        assertTrue(sql.contains("request_record.priority, p_suggested_priority"));
+        assertFalse(sql.contains("'prioritized'"));
     }
 
     private static String normalized(Path path) throws IOException {

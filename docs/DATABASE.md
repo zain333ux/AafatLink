@@ -10,6 +10,7 @@
 6. `align_request_submission_with_uc01` adds the mandatory request fields, request source, duplicate flag, 5 MB evidence limit and same-ID resubmission transaction required by Deliverable 3.
 7. `allow_requester_progress_tracking` permits requesters to read progress only through assignments on their own requests.
 8. `add_reliable_evidence_staging` adds invoker-based staging and reconciliation functions plus one tightly scoped definer cleanup function.
+9. `align_priority_with_uc04` records previous priority and permits reprioritization only while Verified, Assigned or In Progress.
 7. `allow_requester_progress_tracking` permits a requester to read task-progress rows only when they belong to an assignment for that requester’s own assistance request.
 
 All exposed `public` tables enable RLS. Broad `anon` and `authenticated` table privileges are revoked before minimal grants are added.
@@ -38,6 +39,6 @@ The private role lookup is the sole base helper requiring definer rights because
 
 ## Validation status
 
-The first six migrations are applied to the designated `aafatlink-dev` project. Hosted checks confirmed 20 public tables, RLS on all 20 tables, 29 operation-specific policies, one private evidence bucket and the Auth onboarding trigger. Security and performance advisors were rerun after hardening. The requester-progress and reliable-evidence migrations are verified by the local contract suite but remain undeployed because the Supabase connector is temporarily unavailable.
+The first six migrations are applied to the designated `aafatlink-dev` project. Hosted checks confirmed 20 public tables, RLS on all 20 tables, 29 operation-specific policies, one private evidence bucket and the Auth onboarding trigger. Security and performance advisors were rerun after hardening. The requester-progress, reliable-evidence and UC04 alignment migrations are verified by the local contract suite but remain undeployed because the Supabase connector is temporarily unavailable.
 
 Java contract tests check RLS coverage, request status vocabulary, assignment conflict constraints, definer hardening, hosted hardening and evidence cleanup protection. Docker is still unavailable, so `supabase db reset` and local pgTAP execution remain blocked.

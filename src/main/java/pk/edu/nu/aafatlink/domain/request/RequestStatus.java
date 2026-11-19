@@ -28,6 +28,10 @@ public enum RequestStatus {
         return this == ADDITIONAL_INFORMATION_REQUIRED;
     }
 
+    public boolean canBePrioritized() {
+        return this == VERIFIED || this == ASSIGNED || this == IN_PROGRESS;
+    }
+
     public boolean canTransitionTo(RequestStatus target) {
         if (target == null) {
             return false;

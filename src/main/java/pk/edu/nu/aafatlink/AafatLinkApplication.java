@@ -9,6 +9,7 @@ import javafx.stage.Stage;
 import pk.edu.nu.aafatlink.application.auth.AuthenticationController;
 import pk.edu.nu.aafatlink.application.auth.PasswordRecoveryCoordinator;
 import pk.edu.nu.aafatlink.application.request.RequestController;
+import pk.edu.nu.aafatlink.application.request.RequestReviewController;
 import pk.edu.nu.aafatlink.app.AppConfiguration;
 import pk.edu.nu.aafatlink.app.ConfigurationException;
 import pk.edu.nu.aafatlink.app.SessionManager;
@@ -17,6 +18,8 @@ import pk.edu.nu.aafatlink.infrastructure.supabase.SupabaseAccountRepository;
 import pk.edu.nu.aafatlink.infrastructure.supabase.SupabaseAuthClient;
 import pk.edu.nu.aafatlink.infrastructure.supabase.SupabaseEvidenceStorage;
 import pk.edu.nu.aafatlink.infrastructure.supabase.SupabaseWorkflowRepository;
+import pk.edu.nu.aafatlink.service.request.PriorityAssessmentService;
+import java.time.Clock;
 import pk.edu.nu.aafatlink.ui.ViewRouter;
 
 /** JavaFX lifecycle entry point for the AafatLink desktop application. */
@@ -43,15 +46,17 @@ public final class AafatLinkApplication extends Application {
                             sessions);
             PasswordRecoveryCoordinator passwordRecovery = authClient == null
                     ? null : new PasswordRecoveryCoordinator(authClient);
-            RequestController requests = authClient == null
-                    ? null
-                    : new RequestController(
-                            new SupabaseWorkflowRepository(configuration.supabaseUrl().orElseThrow(),
-                                    configuration.publishableKey().orElseThrow()),
+            SupabaseWorkflowRepository workflows = authClient == null ? null
+                    : new SupabaseWorkflowRepository(configuration.supabaseUrl().orElseThrow(),
+                            configuration.publishableKey().orElseThrow());
+            RequestController requests = workflows == null
+                    ? null : new RequestController(workflows,
                             new SupabaseEvidenceStorage(configuration.supabaseUrl().orElseThrow(),
                                     configuration.publishableKey().orElseThrow()));
+            RequestReviewController reviews = workflows == null ? null
+                    : new RequestReviewController(workflows, new PriorityAssessmentService(), Clock.systemUTC());
             ViewRouter router = new ViewRouter(primaryStage, configuration, sessions,
-                    new NavigationPolicy(), authentication, passwordRecovery, requests);
+                    new NavigationPolicy(), authentication, passwordRecovery, requests, reviews);
             primaryStage.setTitle("AafatLink");
             primaryStage.setMinWidth(1_020);
             primaryStage.setMinHeight(680);

@@ -55,3 +55,9 @@
 **Decision:** Validate a selected local JPG, PNG or PDF file against the 5 MB rule, upload it to the private bucket, register a staged row, and submit using the same operation UUID. Reconciliation locks the operation row before reporting its state. Cleanup first marks an uncommitted operation failed, then asks Storage to delete; Storage policy independently rejects deletion of a committed reference.
 
 **Reason:** A network timeout must not produce a false failure or delete evidence that a committed request already references.
+
+## D009: UC04 suggestion rules are deterministic and advisory
+
+**Decision:** Derive the suggested level consistently from affected-person counts, urgent vulnerability/assistance keywords, disaster type and waiting time. Waiting at least 24 hours escalates one level. The coordinator remains the final decision-maker, but an override requires 10 to 1000 characters of justification. Reprioritization is restricted to `VERIFIED`, `ASSIGNED` and `IN_PROGRESS`, and every assessment stores the previous level.
+
+**Reason:** Deliverable 3 requires consistent predefined criteria, a rule-based suggestion, coordinator control, traceable changes and no `PRIORITIZED` request status.

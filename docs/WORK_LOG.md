@@ -175,3 +175,18 @@ Implement and validate the PostgreSQL schema, RLS foundation and transactional w
 - Apply the two pending migrations when the connector is available; do not pause mandatory implementation for this external blocker.
 - Move directly to UC03 and UC04 verification and priority workflows.
 - Defer optional portfolio features and further decorative polish until UC01 through UC12 are implemented.
+
+### UC03 and UC04 coordinator workflows
+
+- Added the pending-verification and prioritizable coordinator queues with connected JavaFX screens.
+- Added verify, reject and return-for-information decisions with mandatory reasons, audit RPC calls and optimistic version checks.
+- Added deterministic UC04 suggestion rules and mandatory written justification for overrides.
+- Added a migration that permits reprioritization only in `VERIFIED`, `ASSIGNED` and `IN_PROGRESS` while auditing the previous level.
+- `mvnw.cmd clean test`: 63 tests passed with no failures, errors or skips.
+- `mvnw.cmd package`: succeeded.
+- `mvnw.cmd javafx:run`: coordinator dashboard, verification queue and priority queue loaded successfully in demonstration mode.
+
+### Next
+
+- Implement UC05, UC07 and UC08 from Deliverable 3 before any optional portfolio work.
+- Add UC03 evidence and possible-duplicate detail retrieval while implementing the shared coordinator repository queries.

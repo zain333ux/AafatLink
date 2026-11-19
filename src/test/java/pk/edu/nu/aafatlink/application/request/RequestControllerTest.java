@@ -17,6 +17,10 @@ import pk.edu.nu.aafatlink.domain.request.AssistanceRequestDraft;
 import pk.edu.nu.aafatlink.domain.request.DisasterType;
 import pk.edu.nu.aafatlink.domain.request.RequestStatus;
 import pk.edu.nu.aafatlink.domain.request.RequestSubmissionResult;
+import pk.edu.nu.aafatlink.domain.request.PriorityAssessmentResult;
+import pk.edu.nu.aafatlink.domain.request.RequestPriority;
+import pk.edu.nu.aafatlink.domain.request.RequestReviewResult;
+import pk.edu.nu.aafatlink.domain.request.VerificationDecision;
 import pk.edu.nu.aafatlink.repository.WorkflowRepository;
 import pk.edu.nu.aafatlink.repository.RepositoryException;
 import pk.edu.nu.aafatlink.service.evidence.EvidenceAttachment;
@@ -173,6 +177,34 @@ class RequestControllerTest {
                 UUID requesterId) {
             this.requesterId = requesterId;
             return Optional.empty();
+        }
+
+        @Override
+        public List<AssistanceRequest> findPendingVerificationRequests(AuthSession session) {
+            return List.of();
+        }
+
+        @Override
+        public List<AssistanceRequest> findPrioritizableRequests(AuthSession session) {
+            return List.of();
+        }
+
+        @Override
+        public Optional<AssistanceRequest> findRequestForReview(AuthSession session, UUID requestId) {
+            return Optional.empty();
+        }
+
+        @Override
+        public RequestReviewResult decideRequestVerification(AuthSession session, UUID operationId, UUID requestId,
+                long expectedVersion, VerificationDecision decision, String reason) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public PriorityAssessmentResult recordPriorityAssessment(AuthSession session, UUID operationId,
+                UUID requestId, long expectedVersion, RequestPriority suggested, RequestPriority selected,
+                String justification) {
+            throw new UnsupportedOperationException();
         }
     }
 
