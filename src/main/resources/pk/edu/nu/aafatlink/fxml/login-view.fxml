@@ -50,12 +50,12 @@
             <VBox maxWidth="470.0" spacing="22.0" styleClass="auth-card">
                 <VBox spacing="7.0">
                     <HBox alignment="CENTER_LEFT" spacing="10.0">
-                        <Label text="FOUNDATION PREVIEW" styleClass="eyebrow" />
+                    <Label text="SECURE ACCESS" styleClass="eyebrow" />
                         <Region HBox.hgrow="ALWAYS" />
                         <Label fx:id="configurationModeLabel" text="Demonstration mode" styleClass="status-chip" />
                     </HBox>
                     <Label text="Welcome to AafatLink" styleClass="auth-title" />
-                    <Label text="Explore the professional application shell while secure Supabase authentication is connected in Phase 3."
+                    <Label text="Sign in to manage your authorized work, or open a clearly labelled read-only demonstration workspace."
                            wrapText="true" styleClass="auth-subtitle" />
                 </VBox>
 

@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Priority?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+
+<ScrollPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="pk.edu.nu.aafatlink.ui.request.RequestFormViewController"
+            fitToWidth="true" hbarPolicy="NEVER" styleClass="content-scroll">
+    <VBox spacing="22.0" styleClass="content-area request-form-page">
+        <padding><Insets top="30.0" right="34.0" bottom="42.0" left="34.0" /></padding>
+
+        <VBox spacing="7.0">
+            <Label fx:id="formTitleLabel" text="Submit an assistance request" styleClass="welcome-title" />
+            <Label fx:id="formIntroLabel"
+                   text="Share the information coordinators need to verify the situation and plan a safe response."
+                   wrapText="true" styleClass="welcome-copy" />
+        </VBox>
+
+        <VBox fx:id="returnReasonBox" visible="false" managed="false" spacing="5.0" styleClass="warning-banner">
+            <Label text="Coordinator requested more information" styleClass="warning-title" />
+            <Label fx:id="returnReasonLabel" wrapText="true" styleClass="warning-copy" />
+        </VBox>
+
+        <Label fx:id="accessNoticeLabel"
+               text="Read-only demonstration: sign in with a connected Requester account to submit operational data."
+               maxWidth="Infinity" wrapText="true" styleClass="demo-inline-notice" />
+
+        <VBox spacing="20.0" styleClass="panel-card form-panel">
+            <HBox spacing="16.0">
+                <VBox spacing="8.0" HBox.hgrow="ALWAYS">
+                    <Label text="Disaster type *" styleClass="field-label" />
+                    <ComboBox fx:id="disasterTypeBox" maxWidth="Infinity" styleClass="form-control" />
+                </VBox>
+                <VBox fx:id="otherTypeBox" spacing="8.0" HBox.hgrow="ALWAYS">
+                    <Label text="Specify other type *" styleClass="field-label" />
+                    <TextField fx:id="otherTypeField" promptText="Short description" styleClass="form-control" />
+                </VBox>
+            </HBox>
+
+            <VBox spacing="8.0">
+                <Label text="Location or area *" styleClass="field-label" />
+                <TextField fx:id="locationField" promptText="Street, sector, village or recognizable area"
+                           styleClass="form-control" />
+                <Label text="Enter an address or area description. GPS is not required." styleClass="helper-text" />
+            </VBox>
+
+            <VBox spacing="8.0">
+                <Label text="Situation description *" styleClass="field-label" />
+                <TextArea fx:id="descriptionField" promptText="Describe what happened and the current conditions"
+                          wrapText="true" prefRowCount="4" styleClass="form-text-area" />
+            </VBox>
+
+            <HBox spacing="16.0">
+                <VBox spacing="8.0" HBox.hgrow="ALWAYS">
+                    <Label text="Required assistance *" styleClass="field-label" />
+                    <TextArea fx:id="assistanceField" promptText="For example: evacuation, shelter, food or medical support"
+                              wrapText="true" prefRowCount="3" styleClass="form-text-area" />
+                </VBox>
+                <VBox spacing="8.0" HBox.hgrow="ALWAYS">
+                    <Label text="Affected-person details *" styleClass="field-label" />
+                    <TextArea fx:id="affectedPeopleField" promptText="Number of people and any important vulnerability details"
+                              wrapText="true" prefRowCount="3" styleClass="form-text-area" />
+                </VBox>
+            </HBox>
+
+            <VBox spacing="10.0" styleClass="evidence-panel">
+                <HBox alignment="CENTER_LEFT" spacing="12.0">
+                    <VBox spacing="4.0" HBox.hgrow="ALWAYS">
+                        <Label text="Supporting evidence" styleClass="field-label" />
+                        <Label fx:id="evidenceNameLabel" text="No file selected" styleClass="evidence-name" />
+                    </VBox>
+                    <Button text="Choose file" onAction="#chooseEvidence" styleClass="outline-button" />
+                    <Button fx:id="removeEvidenceButton" text="Remove" onAction="#removeEvidence"
+                            visible="false" managed="false" styleClass="text-button" />
+                </HBox>
+                <Label fx:id="evidenceMessageLabel"
+                       text="Evidence is optional. JPG, PNG and PDF files up to 5 MB are accepted."
+                       wrapText="true" styleClass="helper-text" />
+            </VBox>
+        </VBox>
+
+        <HBox alignment="CENTER_LEFT" spacing="14.0">
+            <Button fx:id="submitButton" text="Submit request" onAction="#submit"
+                    minWidth="180.0" styleClass="primary-button" />
+            <Button fx:id="viewRequestsButton" text="View my requests" onAction="#openMyRequests"
+                    visible="false" managed="false" styleClass="outline-button" />
+            <Region HBox.hgrow="ALWAYS" />
+            <Label text="* Required fields" styleClass="helper-text" />
+        </HBox>
+        <Label fx:id="formMessageLabel" text="" wrapText="true" styleClass="form-message" />
+    </VBox>
+</ScrollPane>

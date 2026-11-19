@@ -35,6 +35,9 @@
 .text-input:focused, .role-combo:focused { -fx-border-color: -aafat-teal; -fx-effect: dropshadow(gaussian, rgba(15,118,110,0.14), 8, 0, 0, 0); }
 .primary-button, .secondary-button { -fx-pref-height: 46px; -fx-background-radius: 9px; -fx-font-weight: bold; -fx-cursor: hand; }
 .primary-button { -fx-background-color: -aafat-teal; -fx-text-fill: white; }
+.primary-button:hover { -fx-background-color: #0B655F; }
+.primary-button:pressed, .secondary-button:pressed, .outline-button:pressed { -fx-translate-y: 1px; }
+.primary-button:disabled, .secondary-button:disabled, .outline-button:disabled { -fx-opacity: 0.48; }
 .secondary-button { -fx-background-color: -aafat-navy; -fx-text-fill: white; }
 .secondary-button:hover { -fx-background-color: #173B59; }
 .text-button { -fx-background-color: transparent; -fx-text-fill: -aafat-teal; -fx-font-weight: 700; -fx-cursor: hand; }
@@ -44,6 +47,9 @@
 .form-message { -fx-font-size: 12px; -fx-min-height: 18px; }
 .form-error { -fx-text-fill: #B42318; }
 .form-success { -fx-text-fill: -aafat-teal; }
+.outline-button { -fx-min-height: 40px; -fx-padding: 0 16px; -fx-background-color: white; -fx-border-color: #B8C8D3; -fx-border-radius: 8px; -fx-background-radius: 8px; -fx-font-weight: 700; -fx-text-fill: #274356; -fx-cursor: hand; }
+.outline-button:hover { -fx-background-color: #F5F8FA; -fx-border-color: #8DA6B6; }
+.outline-button:focused, .primary-button:focused, .secondary-button:focused, .text-button:focused, .navigation-button:focused, .logout-button:focused { -fx-effect: dropshadow(gaussian, rgba(15,118,110,0.32), 8, 0.15, 0, 0); }
 
 .sidebar { -fx-background-color: -aafat-navy-deep; }
 .nav-section-label { -fx-font-size: 9px; -fx-font-weight: 800; -fx-letter-spacing: 1.4px; -fx-text-fill: #6F8CA1; }
@@ -67,6 +73,7 @@
 .avatar-text { -fx-font-size: 11px; -fx-font-weight: 800; -fx-text-fill: -aafat-teal; }
 .content-scroll { -fx-background-insets: 0; -fx-padding: 0; }
 .content-area { -fx-background-color: -aafat-bg; }
+.shell-content-host { -fx-background-color: -aafat-bg; }
 .welcome-title { -fx-font-size: 25px; -fx-font-weight: bold; -fx-text-fill: -aafat-text; }
 .welcome-copy { -fx-font-size: 13px; }
 .foundation-banner { -fx-background-color: #E8F3F8; -fx-border-color: #C5E0EC; -fx-border-radius: 12px; -fx-background-radius: 12px; -fx-padding: 16px; }
@@ -88,3 +95,44 @@
 .roadmap-state, .roadmap-state-active { -fx-font-size: 10px; -fx-font-weight: 700; }
 .roadmap-state { -fx-text-fill: #82939F; }
 .roadmap-state-active { -fx-text-fill: -aafat-teal; }
+
+.lifecycle-step { -fx-background-color: #EDF2F5; -fx-background-radius: 7px; -fx-padding: 7px 10px; -fx-font-size: 10px; -fx-font-weight: 700; -fx-text-fill: #667C8C; }
+.lifecycle-step-active { -fx-background-color: #DDF3EF; -fx-text-fill: #0B655F; }
+.lifecycle-step-complete { -fx-background-color: #E7EEF3; -fx-text-fill: #2E5065; }
+.lifecycle-step-alternative { -fx-background-color: #FFF1DD; -fx-text-fill: #8A4B08; }
+
+.request-form-page { -fx-min-width: 700px; }
+.form-panel { -fx-padding: 24px; }
+.form-control { -fx-pref-height: 44px; -fx-background-color: #F8FAFC; -fx-border-color: #C7D4DD; -fx-border-radius: 8px; -fx-background-radius: 8px; -fx-padding: 0 12px; }
+.form-control:focused { -fx-border-color: -aafat-teal; -fx-effect: dropshadow(gaussian, rgba(15,118,110,0.14), 8, 0, 0, 0); }
+.form-text-area { -fx-background-color: #F8FAFC; -fx-border-color: #C7D4DD; -fx-border-radius: 8px; -fx-background-radius: 8px; }
+.form-text-area:focused { -fx-border-color: -aafat-teal; -fx-effect: dropshadow(gaussian, rgba(15,118,110,0.14), 8, 0, 0, 0); }
+.form-text-area .content { -fx-background-color: #F8FAFC; -fx-background-radius: 8px; }
+.evidence-panel { -fx-background-color: #F7FAFC; -fx-border-color: #D5E0E7; -fx-border-radius: 9px; -fx-background-radius: 9px; -fx-padding: 16px; }
+.evidence-name { -fx-font-size: 12px; -fx-text-fill: #405B6D; }
+.demo-inline-notice { -fx-background-color: #E8F3F8; -fx-border-color: #C5E0EC; -fx-border-radius: 9px; -fx-background-radius: 9px; -fx-padding: 12px 14px; -fx-font-size: 12px; -fx-text-fill: #285E72; }
+.warning-banner { -fx-background-color: #FFF7E8; -fx-border-color: #E7C989; -fx-border-radius: 9px; -fx-background-radius: 9px; -fx-padding: 14px; }
+.warning-title { -fx-font-size: 12px; -fx-font-weight: 800; -fx-text-fill: #7A4508; }
+.warning-copy { -fx-font-size: 12px; -fx-text-fill: #6C4A1A; }
+
+.request-list-page { -fx-min-width: 760px; }
+.request-split-pane { -fx-background-color: transparent; -fx-padding: 0; }
+.request-split-pane > .split-pane-divider { -fx-background-color: transparent; -fx-padding: 0 5px; }
+.request-list-panel { -fx-padding: 18px; }
+.request-detail-panel { -fx-padding: 22px; }
+.detail-scroll, .detail-scroll > .viewport { -fx-background-color: transparent; }
+.request-table { -fx-background-color: white; -fx-border-color: transparent; }
+.request-table .column-header-background { -fx-background-color: #F3F7F9; -fx-background-radius: 8px 8px 0 0; }
+.request-table .column-header { -fx-background-color: transparent; -fx-size: 42px; }
+.request-table .column-header .label { -fx-alignment: center-left; -fx-font-size: 11px; -fx-font-weight: 800; -fx-text-fill: #516B7C; }
+.request-table .table-row-cell { -fx-background-color: white; -fx-border-color: transparent transparent #E7EDF1 transparent; -fx-cell-size: 48px; }
+.request-table .table-row-cell:hover { -fx-background-color: #F5F9FA; }
+.request-table .table-row-cell:selected { -fx-background-color: #DFF2EF; }
+.request-table .table-row-cell:selected .text { -fx-fill: #143B42; }
+.request-table .table-cell { -fx-alignment: center-left; -fx-padding: 0 10px; -fx-font-size: 11px; -fx-text-fill: #2C4657; }
+.empty-state { -fx-padding: 34px; }
+.empty-state-title { -fx-font-size: 17px; -fx-font-weight: 700; -fx-text-fill: -aafat-text; }
+.empty-state-copy { -fx-font-size: 12px; -fx-text-fill: -aafat-muted; -fx-max-width: 360px; }
+.request-id { -fx-font-size: 12px; -fx-font-weight: 700; -fx-text-fill: #2B4B5E; }
+.detail-label { -fx-font-size: 10px; -fx-font-weight: 800; -fx-text-fill: #708493; }
+.detail-value { -fx-font-size: 12px; -fx-text-fill: #263F50; }

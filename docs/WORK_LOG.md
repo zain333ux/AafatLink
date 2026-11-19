@@ -112,3 +112,49 @@ Implement and validate the PostgreSQL schema, RLS foundation and transactional w
 - Updated the recovery UI to require opening Gmail on the same computer and clicking the newest link once.
 - Updated the loopback callback to distinguish an expired Supabase link from an invalid AafatLink flow identifier.
 - `mvn clean test`: 42 tests passed with no failures, errors or skips.
+
+## 2026-11-19
+
+### UC01 and UC02 requester interface
+
+- Replaced shell placeholders with a real dashboard, assistance-request form and owner-scoped request list/detail screen.
+- Connected submission and same-ID resubmission actions to the existing plain-Java `RequestController`; remote calls run outside the JavaFX thread.
+- Added explicit loading, empty, retry, success, failure and read-only demonstration states.
+- Added understandable request-status labels, lifecycle presentation and the `Additional Information Required` resubmission action.
+- Added local JPG, PNG and PDF evidence validation with the documented 5 MB limit. The form blocks evidence submission until secure Storage staging is connected rather than claiming that a local file was uploaded.
+- Reduced the shell launch height to keep sign-out and session information reachable on a 720-pixel display.
+
+### Verification
+
+- Focused request-status and evidence tests: 6 passed.
+- `mvnw.cmd clean test`: 46 tests passed with no failures, errors or skips.
+- `mvnw.cmd package`: succeeded and produced `target/aafatlink-0.1.0-SNAPSHOT.jar`.
+- `mvnw.cmd javafx:run`: login, dashboard, request form and request-tracking empty state loaded successfully and were visually inspected. Connected submission was not exercised because the live recovery/password sign-in remains pending.
+
+### Next
+
+- Implement Storage staging, committed-reference checks and operation-ID reconciliation for evidence.
+- Expand UC02 repository mapping with assignment and progress history.
+- Complete the same-computer password recovery and run a live authenticated UC01/UC02 transaction.
+
+### UC02 tracking enrichment
+
+- Extended request detail retrieval with the latest assignment state and latest progress note/percentage.
+- Added an owner-scoped RLS migration so requesters can read progress only through assignments belonging to their own requests.
+- Added HTTP adapter and migration contract tests; the focused 10-test set passes.
+- Hosted deployment remains pending because the Supabase connector failed twice at the transport layer. No hosted success is claimed.
+
+## 2026-11-20
+
+### Verified requester workflow increment
+
+- `mvnw.cmd clean test`: 48 tests passed with no failures, errors or skips.
+- `mvnw.cmd package`: succeeded and produced `target/aafatlink-0.1.0-SNAPSHOT.jar`.
+- `mvnw.cmd javafx:run`: started the JavaFX application without an application error; the login and requester shell had already been visually inspected during this increment. The process was stopped manually after the launch check.
+- `git diff --check`: passed; only Git line-ending notices were reported on Windows.
+
+### Next
+
+- Implement secure staged evidence upload with operation-ID reconciliation and committed-reference protection.
+- Apply the pending requester progress policy migration when the Supabase connector is available.
+- Complete a same-computer recovery flow and run a live authenticated UC01/UC02 transaction.

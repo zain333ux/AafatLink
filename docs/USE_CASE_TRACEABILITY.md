@@ -4,26 +4,26 @@ Deliverable 3 is the functional authority. A use case is marked complete only wh
 
 ## UC01: Submit Disaster Assistance Request
 
-- **Status:** In progress; domain, controller, repository and database transaction exist. JavaFX form and evidence staging UI remain.
-- **Java:** `application.request.RequestController`, `domain.request.AssistanceRequestDraft`, `AssistanceRequest`, `DisasterType`, `RequestSubmissionResult`, `repository.WorkflowRepository` and `infrastructure.supabase.SupabaseWorkflowRepository`.
+- **Status:** In progress; the working JavaFX form, application controller, repository and database transaction exist. Storage staging and live authenticated proof remain.
+- **Java:** `application.request.RequestController`, `ui.request.RequestFormViewController`, `domain.request.AssistanceRequestDraft`, `AssistanceRequest`, `DisasterType`, `RequestSubmissionResult`, `service.evidence.EvidenceFileValidator`, `repository.WorkflowRepository` and `infrastructure.supabase.SupabaseWorkflowRepository`.
 - **Methods:** `RequestController.submitRequest`, `RequestController.resubmitRequest`, `WorkflowRepository.submitRequest` and `WorkflowRepository.resubmitRequest`.
-- **Screen:** Requester > Submit request.
+- **Screen:** `request-form-view.fxml`, opened from Requester > Submit request; returned requests reuse the screen with pre-filled fields and the coordinator reason.
 - **Database:** `assistance_requests`, `request_evidence`, `workflow_operations`; deployed `submit_assistance_request` and `resubmit_assistance_request` RPCs.
 - **Success:** validate, check duplicates, stage evidence, commit the request as `PENDING_VERIFICATION`, return the request ID.
 - **Alternatives:** coordinator recording with separate requester/recorder IDs; duplicate warning; safe evidence retry; resubmission of `ADDITIONAL_INFORMATION_REQUIRED` using the same ID.
-- **Tests:** `AssistanceRequestDraftTest`, `RequestControllerTest`, `SupabaseWorkflowRepositoryTest` and `DatabaseMigrationContractTest`. Live idempotency and evidence-recovery tests remain.
+- **Tests:** `AssistanceRequestDraftTest`, `RequestStatusTest`, `EvidenceFileValidatorTest`, `RequestControllerTest`, `SupabaseWorkflowRepositoryTest` and `DatabaseMigrationContractTest`. Live idempotency and evidence-recovery tests remain.
 - **Demonstration:** create a request, acknowledge any duplicate warning, submit, then resubmit the same request after an information-return decision.
 
 ## UC02: Track Assistance Request Status
 
-- **Status:** In progress; owner-scoped request list/detail queries exist. JavaFX screens and assignment/progress timeline mapping remain.
-- **Java:** `application.request.RequestController`, `domain.request.AssistanceRequest`, `repository.WorkflowRepository` and `infrastructure.supabase.SupabaseWorkflowRepository`.
+- **Status:** In progress; owner-scoped request list/detail queries and the JavaFX list/detail screen exist. Assignment/progress history queries and live authenticated proof remain.
+- **Java:** `application.request.RequestController`, `ui.request.RequestListViewController`, `domain.request.AssistanceRequest`, `RequestStatus`, `repository.WorkflowRepository` and `infrastructure.supabase.SupabaseWorkflowRepository`.
 - **Methods:** `RequestController.getMyRequests`, `RequestController.getRequestDetails`, `WorkflowRepository.findRequestsByRequester` and `WorkflowRepository.findRequestForRequester`.
-- **Screen:** Requester > My requests > Request detail.
-- **Database:** `assistance_requests`, verification, priority, assignment, progress, completion and closure history under requester-owned RLS.
+- **Screen:** `request-list-view.fxml`, opened from Requester > My requests; it includes loading, empty, retry, detail, lifecycle and resubmission states.
+- **Database:** `assistance_requests`, `volunteer_assignments` and `task_progress_updates`; local migration `allow_requester_progress_tracking` scopes progress reads through requester-owned requests and awaits hosted deployment.
 - **Success:** show the request's current status and chronological progress without exposing other requesters' records.
 - **Alternatives:** empty state, network retry and requests awaiting more information.
-- **Tests:** `RequestControllerTest` proves authenticated identity scoping. Repository list/detail, timeline ordering and unavailable-service tests remain.
+- **Tests:** `RequestControllerTest` proves authenticated identity scoping; `RequestStatusTest` covers understandable labels and resubmission eligibility; `SupabaseWorkflowRepositoryTest` covers assignment/progress enrichment; `DatabaseMigrationContractTest` covers the owner-only progress policy. Hosted RLS execution and full history ordering remain.
 - **Demonstration:** sign in as a requester and open the status timeline for a seeded request.
 
 ## UC03: Verify Assistance Request

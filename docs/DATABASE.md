@@ -8,6 +8,7 @@
 4. `add_account_onboarding` creates the Auth user trigger and restricted volunteer-registration RPC.
 5. `harden_database_baseline` moves `btree_gist` out of `public`, removes Data API execution from Supabase's automatic-RLS event function, adds missing foreign-key indexes and removes duplicate SELECT policy evaluation.
 6. `align_request_submission_with_uc01` adds the mandatory request fields, request source, duplicate flag, 5 MB evidence limit and same-ID resubmission transaction required by Deliverable 3.
+7. `allow_requester_progress_tracking` permits a requester to read task-progress rows only when they belong to an assignment for that requester’s own assistance request.
 
 All exposed `public` tables enable RLS. Broad `anon` and `authenticated` table privileges are revoked before minimal grants are added.
 
@@ -35,6 +36,6 @@ The private role lookup is the sole base helper requiring definer rights because
 
 ## Validation status
 
-The five migrations are applied to the designated `aafatlink-dev` project. Hosted checks confirm 20 public tables, RLS on all 20 tables, 29 operation-specific policies, one private evidence bucket and the Auth onboarding trigger. Security and performance advisors were rerun after hardening. The only security warning class left covers six intentional authenticated workflow RPCs described above. Unused-index notices are expected before workload data exists.
+The first six migrations are applied to the designated `aafatlink-dev` project. Hosted checks confirmed 20 public tables, RLS on all 20 tables, 29 operation-specific policies, one private evidence bucket and the Auth onboarding trigger. Security and performance advisors were rerun after hardening. The requester-progress policy migration is verified by the local contract suite but remains undeployed because the Supabase connector is temporarily unavailable.
 
 Java contract tests check RLS coverage, request status vocabulary, assignment conflict constraints, definer hardening, hosted hardening and evidence cleanup protection. Docker is still unavailable, so `supabase db reset` and local pgTAP execution remain blocked.

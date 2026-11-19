@@ -26,6 +26,8 @@ class DatabaseMigrationContractTest {
             "20261115093254_harden_database_baseline.sql");
     private static final Path UC01_ALIGNMENT = Path.of("supabase", "migrations",
             "20261115093854_align_request_submission_with_uc01.sql");
+    private static final Path REQUESTER_TRACKING = Path.of("supabase", "migrations",
+            "20261119235500_allow_requester_progress_tracking.sql");
 
     @Test
     void everyPublicTableEnablesRowLevelSecurity() throws IOException {
@@ -111,6 +113,16 @@ class DatabaseMigrationContractTest {
         assertTrue(sql.contains("5242880"), "UC01 limits each evidence file to 5 MB.");
         assertTrue(sql.contains("resubmit_assistance_request"));
         assertTrue(sql.contains("status = 'pending_verification'"));
+    }
+
+    @Test
+    void requesterCanReadProgressOnlyThroughOwnedRequests() throws IOException {
+        String sql = normalized(REQUESTER_TRACKING);
+
+        assertTrue(sql.contains("drop policy if exists progress_select"));
+        assertTrue(sql.contains("requester_account_id = (select auth.uid())"));
+        assertTrue(sql.contains("assignment.request_id"));
+        assertTrue(sql.contains("task_progress_updates.assignment_id"));
     }
 
     private static String normalized(Path path) throws IOException {

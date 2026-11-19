@@ -8,12 +8,14 @@ import javafx.scene.control.Alert;
 import javafx.stage.Stage;
 import pk.edu.nu.aafatlink.application.auth.AuthenticationController;
 import pk.edu.nu.aafatlink.application.auth.PasswordRecoveryCoordinator;
+import pk.edu.nu.aafatlink.application.request.RequestController;
 import pk.edu.nu.aafatlink.app.AppConfiguration;
 import pk.edu.nu.aafatlink.app.ConfigurationException;
 import pk.edu.nu.aafatlink.app.SessionManager;
 import pk.edu.nu.aafatlink.app.navigation.NavigationPolicy;
 import pk.edu.nu.aafatlink.infrastructure.supabase.SupabaseAccountRepository;
 import pk.edu.nu.aafatlink.infrastructure.supabase.SupabaseAuthClient;
+import pk.edu.nu.aafatlink.infrastructure.supabase.SupabaseWorkflowRepository;
 import pk.edu.nu.aafatlink.ui.ViewRouter;
 
 /** JavaFX lifecycle entry point for the AafatLink desktop application. */
@@ -40,8 +42,13 @@ public final class AafatLinkApplication extends Application {
                             sessions);
             PasswordRecoveryCoordinator passwordRecovery = authClient == null
                     ? null : new PasswordRecoveryCoordinator(authClient);
+            RequestController requests = authClient == null
+                    ? null
+                    : new RequestController(new SupabaseWorkflowRepository(
+                            configuration.supabaseUrl().orElseThrow(),
+                            configuration.publishableKey().orElseThrow()));
             ViewRouter router = new ViewRouter(primaryStage, configuration, sessions,
-                    new NavigationPolicy(), authentication, passwordRecovery);
+                    new NavigationPolicy(), authentication, passwordRecovery, requests);
             primaryStage.setTitle("AafatLink");
             primaryStage.setMinWidth(1_020);
             primaryStage.setMinHeight(680);

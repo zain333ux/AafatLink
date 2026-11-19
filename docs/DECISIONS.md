@@ -39,3 +39,15 @@
 **Decision:** Use Supabase PKCE with a loopback HTTP listener on the fixed high port `127.0.0.1:49152`. The listener accepts one callback, validates a one-use flow ID, exchanges the code, and closes. The hosted Auth allowlist is restricted to the exact host, port and recovery path. Custom URI schemes are avoided.
 
 **Reason:** Loopback redirects are a simple installed-application pattern and avoid a platform-specific protocol handler. A fixed high port supports a narrow reviewed redirect rule and produces a clear retryable error if another process has occupied the port.
+
+## D007: Requester screens share the application shell
+
+**Decision:** Load dashboard, submission and tracking FXML into a single shell content host. The shell creates presentation controllers with `RequestController` and session dependencies; GRASP application controllers remain free of JavaFX.
+
+**Reason:** This preserves one role-aware navigation frame, avoids rebuilding top-level scenes for every workflow and keeps database communication outside presentation controllers.
+
+## D008: Evidence selection is honest until staging is connected
+
+**Decision:** Validate a selected local JPG, PNG or PDF file against the 5 MB rule, but block submission while that file is selected until the Storage staging adapter and uncertain-operation reconciliation are implemented. Submission without evidence remains available because evidence is optional in UC01.
+
+**Reason:** Silently submitting a request without the evidence shown in the form would create a misleading success state and violate the reliability requirement.

@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.FlowPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Priority?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<ScrollPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+            fitToWidth="true" hbarPolicy="NEVER" styleClass="content-scroll">
+    <VBox spacing="24.0" styleClass="content-area">
+        <padding><Insets top="32.0" right="34.0" bottom="40.0" left="34.0" /></padding>
+        <VBox spacing="8.0">
+            <Label text="A clear view of the response workflow" styleClass="welcome-title" />
+            <Label text="Use the role-aware navigation to move from a reported need to a verified, assigned and closed response."
+                   wrapText="true" styleClass="welcome-copy" />
+        </VBox>
+
+        <HBox spacing="12.0" styleClass="foundation-banner">
+            <StackPane minWidth="38.0" minHeight="38.0" styleClass="info-icon-circle">
+                <Label text="i" styleClass="info-icon-text" />
+            </StackPane>
+            <VBox spacing="4.0" HBox.hgrow="ALWAYS">
+                <Label text="Implementation status" styleClass="banner-title" />
+                <Label text="Request submission and personal tracking are now connected to the application layer. Other destinations remain clearly marked until their workflows are implemented."
+                       wrapText="true" styleClass="banner-copy" />
+            </VBox>
+        </HBox>
+
+        <FlowPane hgap="16.0" vgap="16.0" prefWrapLength="820.0">
+            <VBox prefWidth="236.0" spacing="14.0" styleClass="summary-card">
+                <Label text="MANDATORY BASELINE" styleClass="card-kicker" />
+                <Label text="12 use cases" styleClass="card-value" />
+                <Label text="Traceability maintained" styleClass="card-caption" />
+            </VBox>
+            <VBox prefWidth="236.0" spacing="14.0" styleClass="summary-card">
+                <Label text="CURRENT SLICE" styleClass="card-kicker" />
+                <Label text="UC01 + UC02" styleClass="card-value" />
+                <Label text="Requester workflows" styleClass="card-caption" />
+            </VBox>
+            <VBox prefWidth="236.0" spacing="14.0" styleClass="summary-card">
+                <Label text="SECURITY" styleClass="card-kicker" />
+                <Label text="RLS enforced" styleClass="card-value" />
+                <Label text="No privileged desktop keys" styleClass="card-caption" />
+            </VBox>
+        </FlowPane>
+
+        <VBox spacing="18.0" styleClass="panel-card">
+            <HBox alignment="CENTER_LEFT">
+                <VBox spacing="4.0">
+                    <Label text="Response lifecycle" styleClass="panel-title" />
+                    <Label text="Priority is assessed separately and never replaces request status." styleClass="panel-subtitle" />
+                </VBox>
+                <Region HBox.hgrow="ALWAYS" />
+                <Label text="DOCUMENTED FLOW" styleClass="status-chip" />
+            </HBox>
+            <FlowPane hgap="10.0" vgap="10.0">
+                <Label text="Pending Verification" styleClass="lifecycle-step lifecycle-step-active" />
+                <Label text="Verified" styleClass="lifecycle-step" />
+                <Label text="Assigned" styleClass="lifecycle-step" />
+                <Label text="In Progress" styleClass="lifecycle-step" />
+                <Label text="Awaiting Closure Review" styleClass="lifecycle-step" />
+                <Label text="Closed" styleClass="lifecycle-step" />
+            </FlowPane>
+        </VBox>
+    </VBox>
+</ScrollPane>

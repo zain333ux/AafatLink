@@ -3,9 +3,7 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.layout.BorderPane?>
-<?import javafx.scene.layout.FlowPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Priority?>
 <?import javafx.scene.layout.Region?>
@@ -31,14 +29,14 @@
             </Label>
             <VBox fx:id="navigationBox" spacing="6.0" />
             <Region VBox.vgrow="ALWAYS" />
+            <Button fx:id="logoutButton" text="Sign out" onAction="#logout" maxWidth="Infinity" styleClass="logout-button">
+                <VBox.margin><Insets bottom="12.0" /></VBox.margin>
+            </Button>
             <VBox spacing="10.0" styleClass="demo-notice-dark">
-                <Label text="DEMONSTRATION" styleClass="demo-notice-title" />
-                <Label text="Preview navigation only. No operational data is connected."
+                <Label fx:id="sessionNoticeTitle" text="DEMONSTRATION" styleClass="demo-notice-title" />
+                <Label fx:id="demoNoticeLabel" text="Read-only preview. No operational data is loaded or changed."
                        wrapText="true" styleClass="demo-notice-copy" />
             </VBox>
-            <Button fx:id="logoutButton" text="Sign out" onAction="#logout" maxWidth="Infinity" styleClass="logout-button">
-                <VBox.margin><Insets top="16.0" /></VBox.margin>
-            </Button>
         </VBox>
     </left>
     <top>
@@ -59,72 +57,6 @@
         </HBox>
     </top>
     <center>
-        <ScrollPane fitToWidth="true" hbarPolicy="NEVER" styleClass="content-scroll">
-            <VBox spacing="24.0" styleClass="content-area">
-                <padding><Insets top="32.0" right="34.0" bottom="40.0" left="34.0" /></padding>
-                <VBox spacing="8.0">
-                    <Label fx:id="welcomeLabel" text="Good to see you." styleClass="welcome-title" />
-                    <Label text="This Phase 1 shell establishes the visual system and role boundaries for upcoming workflows."
-                           wrapText="true" styleClass="welcome-copy" />
-                </VBox>
-
-                <HBox spacing="12.0" styleClass="foundation-banner">
-                    <StackPane minWidth="38.0" minHeight="38.0" styleClass="info-icon-circle">
-                        <Label text="i" styleClass="info-icon-text" />
-                    </StackPane>
-                    <VBox spacing="4.0" HBox.hgrow="ALWAYS">
-                        <Label text="Phase 1 foundation is active" styleClass="banner-title" />
-                        <Label text="All figures below are demonstration labels, not live disaster-response statistics."
-                               wrapText="true" styleClass="banner-copy" />
-                    </VBox>
-                </HBox>
-
-                <FlowPane hgap="16.0" vgap="16.0" prefWrapLength="820.0">
-                    <VBox prefWidth="236.0" spacing="14.0" styleClass="summary-card">
-                        <Label text="MANDATORY BASELINE" styleClass="card-kicker" />
-                        <Label text="12 use cases" styleClass="card-value" />
-                        <Label text="Traceability started" styleClass="card-caption" />
-                    </VBox>
-                    <VBox prefWidth="236.0" spacing="14.0" styleClass="summary-card">
-                        <Label text="CURRENT MODE" styleClass="card-kicker" />
-                        <Label text="Demo only" styleClass="card-value" />
-                        <Label text="No remote writes" styleClass="card-caption" />
-                    </VBox>
-                    <VBox prefWidth="236.0" spacing="14.0" styleClass="summary-card">
-                        <Label text="SECURITY POSTURE" styleClass="card-kicker" />
-                        <Label text="Public config" styleClass="card-value" />
-                        <Label text="No privileged keys" styleClass="card-caption" />
-                    </VBox>
-                </FlowPane>
-
-                <VBox spacing="18.0" styleClass="panel-card">
-                    <HBox alignment="CENTER_LEFT">
-                        <VBox spacing="4.0">
-                            <Label text="Implementation roadmap" styleClass="panel-title" />
-                            <Label text="Verified progress toward the academic and portfolio baseline" styleClass="panel-subtitle" />
-                        </VBox>
-                        <Region HBox.hgrow="ALWAYS" />
-                        <Label text="FOUNDATION" styleClass="status-chip" />
-                    </HBox>
-                    <HBox spacing="14.0">
-                        <VBox HBox.hgrow="ALWAYS" spacing="7.0" styleClass="roadmap-item roadmap-item-active">
-                            <Label text="01" styleClass="roadmap-number" />
-                            <Label text="Application foundation" styleClass="roadmap-title" />
-                            <Label text="In progress" styleClass="roadmap-state-active" />
-                        </VBox>
-                        <VBox HBox.hgrow="ALWAYS" spacing="7.0" styleClass="roadmap-item">
-                            <Label text="02" styleClass="roadmap-number" />
-                            <Label text="Database &amp; security" styleClass="roadmap-title" />
-                            <Label text="Next" styleClass="roadmap-state" />
-                        </VBox>
-                        <VBox HBox.hgrow="ALWAYS" spacing="7.0" styleClass="roadmap-item">
-                            <Label text="03" styleClass="roadmap-number" />
-                            <Label text="Authentication" styleClass="roadmap-title" />
-                            <Label text="Planned" styleClass="roadmap-state" />
-                        </VBox>
-                    </HBox>
-                </VBox>
-            </VBox>
-        </ScrollPane>
+        <StackPane fx:id="contentHost" styleClass="shell-content-host" />
     </center>
 </BorderPane>

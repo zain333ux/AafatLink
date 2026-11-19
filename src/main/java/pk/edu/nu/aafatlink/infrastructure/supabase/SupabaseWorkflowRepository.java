@@ -118,7 +118,39 @@ public final class SupabaseWorkflowRepository implements WorkflowRepository {
         if (!rows.isArray() || rows.size() > 1) {
             throw new RepositoryException("AafatLink received an invalid request detail response.");
         }
-        return rows.isEmpty() ? Optional.empty() : Optional.of(mapRequest(rows.get(0)));
+        return rows.isEmpty() ? Optional.empty() : Optional.of(enrichTracking(session, mapRequest(rows.get(0))));
+    }
+
+    private AssistanceRequest enrichTracking(AuthSession session, AssistanceRequest request) {
+        String assignmentPath = "/rest/v1/volunteer_assignments?request_id=eq." + request.id()
+                + "&select=id,status&order=updated_at.desc&limit=1";
+        JsonNode assignments = send(session, assignmentPath, "GET", null);
+        if (!assignments.isArray() || assignments.size() > 1) {
+            throw new RepositoryException("AafatLink received invalid assignment tracking data.");
+        }
+        if (assignments.isEmpty()) {
+            return request;
+        }
+
+        JsonNode assignment = assignments.get(0);
+        String assignmentId = required(assignment, "id");
+        String assignmentState = required(assignment, "status");
+        String progressPath = "/rest/v1/task_progress_updates?assignment_id=eq." + assignmentId
+                + "&select=note,percentage,created_at&order=created_at.desc&limit=1";
+        JsonNode progressRows = send(session, progressPath, "GET", null);
+        if (!progressRows.isArray() || progressRows.size() > 1) {
+            throw new RepositoryException("AafatLink received invalid progress tracking data.");
+        }
+        String latestProgress = progressRows.isEmpty() ? null : progressLabel(progressRows.get(0));
+        return new AssistanceRequest(request.id(), request.details(), request.status(), request.priority(),
+                request.possibleDuplicate(), request.submittedAt(), request.resubmittedAt(), request.version(),
+                request.coordinatorReason(), assignmentState, latestProgress);
+    }
+
+    private static String progressLabel(JsonNode progress) {
+        String note = required(progress, "note");
+        JsonNode percentage = progress.get("percentage");
+        return percentage == null || percentage.isNull() ? note : percentage.asInt() + "% · " + note;
     }
 
     private JsonNode send(AuthSession session, String path, String method, String body) {

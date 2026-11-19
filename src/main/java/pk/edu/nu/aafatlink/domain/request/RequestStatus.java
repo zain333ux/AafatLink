@@ -5,14 +5,28 @@ import java.util.Set;
 
 /** Documented assistance-request lifecycle. Priority is intentionally separate. */
 public enum RequestStatus {
-    PENDING_VERIFICATION,
-    ADDITIONAL_INFORMATION_REQUIRED,
-    VERIFIED,
-    ASSIGNED,
-    IN_PROGRESS,
-    AWAITING_CLOSURE_REVIEW,
-    CLOSED,
-    REJECTED;
+    PENDING_VERIFICATION("Pending Verification"),
+    ADDITIONAL_INFORMATION_REQUIRED("Additional Information Required"),
+    VERIFIED("Verified"),
+    ASSIGNED("Assigned"),
+    IN_PROGRESS("In Progress"),
+    AWAITING_CLOSURE_REVIEW("Awaiting Closure Review"),
+    CLOSED("Closed"),
+    REJECTED("Rejected");
+
+    private final String displayName;
+
+    RequestStatus(String displayName) {
+        this.displayName = displayName;
+    }
+
+    public String displayName() {
+        return displayName;
+    }
+
+    public boolean canRequesterResubmit() {
+        return this == ADDITIONAL_INFORMATION_REQUIRED;
+    }
 
     public boolean canTransitionTo(RequestStatus target) {
         if (target == null) {

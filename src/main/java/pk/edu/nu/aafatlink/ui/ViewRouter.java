@@ -10,6 +10,7 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 import pk.edu.nu.aafatlink.application.auth.AuthenticationController;
 import pk.edu.nu.aafatlink.application.auth.PasswordRecoveryCoordinator;
+import pk.edu.nu.aafatlink.application.request.RequestController;
 import pk.edu.nu.aafatlink.app.AppConfiguration;
 import pk.edu.nu.aafatlink.app.SessionManager;
 import pk.edu.nu.aafatlink.app.navigation.NavigationPolicy;
@@ -27,16 +28,18 @@ public final class ViewRouter {
     private final NavigationPolicy navigationPolicy;
     private final AuthenticationController authentication;
     private final PasswordRecoveryCoordinator passwordRecovery;
+    private final RequestController requests;
 
     public ViewRouter(Stage stage, AppConfiguration configuration, SessionManager sessions,
             NavigationPolicy navigationPolicy, AuthenticationController authentication,
-            PasswordRecoveryCoordinator passwordRecovery) {
+            PasswordRecoveryCoordinator passwordRecovery, RequestController requests) {
         this.stage = Objects.requireNonNull(stage, "stage");
         this.configuration = Objects.requireNonNull(configuration, "configuration");
         this.sessions = Objects.requireNonNull(sessions, "sessions");
         this.navigationPolicy = Objects.requireNonNull(navigationPolicy, "navigationPolicy");
         this.authentication = authentication;
         this.passwordRecovery = passwordRecovery;
+        this.requests = requests;
     }
 
     public void showLogin() {
@@ -49,7 +52,7 @@ public final class ViewRouter {
             showLogin();
             return;
         }
-        show("/pk/edu/nu/aafatlink/fxml/app-shell.fxml", 1_280, 800);
+        show("/pk/edu/nu/aafatlink/fxml/app-shell.fxml", 1_280, 700);
     }
 
     public void showRegistration() {
@@ -96,7 +99,7 @@ public final class ViewRouter {
             return new LoginViewController(this, configuration, sessions, authentication);
         }
         if (type == AppShellController.class) {
-            return new AppShellController(this, sessions, navigationPolicy, authentication);
+            return new AppShellController(this, sessions, navigationPolicy, authentication, requests);
         }
         if (type == RegistrationViewController.class) {
             return new RegistrationViewController(this, authentication);

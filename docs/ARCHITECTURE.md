@@ -19,7 +19,7 @@ The desktop client contains no privileged database credential. PostgreSQL RLS an
 | `pk.edu.nu.aafatlink` | JavaFX lifecycle and launcher |
 | `app` | configuration, session and application-level infrastructure |
 | `app.navigation` | role-aware presentation destinations |
-| `ui.auth`, `ui.shell` | FXML presentation controllers |
+| `ui.auth`, `ui.shell`, `ui.request` | FXML presentation controllers and reusable shell content |
 | `application` | six GRASP use-case controllers, added with workflow slices |
 | `domain` | entities, value objects, status enums and business rules |
 | `service` | cross-entity business services |
@@ -49,3 +49,9 @@ The current public workflow RPCs require definer rights because desktop roles de
 ## Authentication boundary
 
 `SupabaseAuthClient` handles GoTrue requests; `SupabaseAccountRepository` loads the RLS-protected account; `AuthenticationController` coordinates both and starts the local session only after role/status retrieval succeeds. JavaFX controllers only collect input, run the controller on a background task and present the outcome. Password recovery is isolated in a PKCE coordinator and loopback callback component.
+
+## Requester workspace boundary
+
+`AppShellController` owns presentation navigation and loads child FXML into one reusable content host. `RequestFormViewController` and `RequestListViewController` depend on the plain-Java `RequestController`; they never call Supabase directly. Remote work runs on daemon JavaFX tasks so network latency does not block the interface. Demonstration sessions use the same screens but cannot submit or retrieve operational records because they contain no authenticated token.
+
+The request form keeps entered data after remote failure, validates the documented text fields through `AssistanceRequestDraft`, and validates local JPG, PNG and PDF evidence up to 5 MB through `EvidenceFileValidator`. Storage staging and commit reconciliation remain a separate infrastructure increment; the UI refuses to imply that a selected local file was uploaded.

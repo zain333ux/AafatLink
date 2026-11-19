@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ProgressIndicator?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.FlowPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Priority?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="pk.edu.nu.aafatlink.ui.request.RequestListViewController"
+      spacing="18.0" styleClass="content-area request-list-page">
+    <padding><Insets top="28.0" right="30.0" bottom="32.0" left="30.0" /></padding>
+    <HBox alignment="CENTER_LEFT" spacing="14.0">
+        <VBox spacing="5.0">
+            <Label text="My assistance requests" styleClass="welcome-title" />
+            <Label text="Select a request to review its latest committed status and authorized details."
+                   styleClass="welcome-copy" />
+        </VBox>
+        <Region HBox.hgrow="ALWAYS" />
+        <Button fx:id="refreshButton" text="Refresh" onAction="#loadRequests" styleClass="outline-button" />
+    </HBox>
+
+    <SplitPane dividerPositions="0.52" VBox.vgrow="ALWAYS" styleClass="request-split-pane">
+        <items>
+            <VBox minWidth="430.0" spacing="12.0" styleClass="panel-card request-list-panel">
+                <Label text="REQUESTS" styleClass="card-kicker" />
+                <StackPane VBox.vgrow="ALWAYS">
+                    <TableView fx:id="requestTable" VBox.vgrow="ALWAYS" styleClass="request-table">
+                        <columns>
+                            <TableColumn fx:id="requestIdColumn" text="Request ID" prefWidth="185.0" />
+                            <TableColumn fx:id="submittedColumn" text="Submitted" prefWidth="135.0" />
+                            <TableColumn fx:id="disasterColumn" text="Type" prefWidth="95.0" />
+                            <TableColumn fx:id="statusColumn" text="Status" prefWidth="170.0" />
+                        </columns>
+                    </TableView>
+                    <ProgressIndicator fx:id="loadingIndicator" maxWidth="34.0" maxHeight="34.0" />
+                    <VBox fx:id="emptyState" visible="false" managed="false" alignment="CENTER" spacing="10.0"
+                          styleClass="empty-state">
+                        <Label text="No requests yet" styleClass="empty-state-title" />
+                        <Label fx:id="emptyStateLabel" text="No assistance requests found."
+                               textAlignment="CENTER" wrapText="true" styleClass="empty-state-copy" />
+                    </VBox>
+                    <VBox fx:id="errorState" visible="false" managed="false" alignment="CENTER" spacing="12.0"
+                          styleClass="empty-state">
+                        <Label text="Requests could not be loaded" styleClass="empty-state-title" />
+                        <Label fx:id="errorLabel" text="Check the connection and retry."
+                               textAlignment="CENTER" wrapText="true" styleClass="empty-state-copy form-error" />
+                        <Button text="Retry" onAction="#loadRequests" styleClass="outline-button" />
+                    </VBox>
+                </StackPane>
+            </VBox>
+
+            <ScrollPane fitToWidth="true" hbarPolicy="NEVER" styleClass="detail-scroll">
+                <StackPane minWidth="390.0">
+                    <VBox fx:id="detailPlaceholder" alignment="CENTER" spacing="10.0" styleClass="empty-state">
+                        <Label text="Select a request" styleClass="empty-state-title" />
+                        <Label text="Its status, details and response journey will appear here."
+                               wrapText="true" textAlignment="CENTER" styleClass="empty-state-copy" />
+                    </VBox>
+                    <VBox fx:id="detailContent" visible="false" managed="false" spacing="18.0"
+                          styleClass="panel-card request-detail-panel">
+                        <HBox alignment="CENTER_LEFT" spacing="12.0">
+                            <VBox spacing="4.0" HBox.hgrow="ALWAYS">
+                                <Label text="REQUEST DETAILS" styleClass="card-kicker" />
+                                <Label fx:id="detailIdLabel" styleClass="request-id" />
+                            </VBox>
+                            <Label fx:id="detailStatusLabel" styleClass="status-chip" />
+                        </HBox>
+                        <FlowPane fx:id="lifecyclePane" hgap="8.0" vgap="8.0" />
+                        <Separator />
+                        <HBox spacing="18.0">
+                            <VBox spacing="4.0" HBox.hgrow="ALWAYS">
+                                <Label text="Priority" styleClass="detail-label" />
+                                <Label fx:id="detailPriorityLabel" styleClass="detail-value" />
+                            </VBox>
+                            <VBox spacing="4.0" HBox.hgrow="ALWAYS">
+                                <Label text="Submitted" styleClass="detail-label" />
+                                <Label fx:id="detailSubmittedLabel" styleClass="detail-value" />
+                            </VBox>
+                        </HBox>
+                        <VBox spacing="5.0">
+                            <Label text="Location" styleClass="detail-label" />
+                            <Label fx:id="detailLocationLabel" wrapText="true" styleClass="detail-value" />
+                        </VBox>
+                        <VBox spacing="5.0">
+                            <Label text="Situation" styleClass="detail-label" />
+                            <Label fx:id="detailDescriptionLabel" wrapText="true" styleClass="detail-value" />
+                        </VBox>
+                        <VBox spacing="5.0">
+                            <Label text="Required assistance" styleClass="detail-label" />
+                            <Label fx:id="detailAssistanceLabel" wrapText="true" styleClass="detail-value" />
+                        </VBox>
+                        <VBox spacing="5.0">
+                            <Label text="Affected-person details" styleClass="detail-label" />
+                            <Label fx:id="detailAffectedLabel" wrapText="true" styleClass="detail-value" />
+                        </VBox>
+                        <HBox spacing="18.0">
+                            <VBox spacing="4.0" HBox.hgrow="ALWAYS">
+                                <Label text="Assignment" styleClass="detail-label" />
+                                <Label fx:id="detailAssignmentLabel" wrapText="true" styleClass="detail-value" />
+                            </VBox>
+                            <VBox spacing="4.0" HBox.hgrow="ALWAYS">
+                                <Label text="Latest progress" styleClass="detail-label" />
+                                <Label fx:id="detailProgressLabel" wrapText="true" styleClass="detail-value" />
+                            </VBox>
+                        </HBox>
+                        <VBox fx:id="coordinatorReasonBox" visible="false" managed="false" spacing="5.0"
+                              styleClass="warning-banner">
+                            <Label text="Coordinator reason" styleClass="warning-title" />
+                            <Label fx:id="coordinatorReasonLabel" wrapText="true" styleClass="warning-copy" />
+                        </VBox>
+                        <Button fx:id="resubmitButton" text="Update and resubmit" onAction="#resubmitSelected"
+                                visible="false" managed="false" maxWidth="Infinity" styleClass="primary-button" />
+                    </VBox>
+                </StackPane>
+            </ScrollPane>
+        </items>
+    </SplitPane>
+</VBox>
