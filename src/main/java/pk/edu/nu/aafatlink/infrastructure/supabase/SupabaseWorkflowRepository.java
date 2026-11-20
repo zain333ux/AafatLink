@@ -18,6 +18,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import pk.edu.nu.aafatlink.domain.auth.AuthSession;
+import pk.edu.nu.aafatlink.domain.assignment.AssignmentContext;
+import pk.edu.nu.aafatlink.domain.assignment.AssignmentCreationResult;
+import pk.edu.nu.aafatlink.domain.assignment.AssignmentFilter;
+import pk.edu.nu.aafatlink.domain.assignment.AssignmentResponseResult;
+import pk.edu.nu.aafatlink.domain.assignment.AssignmentStatus;
+import pk.edu.nu.aafatlink.domain.assignment.ReassignmentResult;
+import pk.edu.nu.aafatlink.domain.assignment.VolunteerAssignment;
 import pk.edu.nu.aafatlink.domain.request.AssistanceRequest;
 import pk.edu.nu.aafatlink.domain.request.AssistanceRequestDraft;
 import pk.edu.nu.aafatlink.domain.request.DisasterType;
@@ -241,6 +248,134 @@ public final class SupabaseWorkflowRepository implements WorkflowRepository {
         }
     }
 
+    @Override
+    public List<AssignmentContext> findPendingAssignments(AuthSession session, UUID volunteerId) {
+        String path = "/rest/v1/volunteer_assignments?volunteer_account_id=eq." + volunteerId
+                + "&status=eq.PENDING_ACCEPTANCE&select=id,request_id,volunteer_account_id,status,assigned_at,"
+                + "scheduled_start_at,scheduled_end_at,version&order=assigned_at.desc";
+        JsonNode rows = send(session, path, "GET", null);
+        if (!rows.isArray()) {
+            throw new RepositoryException("AafatLink received invalid pending-assignment data.");
+        }
+        List<AssignmentContext> assignments = new ArrayList<>();
+        rows.forEach(row -> {
+            VolunteerAssignment assignment = mapAssignment(row);
+            AssistanceRequest request = findRequestForReview(session, assignment.requestId())
+                    .orElseThrow(() -> new RepositoryException("An assignment request could not be loaded."));
+            assignments.add(new AssignmentContext(assignment, request));
+        });
+        return List.copyOf(assignments);
+    }
+
+    @Override
+    public Optional<AssignmentContext> findAssignmentContext(AuthSession session, UUID assignmentId) {
+        String path = "/rest/v1/volunteer_assignments?id=eq." + assignmentId
+                + "&select=id,request_id,volunteer_account_id,status,assigned_at,scheduled_start_at,"
+                + "scheduled_end_at,version&limit=1";
+        JsonNode rows = send(session, path, "GET", null);
+        if (!rows.isArray() || rows.size() > 1) {
+            throw new RepositoryException("AafatLink received invalid assignment detail data.");
+        }
+        if (rows.isEmpty()) {
+            return Optional.empty();
+        }
+        VolunteerAssignment assignment = mapAssignment(rows.get(0));
+        return findRequestForReview(session, assignment.requestId())
+                .map(request -> new AssignmentContext(assignment, request));
+    }
+
+    @Override
+    public AssignmentResponseResult respondToAssignment(AuthSession session, UUID operationId,
+            UUID assignmentId, long expectedVersion, boolean accept, String declineReason) {
+        ObjectNode body = JSON.createObjectNode();
+        body.put("p_operation_id", operationId.toString());
+        body.put("p_assignment_id", assignmentId.toString());
+        body.put("p_expected_version", expectedVersion);
+        body.put("p_accept", accept);
+        putNullable(body, "p_decline_reason", declineReason);
+        JsonNode result = send(session, "/rest/v1/rpc/respond_to_assignment", "POST", body.toString());
+        try {
+            return new AssignmentResponseResult(UUID.fromString(required(result, "assignment_id")),
+                    AssignmentStatus.valueOf(required(result, "assignment_status")),
+                    UUID.fromString(required(result, "request_id")),
+                    RequestStatus.valueOf(required(result, "request_status")),
+                    result.path("assignment_version").asLong(), result.path("request_version").asLong());
+        } catch (IllegalArgumentException exception) {
+            throw new RepositoryException("AafatLink received an invalid assignment response.", exception);
+        }
+    }
+
+    @Override
+    public List<AssistanceRequest> findAssignableRequests(AuthSession session) {
+        return findReviewQueue(session,
+                "status=eq.VERIFIED&priority=not.is.null&order=priority.asc,submitted_at.asc");
+    }
+
+    @Override
+    public List<AssignmentContext> findActiveAssignmentsForCoordinator(AuthSession session) {
+        String path = "/rest/v1/volunteer_assignments?status=in.(PENDING_ACCEPTANCE,ACCEPTED,IN_PROGRESS)"
+                + "&select=id,request_id,volunteer_account_id,status,assigned_at,scheduled_start_at,"
+                + "scheduled_end_at,version&order=assigned_at.desc";
+        JsonNode rows = send(session, path, "GET", null);
+        if (!rows.isArray()) {
+            throw new RepositoryException("AafatLink received invalid active-assignment data.");
+        }
+        List<AssignmentContext> assignments = new ArrayList<>();
+        rows.forEach(row -> {
+            VolunteerAssignment assignment = mapAssignment(row);
+            AssistanceRequest request = findRequestForReview(session, assignment.requestId())
+                    .orElseThrow(() -> new RepositoryException("An active assignment request could not be loaded."));
+            assignments.add(new AssignmentContext(assignment, request));
+        });
+        return List.copyOf(assignments);
+    }
+
+    @Override
+    public AssignmentCreationResult assignVolunteer(AuthSession session, UUID operationId,
+            AssistanceRequest request, UUID volunteerId, AssignmentFilter filter) {
+        Objects.requireNonNull(request, "request");
+        Objects.requireNonNull(filter, "filter");
+        ObjectNode body = JSON.createObjectNode();
+        body.put("p_operation_id", operationId.toString());
+        body.put("p_request_id", request.id().toString());
+        body.put("p_volunteer_account_id", volunteerId.toString());
+        body.put("p_expected_request_version", request.version());
+        body.put("p_skill_id", filter.skillId());
+        body.put("p_service_area_id", filter.serviceAreaId());
+        putInstant(body, "p_scheduled_start_at", filter.scheduledStartAt());
+        putInstant(body, "p_scheduled_end_at", filter.scheduledEndAt());
+        JsonNode result = send(session, "/rest/v1/rpc/assign_volunteer_matching", "POST", body.toString());
+        try {
+            return new AssignmentCreationResult(UUID.fromString(required(result, "assignment_id")),
+                    UUID.fromString(required(result, "request_id")),
+                    AssignmentStatus.valueOf(required(result, "assignment_status")),
+                    RequestStatus.valueOf(required(result, "request_status")),
+                    result.path("request_version").asLong());
+        } catch (IllegalArgumentException exception) {
+            throw new RepositoryException("AafatLink received an invalid assignment result.", exception);
+        }
+    }
+
+    @Override
+    public ReassignmentResult reassignVolunteer(AuthSession session, UUID operationId, UUID assignmentId,
+            long expectedAssignmentVersion, String reason) {
+        ObjectNode body = JSON.createObjectNode();
+        body.put("p_operation_id", operationId.toString());
+        body.put("p_assignment_id", assignmentId.toString());
+        body.put("p_expected_assignment_version", expectedAssignmentVersion);
+        body.put("p_reason", reason);
+        JsonNode result = send(session, "/rest/v1/rpc/reassign_volunteer", "POST", body.toString());
+        try {
+            return new ReassignmentResult(UUID.fromString(required(result, "assignment_id")),
+                    AssignmentStatus.valueOf(required(result, "assignment_status")),
+                    UUID.fromString(required(result, "request_id")),
+                    RequestStatus.valueOf(required(result, "request_status")),
+                    result.path("assignment_version").asLong(), result.path("request_version").asLong());
+        } catch (IllegalArgumentException exception) {
+            throw new RepositoryException("AafatLink received an invalid reassignment result.", exception);
+        }
+    }
+
     private AssistanceRequest enrichTracking(AuthSession session, AssistanceRequest request) {
         String assignmentPath = "/rest/v1/volunteer_assignments?request_id=eq." + request.id()
                 + "&select=id,status&order=updated_at.desc&limit=1";
@@ -271,6 +406,20 @@ public final class SupabaseWorkflowRepository implements WorkflowRepository {
         String note = required(progress, "note");
         JsonNode percentage = progress.get("percentage");
         return percentage == null || percentage.isNull() ? note : percentage.asInt() + "% · " + note;
+    }
+
+    private static VolunteerAssignment mapAssignment(JsonNode row) {
+        try {
+            return new VolunteerAssignment(UUID.fromString(required(row, "id")),
+                    UUID.fromString(required(row, "request_id")),
+                    UUID.fromString(required(row, "volunteer_account_id")),
+                    AssignmentStatus.valueOf(required(row, "status")),
+                    Instant.parse(required(row, "assigned_at")), null, null,
+                    instantOrNull(row, "scheduled_start_at"), instantOrNull(row, "scheduled_end_at"),
+                    row.path("version").asLong());
+        } catch (IllegalArgumentException exception) {
+            throw new RepositoryException("AafatLink received invalid assignment data.", exception);
+        }
     }
 
     private JsonNode send(AuthSession session, String path, String method, String body) {
@@ -326,6 +475,14 @@ public final class SupabaseWorkflowRepository implements WorkflowRepository {
             body.putNull(name);
         } else {
             body.put(name, value);
+        }
+    }
+
+    private static void putInstant(ObjectNode body, String name, Instant value) {
+        if (value == null) {
+            body.putNull(name);
+        } else {
+            body.put(name, value.toString());
         }
     }
 

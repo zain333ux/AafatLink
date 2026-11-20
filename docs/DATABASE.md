@@ -11,13 +11,14 @@
 7. `allow_requester_progress_tracking` permits requesters to read progress only through assignments on their own requests.
 8. `add_reliable_evidence_staging` adds invoker-based staging and reconciliation functions plus one tightly scoped definer cleanup function.
 9. `align_priority_with_uc04` records previous priority and permits reprioritization only while Verified, Assigned or In Progress.
-7. `allow_requester_progress_tracking` permits a requester to read task-progress rows only when they belong to an assignment for that requester’s own assistance request.
+10. `add_volunteer_coordination_workflows` adds readiness status, reference data, candidate matching, conflict-aware assignment, reassignment and volunteer response RPCs.
+11. `index_volunteer_assignment_matches` covers both UC05 reference joins reported by the hosted performance advisor.
 
 All exposed `public` tables enable RLS. Broad `anon` and `authenticated` table privileges are revoked before minimal grants are added.
 
 ## Assignment conflict rule
 
-UC05 does not impose a blanket one-active-assignment rule. PostgreSQL prevents overlapping scheduled active assignments for the same volunteer through a GiST exclusion constraint. Non-overlapping scheduled assignments remain valid. Because an unscheduled assignment has no interval to compare, at most one unscheduled active assignment is allowed per volunteer. One active assignment per request is also enforced.
+UC05 does not impose a blanket one-active-assignment rule. PostgreSQL prevents overlapping scheduled active assignments for the same volunteer through a GiST exclusion constraint and repeats the conflict check while the assignment RPC holds relevant row locks. Non-overlapping scheduled assignments remain valid. If either the proposed or existing active assignment is unscheduled, the operation is conservatively treated as a conflict because non-overlap cannot be proved. One active assignment per request is also enforced.
 
 Active means `PENDING_ACCEPTANCE`, `ACCEPTED` or `IN_PROGRESS` for volunteer conflicts. `AWAITING_CLOSURE_REVIEW` no longer occupies field time, but it remains the one active assignment attached to its request until closure or rework.
 
@@ -39,6 +40,6 @@ The private role lookup is the sole base helper requiring definer rights because
 
 ## Validation status
 
-The first six migrations are applied to the designated `aafatlink-dev` project. Hosted checks confirmed 20 public tables, RLS on all 20 tables, 29 operation-specific policies, one private evidence bucket and the Auth onboarding trigger. Security and performance advisors were rerun after hardening. The requester-progress, reliable-evidence and UC04 alignment migrations are verified by the local contract suite but remain undeployed because the Supabase connector is temporarily unavailable.
+All eleven migrations through volunteer coordination and its advisor follow-up are applied to the designated `aafatlink-dev` project. Hosted checks confirmed the readiness/assignment columns and the six UC05/UC07/UC08 functions. Security and performance advisors were rerun after deployment. SECURITY DEFINER notices cover intentional atomic workflow boundaries described above; leaked-password protection remains an owner-controlled hosted Auth setting.
 
 Java contract tests check RLS coverage, request status vocabulary, assignment conflict constraints, definer hardening, hosted hardening and evidence cleanup protection. Docker is still unavailable, so `supabase db reset` and local pgTAP execution remain blocked.

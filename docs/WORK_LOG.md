@@ -190,3 +190,24 @@ Implement and validate the PostgreSQL schema, RLS foundation and transactional w
 
 - Implement UC05, UC07 and UC08 from Deliverable 3 before any optional portfolio work.
 - Add UC03 evidence and possible-duplicate detail retrieval while implementing the shared coordinator repository queries.
+
+## 2026-11-21
+
+### UC05, UC07 and UC08 volunteer coordination
+
+- Implemented volunteer readiness profiles with authenticated ownership, approval visibility, availability, skills and service areas.
+- Implemented coordinator candidate matching, conflict-aware assignment and reasoned reassignment.
+- Implemented volunteer assignment acceptance and mandatory-reason decline.
+- Added domain objects that own readiness and assignment state rules, plain-Java GRASP application controllers, protected repository interfaces, Supabase HTTP adapters and three connected JavaFX screens.
+- Added transactional database functions with actor, role, ownership, version, idempotency and concurrency checks.
+- Final conflict rule: overlapping active schedules are rejected; non-overlapping schedules are allowed; any unscheduled active work conflicts because non-overlap cannot be proven.
+- Deployed the requester-progress, evidence-recovery, UC04-alignment and volunteer-coordination migrations to `aafatlink-dev`.
+- Verified the expected RPCs and schema columns on the hosted database. Hosted security warnings are the intentional hardened SECURITY DEFINER workflow boundaries; the readiness and eligibility functions use SECURITY INVOKER.
+- Added and deployed covering indexes for both new UC05 reference foreign keys identified by the hosted performance advisor.
+- `mvnw.cmd clean test`: 76 tests passed with no failures, errors or skips.
+- `mvnw.cmd package`: succeeded and produced `target/aafatlink-0.1.0-SNAPSHOT.jar`.
+- `mvnw.cmd javafx:run`: the login, Volunteer dashboard, readiness screen, assignments empty state and Coordinator assignment screen opened without FXML errors and were visually inspected.
+
+### Next
+
+- Implement UC09 task progress, UC10 task completion and UC06 coordinator closure as one atomic workflow slice.

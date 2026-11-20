@@ -13,6 +13,8 @@ import java.util.UUID;
 import org.junit.jupiter.api.Test;
 
 import pk.edu.nu.aafatlink.domain.auth.AuthSession;
+import pk.edu.nu.aafatlink.domain.assignment.AssignmentContext;
+import pk.edu.nu.aafatlink.domain.assignment.AssignmentResponseResult;
 import pk.edu.nu.aafatlink.domain.request.AssistanceRequest;
 import pk.edu.nu.aafatlink.domain.request.AssistanceRequestDraft;
 import pk.edu.nu.aafatlink.domain.request.DisasterType;
@@ -119,5 +121,12 @@ class RequestReviewControllerTest {
         @Override public RequestSubmissionResult resubmitRequest(AuthSession session, UUID operationId, UUID requestId, long expectedVersion, AssistanceRequestDraft draft) { throw new UnsupportedOperationException(); }
         @Override public List<AssistanceRequest> findRequestsByRequester(AuthSession session, UUID requesterId) { return List.of(); }
         @Override public Optional<AssistanceRequest> findRequestForRequester(AuthSession session, UUID requestId, UUID requesterId) { return Optional.empty(); }
+        @Override public List<AssignmentContext> findPendingAssignments(AuthSession session, UUID volunteerId) { return List.of(); }
+        @Override public Optional<AssignmentContext> findAssignmentContext(AuthSession session, UUID assignmentId) { return Optional.empty(); }
+        @Override public AssignmentResponseResult respondToAssignment(AuthSession session, UUID operationId, UUID assignmentId, long expectedVersion, boolean accept, String declineReason) { throw new UnsupportedOperationException(); }
+        @Override public List<AssistanceRequest> findAssignableRequests(AuthSession session) { return List.of(); }
+        @Override public List<AssignmentContext> findActiveAssignmentsForCoordinator(AuthSession session) { return List.of(); }
+        @Override public pk.edu.nu.aafatlink.domain.assignment.AssignmentCreationResult assignVolunteer(AuthSession session, UUID operationId, AssistanceRequest request, UUID volunteerId, pk.edu.nu.aafatlink.domain.assignment.AssignmentFilter filter) { throw new UnsupportedOperationException(); }
+        @Override public pk.edu.nu.aafatlink.domain.assignment.ReassignmentResult reassignVolunteer(AuthSession session, UUID operationId, UUID assignmentId, long expectedAssignmentVersion, String reason) { throw new UnsupportedOperationException(); }
     }
 }

@@ -19,8 +19,8 @@ The desktop client contains no privileged database credential. PostgreSQL RLS an
 | `pk.edu.nu.aafatlink` | JavaFX lifecycle and launcher |
 | `app` | configuration, session and application-level infrastructure |
 | `app.navigation` | role-aware presentation destinations |
-| `ui.auth`, `ui.shell`, `ui.request` | FXML presentation controllers and reusable shell content |
-| `application` | six GRASP use-case controllers, added with workflow slices |
+| `ui.auth`, `ui.shell`, `ui.request`, `ui.volunteer`, `ui.assignment` | FXML presentation controllers and reusable shell content |
+| `application` | GRASP use-case controllers, grouped by workflow while preserving the six reviewed controller responsibilities |
 | `domain` | entities, value objects, status enums and business rules |
 | `service` | cross-entity business services |
 | `repository` | persistence ports |
@@ -57,3 +57,9 @@ The current public workflow RPCs require definer rights because desktop roles de
 The request form keeps entered data after remote failure and validates mandatory text fields through `AssistanceRequestDraft`. `EvidenceFileValidator` accepts local JPG, PNG and PDF evidence up to 5 MB. `SupabaseEvidenceStorage` stages private objects under the authenticated actor and operation path; `RequestController` registers the staged row, submits with the same operation ID, reconciles uncertain results under a database row lock, and requests cleanup only after the operation is safely abandoned.
 
 `RequestReviewController` owns the UC03 and UC04 application operations without depending on JavaFX. `RequestReviewViewController` presents the two coordinator queue modes. The repository supplies owner-independent coordinator queries under RLS and invokes atomic, version-checked verification and priority RPCs.
+
+## Volunteer coordination boundary
+
+`VolunteerController` coordinates UC07 readiness and UC08 assignment response. It depends on `VolunteerRepository` for readiness/reference data and `WorkflowRepository` for operational assignment state, matching the reviewed UML dependency correction. `AssignmentController` coordinates UC05 candidate search, assignment and reassignment for coordinators. Neither controller imports JavaFX.
+
+`VolunteerProfile` is the Information Expert for approval, availability and capability matching. `VolunteerAssignment` encapsulates the legal response states. Repository interfaces provide Protected Variation around PostgREST and RPC details. The presentation controllers run these operations off the JavaFX thread and expose explicit loading, empty, validation, success and failure states.

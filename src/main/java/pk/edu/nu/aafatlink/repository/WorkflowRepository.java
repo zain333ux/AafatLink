@@ -5,6 +5,11 @@ import java.util.Optional;
 import java.util.UUID;
 
 import pk.edu.nu.aafatlink.domain.auth.AuthSession;
+import pk.edu.nu.aafatlink.domain.assignment.AssignmentContext;
+import pk.edu.nu.aafatlink.domain.assignment.AssignmentCreationResult;
+import pk.edu.nu.aafatlink.domain.assignment.AssignmentFilter;
+import pk.edu.nu.aafatlink.domain.assignment.AssignmentResponseResult;
+import pk.edu.nu.aafatlink.domain.assignment.ReassignmentResult;
 import pk.edu.nu.aafatlink.domain.request.AssistanceRequest;
 import pk.edu.nu.aafatlink.domain.request.AssistanceRequestDraft;
 import pk.edu.nu.aafatlink.domain.request.RequestSubmissionResult;
@@ -46,4 +51,21 @@ public interface WorkflowRepository {
 
     PriorityAssessmentResult recordPriorityAssessment(AuthSession session, UUID operationId, UUID requestId,
             long expectedVersion, RequestPriority suggested, RequestPriority selected, String justification);
+
+    List<AssignmentContext> findPendingAssignments(AuthSession session, UUID volunteerId);
+
+    Optional<AssignmentContext> findAssignmentContext(AuthSession session, UUID assignmentId);
+
+    AssignmentResponseResult respondToAssignment(AuthSession session, UUID operationId, UUID assignmentId,
+            long expectedVersion, boolean accept, String declineReason);
+
+    List<AssistanceRequest> findAssignableRequests(AuthSession session);
+
+    List<AssignmentContext> findActiveAssignmentsForCoordinator(AuthSession session);
+
+    AssignmentCreationResult assignVolunteer(AuthSession session, UUID operationId, AssistanceRequest request,
+            UUID volunteerId, AssignmentFilter filter);
+
+    ReassignmentResult reassignVolunteer(AuthSession session, UUID operationId, UUID assignmentId,
+            long expectedAssignmentVersion, String reason);
 }

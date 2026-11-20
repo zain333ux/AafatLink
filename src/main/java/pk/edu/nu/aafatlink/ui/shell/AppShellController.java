@@ -25,12 +25,17 @@ import pk.edu.nu.aafatlink.app.navigation.NavigationPolicy;
 import pk.edu.nu.aafatlink.application.auth.AuthenticationController;
 import pk.edu.nu.aafatlink.application.request.RequestController;
 import pk.edu.nu.aafatlink.application.request.RequestReviewController;
+import pk.edu.nu.aafatlink.application.assignment.AssignmentController;
+import pk.edu.nu.aafatlink.application.volunteer.VolunteerController;
 import pk.edu.nu.aafatlink.domain.request.AssistanceRequest;
 import pk.edu.nu.aafatlink.service.evidence.EvidenceFileValidator;
 import pk.edu.nu.aafatlink.ui.ViewRouter;
 import pk.edu.nu.aafatlink.ui.request.RequestFormViewController;
 import pk.edu.nu.aafatlink.ui.request.RequestListViewController;
 import pk.edu.nu.aafatlink.ui.request.RequestReviewViewController;
+import pk.edu.nu.aafatlink.ui.assignment.VolunteerAssignmentViewController;
+import pk.edu.nu.aafatlink.ui.volunteer.VolunteerAssignmentsViewController;
+import pk.edu.nu.aafatlink.ui.volunteer.VolunteerReadinessViewController;
 
 /** Presentation controller for the reusable role-aware application frame. */
 public final class AppShellController {
@@ -41,6 +46,8 @@ public final class AppShellController {
     private final AuthenticationController authentication;
     private final RequestController requests;
     private final RequestReviewController reviews;
+    private final VolunteerController volunteers;
+    private final AssignmentController assignments;
     private final Map<NavigationItem, Button> navigationButtons = new EnumMap<>(NavigationItem.class);
 
     @FXML
@@ -63,13 +70,16 @@ public final class AppShellController {
     private Label sessionNoticeTitle;
 
     public AppShellController(ViewRouter router, SessionManager sessions, NavigationPolicy navigationPolicy,
-            AuthenticationController authentication, RequestController requests, RequestReviewController reviews) {
+            AuthenticationController authentication, RequestController requests, RequestReviewController reviews,
+            VolunteerController volunteers, AssignmentController assignments) {
         this.router = Objects.requireNonNull(router, "router");
         this.sessions = Objects.requireNonNull(sessions, "sessions");
         this.navigationPolicy = Objects.requireNonNull(navigationPolicy, "navigationPolicy");
         this.authentication = authentication;
         this.requests = requests;
         this.reviews = reviews;
+        this.volunteers = volunteers;
+        this.assignments = assignments;
     }
 
     @FXML
@@ -121,6 +131,9 @@ public final class AppShellController {
             case MY_REQUESTS -> showRequestList();
             case VERIFICATION_QUEUE -> showRequestReview(RequestReviewViewController.Mode.VERIFICATION);
             case PRIORITY_QUEUE -> showRequestReview(RequestReviewViewController.Mode.PRIORITY);
+            case READINESS_PROFILE -> showVolunteerReadiness();
+            case ASSIGNMENTS -> showVolunteerAssignments();
+            case VOLUNTEER_ASSIGNMENT -> showVolunteerAssignment();
             default -> showUnavailable(item);
         }
     }
@@ -166,6 +179,39 @@ public final class AppShellController {
                 return new RequestReviewViewController(sessions, reviews, mode);
             }
             throw new IllegalArgumentException("Unsupported shell content controller: " + type.getName());
+        });
+        setContent(load(loader));
+    }
+
+    private void showVolunteerReadiness() {
+        FXMLLoader loader = loader("volunteer-readiness-view.fxml");
+        loader.setControllerFactory(type -> {
+            if (type == VolunteerReadinessViewController.class) {
+                return new VolunteerReadinessViewController(sessions, volunteers);
+            }
+            throw new IllegalArgumentException("Unsupported readiness controller: " + type.getName());
+        });
+        setContent(load(loader));
+    }
+
+    private void showVolunteerAssignments() {
+        FXMLLoader loader = loader("volunteer-assignments-view.fxml");
+        loader.setControllerFactory(type -> {
+            if (type == VolunteerAssignmentsViewController.class) {
+                return new VolunteerAssignmentsViewController(sessions, volunteers);
+            }
+            throw new IllegalArgumentException("Unsupported volunteer assignment controller: " + type.getName());
+        });
+        setContent(load(loader));
+    }
+
+    private void showVolunteerAssignment() {
+        FXMLLoader loader = loader("volunteer-assignment-view.fxml");
+        loader.setControllerFactory(type -> {
+            if (type == VolunteerAssignmentViewController.class) {
+                return new VolunteerAssignmentViewController(sessions, assignments);
+            }
+            throw new IllegalArgumentException("Unsupported coordinator assignment controller: " + type.getName());
         });
         setContent(load(loader));
     }
@@ -237,12 +283,12 @@ public final class AppShellController {
                 "Your role-aware command centre for the documented response workflow.");
         descriptions.put(NavigationItem.SUBMIT_REQUEST, "Create a validated assistance request or resubmit one returned for more information.");
         descriptions.put(NavigationItem.MY_REQUESTS, "Review your requests, current status, priority and latest available progress.");
-        descriptions.put(NavigationItem.READINESS_PROFILE, "UC07 readiness management is scheduled for volunteer coordination.");
-        descriptions.put(NavigationItem.ASSIGNMENTS, "UC08 assignment response is scheduled for volunteer coordination.");
+        descriptions.put(NavigationItem.READINESS_PROFILE, "Maintain UC07 availability, skills, service areas and contact details.");
+        descriptions.put(NavigationItem.ASSIGNMENTS, "Review and respond to UC08 assignments awaiting your decision.");
         descriptions.put(NavigationItem.TASK_PROGRESS, "UC09 and UC10 task execution workflows are scheduled for Phase 7.");
         descriptions.put(NavigationItem.VERIFICATION_QUEUE, "Review pending requests and record an auditable UC03 decision.");
         descriptions.put(NavigationItem.PRIORITY_QUEUE, "Apply UC04 priority rules and record the coordinator's final decision.");
-        descriptions.put(NavigationItem.VOLUNTEER_ASSIGNMENT, "UC05 assignment is scheduled for volunteer coordination.");
+        descriptions.put(NavigationItem.VOLUNTEER_ASSIGNMENT, "Match and reassign volunteers using UC05 eligibility and conflict rules.");
         descriptions.put(NavigationItem.CLOSURE_REVIEW, "UC06 closure review is scheduled for Phase 7.");
         descriptions.put(NavigationItem.REPORTS, "UC11 reporting is scheduled for the reporting and administration phase.");
         descriptions.put(NavigationItem.ACCESS_MANAGEMENT, "UC12 access control is scheduled for the administration phase.");

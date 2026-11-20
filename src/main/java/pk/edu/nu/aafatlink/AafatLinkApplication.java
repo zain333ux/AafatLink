@@ -10,6 +10,8 @@ import pk.edu.nu.aafatlink.application.auth.AuthenticationController;
 import pk.edu.nu.aafatlink.application.auth.PasswordRecoveryCoordinator;
 import pk.edu.nu.aafatlink.application.request.RequestController;
 import pk.edu.nu.aafatlink.application.request.RequestReviewController;
+import pk.edu.nu.aafatlink.application.assignment.AssignmentController;
+import pk.edu.nu.aafatlink.application.volunteer.VolunteerController;
 import pk.edu.nu.aafatlink.app.AppConfiguration;
 import pk.edu.nu.aafatlink.app.ConfigurationException;
 import pk.edu.nu.aafatlink.app.SessionManager;
@@ -18,6 +20,7 @@ import pk.edu.nu.aafatlink.infrastructure.supabase.SupabaseAccountRepository;
 import pk.edu.nu.aafatlink.infrastructure.supabase.SupabaseAuthClient;
 import pk.edu.nu.aafatlink.infrastructure.supabase.SupabaseEvidenceStorage;
 import pk.edu.nu.aafatlink.infrastructure.supabase.SupabaseWorkflowRepository;
+import pk.edu.nu.aafatlink.infrastructure.supabase.SupabaseVolunteerRepository;
 import pk.edu.nu.aafatlink.service.request.PriorityAssessmentService;
 import java.time.Clock;
 import pk.edu.nu.aafatlink.ui.ViewRouter;
@@ -55,8 +58,16 @@ public final class AafatLinkApplication extends Application {
                                     configuration.publishableKey().orElseThrow()));
             RequestReviewController reviews = workflows == null ? null
                     : new RequestReviewController(workflows, new PriorityAssessmentService(), Clock.systemUTC());
+            SupabaseVolunteerRepository volunteerRepository = workflows == null ? null
+                    : new SupabaseVolunteerRepository(configuration.supabaseUrl().orElseThrow(),
+                            configuration.publishableKey().orElseThrow());
+            VolunteerController volunteers = volunteerRepository == null ? null
+                    : new VolunteerController(volunteerRepository, workflows, Clock.systemUTC());
+            AssignmentController assignments = volunteerRepository == null ? null
+                    : new AssignmentController(workflows, volunteerRepository);
             ViewRouter router = new ViewRouter(primaryStage, configuration, sessions,
-                    new NavigationPolicy(), authentication, passwordRecovery, requests, reviews);
+                    new NavigationPolicy(), authentication, passwordRecovery, requests, reviews,
+                    volunteers, assignments);
             primaryStage.setTitle("AafatLink");
             primaryStage.setMinWidth(1_020);
             primaryStage.setMinHeight(680);

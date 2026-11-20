@@ -32,6 +32,8 @@ class DatabaseMigrationContractTest {
             "20261120090000_add_reliable_evidence_staging.sql");
     private static final Path UC04_ALIGNMENT = Path.of("supabase", "migrations",
             "20261120103000_align_priority_with_uc04.sql");
+    private static final Path VOLUNTEER_COORDINATION = Path.of("supabase", "migrations",
+            "20261121090000_add_volunteer_coordination_workflows.sql");
 
     @Test
     void everyPublicTableEnablesRowLevelSecurity() throws IOException {
@@ -68,7 +70,8 @@ class DatabaseMigrationContractTest {
 
     @Test
     void everyDefinerFunctionDerivesIdentityAndPinsSearchPath() throws IOException {
-        String sql = normalized(DOMAIN) + "\n" + normalized(RPCS) + "\n" + normalized(ONBOARDING);
+        String sql = normalized(DOMAIN) + "\n" + normalized(RPCS) + "\n" + normalized(ONBOARDING)
+                + "\n" + normalized(VOLUNTEER_COORDINATION);
         String[] functions = sql.split("create or replace function ");
         int definerCount = 0;
         for (int index = 1; index < functions.length; index++) {
@@ -151,6 +154,23 @@ class DatabaseMigrationContractTest {
         assertTrue(sql.contains("status not in ('verified', 'assigned', 'in_progress')"));
         assertTrue(sql.contains("request_record.priority, p_suggested_priority"));
         assertFalse(sql.contains("'prioritized'"));
+    }
+
+    @Test
+    void volunteerCoordinationRechecksEligibilityAndUsesIdempotentAtomicWorkflows() throws IOException {
+        String sql = normalized(VOLUNTEER_COORDINATION);
+
+        assertTrue(sql.contains("security invoker"));
+        assertTrue(sql.contains("create or replace function public.assign_volunteer_matching"));
+        assertTrue(sql.contains("create or replace function public.respond_to_assignment"));
+        assertTrue(sql.contains("create or replace function public.reassign_volunteer"));
+        assertTrue(sql.contains("profile.approval_status <> 'approved'"));
+        assertTrue(sql.contains("profile.availability_status <> 'available'"));
+        assertTrue(sql.contains("volunteer no longer matches the required skill or service area"));
+        assertTrue(sql.contains("volunteer has a conflicting active assignment"));
+        assertTrue(sql.contains("operation.status = 'committed' then return operation.result"));
+        assertTrue(sql.contains("set status = 'verified'"));
+        assertTrue(sql.contains("revoke execute on function public.assign_volunteer"));
     }
 
     private static String normalized(Path path) throws IOException {

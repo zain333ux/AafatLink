@@ -26,7 +26,7 @@
             </StackPane>
             <VBox spacing="4.0" HBox.hgrow="ALWAYS">
                 <Label text="Implementation status" styleClass="banner-title" />
-                <Label text="Requester submission/tracking and coordinator verification/priority are connected to the application layer. Remaining mandatory workflows stay explicitly tracked."
+                <Label text="Requester, coordinator review and volunteer coordination workflows are connected through the UI, business and database layers. Remaining mandatory workflows stay explicitly tracked."
                        wrapText="true" styleClass="banner-copy" />
             </VBox>
         </HBox>
@@ -39,8 +39,8 @@
             </VBox>
             <VBox prefWidth="236.0" spacing="14.0" styleClass="summary-card">
                 <Label text="CURRENT SLICE" styleClass="card-kicker" />
-                <Label text="UC01 - UC04" styleClass="card-value" />
-                <Label text="Request and review workflows" styleClass="card-caption" />
+                <Label text="7 use cases" styleClass="card-value" />
+                <Label text="UC01-05 and UC07-08" styleClass="card-caption" />
             </VBox>
             <VBox prefWidth="236.0" spacing="14.0" styleClass="summary-card">
                 <Label text="SECURITY" styleClass="card-kicker" />

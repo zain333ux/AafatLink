@@ -4,11 +4,11 @@ Deliverable 3 is the functional authority. A use case is marked complete only wh
 
 ## UC01: Submit Disaster Assistance Request
 
-- **Status:** In progress; the working JavaFX form, application controller, repository and database transaction exist. Storage staging and live authenticated proof remain.
+- **Status:** Implemented and deployed; the working JavaFX form, application controller, private Storage staging and idempotent database transaction exist. A live authenticated demonstration record remains to be prepared.
 - **Java:** `application.request.RequestController`, `ui.request.RequestFormViewController`, request domain records, `service.evidence.EvidenceFileValidator`, `EvidenceStorage`, `repository.WorkflowRepository`, `SupabaseWorkflowRepository` and `SupabaseEvidenceStorage`.
 - **Methods:** `RequestController.submitRequest`, `RequestController.resubmitRequest`, `WorkflowRepository.submitRequest` and `WorkflowRepository.resubmitRequest`.
 - **Screen:** `request-form-view.fxml`, opened from Requester > Submit request; returned requests reuse the screen with pre-filled fields and the coordinator reason.
-- **Database:** `assistance_requests`, `request_evidence`, `workflow_operations`; deployed submit/resubmit RPCs plus locally verified begin, register, reconcile and abandon evidence-operation RPCs awaiting hosted deployment.
+- **Database:** `assistance_requests`, `request_evidence`, `workflow_operations`; deployed submit/resubmit, begin, register, reconcile and abandon evidence-operation RPCs.
 - **Success:** validate, check duplicates, stage evidence, commit the request as `PENDING_VERIFICATION`, return the request ID.
 - **Alternatives:** coordinator recording with separate requester/recorder IDs; duplicate warning; safe evidence retry; resubmission of `ADDITIONAL_INFORMATION_REQUIRED` using the same ID.
 - **Tests:** `AssistanceRequestDraftTest`, `RequestStatusTest`, `EvidenceFileValidatorTest`, `RequestControllerTest`, `SupabaseWorkflowRepositoryTest`, `SupabaseEvidenceStorageTest` and `DatabaseMigrationContractTest`. Live hosted evidence recovery remains.
@@ -16,11 +16,11 @@ Deliverable 3 is the functional authority. A use case is marked complete only wh
 
 ## UC02: Track Assistance Request Status
 
-- **Status:** In progress; owner-scoped request list/detail queries and the JavaFX list/detail screen exist. Assignment/progress history queries and live authenticated proof remain.
+- **Status:** Implemented and deployed; owner-scoped request list/detail queries, assignment/progress history and the JavaFX list/detail screen exist. A seeded live demonstration record remains.
 - **Java:** `application.request.RequestController`, `ui.request.RequestListViewController`, `domain.request.AssistanceRequest`, `RequestStatus`, `repository.WorkflowRepository` and `infrastructure.supabase.SupabaseWorkflowRepository`.
 - **Methods:** `RequestController.getMyRequests`, `RequestController.getRequestDetails`, `WorkflowRepository.findRequestsByRequester` and `WorkflowRepository.findRequestForRequester`.
 - **Screen:** `request-list-view.fxml`, opened from Requester > My requests; it includes loading, empty, retry, detail, lifecycle and resubmission states.
-- **Database:** `assistance_requests`, `volunteer_assignments` and `task_progress_updates`; local migration `allow_requester_progress_tracking` scopes progress reads through requester-owned requests and awaits hosted deployment.
+- **Database:** `assistance_requests`, `volunteer_assignments` and `task_progress_updates`; deployed migration `allow_requester_progress_tracking` scopes progress reads through requester-owned requests.
 - **Success:** show the request's current status and chronological progress without exposing other requesters' records.
 - **Alternatives:** empty state, network retry and requests awaiting more information.
 - **Tests:** `RequestControllerTest` proves authenticated identity scoping; `RequestStatusTest` covers understandable labels and resubmission eligibility; `SupabaseWorkflowRepositoryTest` covers assignment/progress enrichment; `DatabaseMigrationContractTest` covers the owner-only progress policy. Hosted RLS execution and full history ordering remain.
@@ -28,7 +28,7 @@ Deliverable 3 is the functional authority. A use case is marked complete only wh
 
 ## UC03: Verify Assistance Request
 
-- **Status:** Implemented locally for queue and decision paths; hosted migration/live transaction and related-evidence presentation remain before completion.
+- **Status:** Implemented and deployed for queue and decision paths; a seeded live demonstration transaction and richer evidence presentation remain.
 - **Java:** `application.request.RequestReviewController`, `ui.request.RequestReviewViewController`, `VerificationDecision`, `RequestReviewResult`, `WorkflowRepository` and `SupabaseWorkflowRepository`.
 - **Methods:** `loadVerificationQueue`, `getRequestForReview`, `verify`, `reject`, `requestAdditionalInformation`, `findPendingVerificationRequests` and `decideRequestVerification`.
 - **Screen:** Coordinator > Verification queue > Review request.
@@ -40,7 +40,7 @@ Deliverable 3 is the functional authority. A use case is marked complete only wh
 
 ## UC04: Prioritize Emergency Request
 
-- **Status:** Implemented locally; hosted migration/live transaction remain before completion.
+- **Status:** Implemented and deployed; a seeded live demonstration transaction remains.
 - **Java:** `application.request.RequestReviewController`, `ui.request.RequestReviewViewController`, `PriorityAssessmentService`, `PriorityAssessmentResult`, `WorkflowRepository` and `SupabaseWorkflowRepository`.
 - **Methods:** `loadPriorityQueue`, `suggestPriority`, `setPriority`, `findPrioritizableRequests` and `recordPriorityAssessment`.
 - **Screen:** Coordinator > Priority queue > Priority assessment.
@@ -52,14 +52,14 @@ Deliverable 3 is the functional authority. A use case is marked complete only wh
 
 ## UC05: Assign Volunteer to Assistance Request
 
-- **Status:** Planned; Coordinator navigation destination exists only.
-- **Java:** `application.AssignmentController`; volunteer eligibility/domain scheduling services, `VolunteerRepository` and `WorkflowRepository`.
-- **Methods:** planned `findCandidates`, `assignVolunteer`, `reassignVolunteer`.
+- **Status:** Implemented and deployed; controller, eligibility rules, JavaFX workflow, protected repository boundaries and transactional RPCs are tested.
+- **Java:** `application.assignment.AssignmentController`, `domain.assignment.AssignmentFilter`, `VolunteerCandidate`, `VolunteerAssignment`, `repository.VolunteerRepository`, `WorkflowRepository`, `SupabaseVolunteerRepository` and `SupabaseWorkflowRepository`.
+- **Methods:** `getAssignableRequests`, `findEligibleVolunteers`, `assignVolunteer`, `getActiveAssignments` and `reassignVolunteer`.
 - **Screen:** Coordinator > Volunteer assignment.
-- **Database:** `volunteer_assignments`, profiles, skills and service areas; planned `assign_volunteer` RPC plus active-time exclusion constraints.
+- **Database:** `volunteer_assignments`, `volunteer_profiles`, `volunteer_skills`, `volunteer_service_areas`, `skills` and `service_areas`; deployed `find_eligible_volunteers`, `assign_volunteer_matching` and `reassign_volunteer` RPCs.
 - **Success:** choose an approved, capable and available volunteer, create `PENDING_ACCEPTANCE`, and move the request to `ASSIGNED`.
 - **Alternatives:** overlapping active assignments are rejected; non-overlapping work is allowed; reassignment records a reason and supersedes the old assignment.
-- **Tests:** planned eligibility, approval, overlap, non-overlap, unscheduled conflict and concurrent assignment tests.
+- **Tests:** `AssignmentControllerTest`, `VolunteerProfileTest`, `VolunteerAssignmentTest` and `DatabaseMigrationContractTest` cover approval, skill/area matching, overlap, non-overlap, unscheduled conflicts, idempotency and stale versions.
 - **Demonstration:** compare candidate eligibility, create an assignment, then show a conflicting and a valid nonconflicting case.
 
 ## UC06: Close Assistance Request
@@ -76,26 +76,26 @@ Deliverable 3 is the functional authority. A use case is marked complete only wh
 
 ## UC07: Maintain Volunteer Readiness Profile
 
-- **Status:** Planned; Volunteer navigation destination exists only.
-- **Java:** `application.VolunteerController`; `UserRepository`, `VolunteerRepository` and readiness validation service.
-- **Methods:** planned `getReadinessProfile` and `updateReadinessProfile`.
+- **Status:** Implemented and deployed; authenticated ownership, readiness validation, reference selections and approval-state visibility are connected to JavaFX.
+- **Java:** `application.volunteer.VolunteerController`, `domain.volunteer.VolunteerProfile`, `VolunteerReadinessChanges`, `VolunteerRepository`, `WorkflowRepository` and `SupabaseVolunteerRepository`.
+- **Methods:** `getReadinessProfile`, `getSkills`, `getServiceAreas` and `updateReadiness`.
 - **Screen:** Volunteer > Readiness profile.
-- **Database:** `volunteer_profiles`, `volunteer_skills`, `volunteer_service_areas`.
+- **Database:** `accounts`, `volunteer_profiles`, `volunteer_skills`, `volunteer_service_areas`, `skills` and `service_areas`; deployed SECURITY INVOKER `update_volunteer_readiness` RPC.
 - **Success:** save availability, skills and service areas for the authenticated volunteer.
 - **Alternatives:** pending approval remains visible and prevents assignment eligibility; invalid availability or reference values are rejected.
-- **Tests:** planned ownership, approval-state and validation tests.
+- **Tests:** `VolunteerControllerTest`, `VolunteerProfileTest` and `DatabaseMigrationContractTest` cover actor scoping, validation, approval preservation and database authorization.
 - **Demonstration:** update readiness as an approved volunteer and show the awaiting-approval state for a new volunteer.
 
 ## UC08: Respond to Assignment
 
-- **Status:** Planned; Volunteer navigation destination exists only.
-- **Java:** `application.AssignmentController`; assignment domain service and `WorkflowRepository`.
-- **Methods:** planned `acceptAssignment` and `declineAssignment`.
+- **Status:** Implemented and deployed; the assignment list/detail screen connects to the domain object and an atomic response RPC.
+- **Java:** `application.volunteer.VolunteerController`, `domain.assignment.VolunteerAssignment`, `AssignmentContext`, `AssignmentResponseResult`, `WorkflowRepository` and `SupabaseWorkflowRepository`.
+- **Methods:** `getPendingAssignments`, `getAssignmentDetails` and `respondToAssignment`; the domain `accept` and `decline` methods enforce state rules.
 - **Screen:** Volunteer > Assignments > Assignment detail.
-- **Database:** `volunteer_assignments`, `assignment_decisions`; planned `respond_to_assignment` RPC.
+- **Database:** `volunteer_assignments`, `assignment_decisions`, `assistance_requests` and `workflow_operations`; deployed hardened `respond_to_assignment` RPC.
 - **Success:** the assigned volunteer accepts a pending assignment, moving it to `ACCEPTED`.
 - **Alternatives:** decline requires a reason and returns the request for reassignment; expired or superseded assignments cannot be accepted.
-- **Tests:** planned ownership, mandatory decline reason, status and race tests.
+- **Tests:** `VolunteerControllerTest`, `VolunteerAssignmentTest` and `DatabaseMigrationContractTest` cover ownership delegation, mandatory decline reason, terminal states, idempotency and row locking.
 - **Demonstration:** accept one pending assignment and decline another with a reason.
 
 ## UC09: Update Assistance Task Progress

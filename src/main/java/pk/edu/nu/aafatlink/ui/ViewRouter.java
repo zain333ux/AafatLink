@@ -12,6 +12,8 @@ import pk.edu.nu.aafatlink.application.auth.AuthenticationController;
 import pk.edu.nu.aafatlink.application.auth.PasswordRecoveryCoordinator;
 import pk.edu.nu.aafatlink.application.request.RequestController;
 import pk.edu.nu.aafatlink.application.request.RequestReviewController;
+import pk.edu.nu.aafatlink.application.assignment.AssignmentController;
+import pk.edu.nu.aafatlink.application.volunteer.VolunteerController;
 import pk.edu.nu.aafatlink.app.AppConfiguration;
 import pk.edu.nu.aafatlink.app.SessionManager;
 import pk.edu.nu.aafatlink.app.navigation.NavigationPolicy;
@@ -31,11 +33,14 @@ public final class ViewRouter {
     private final PasswordRecoveryCoordinator passwordRecovery;
     private final RequestController requests;
     private final RequestReviewController reviews;
+    private final VolunteerController volunteers;
+    private final AssignmentController assignments;
 
     public ViewRouter(Stage stage, AppConfiguration configuration, SessionManager sessions,
             NavigationPolicy navigationPolicy, AuthenticationController authentication,
             PasswordRecoveryCoordinator passwordRecovery, RequestController requests,
-            RequestReviewController reviews) {
+            RequestReviewController reviews, VolunteerController volunteers,
+            AssignmentController assignments) {
         this.stage = Objects.requireNonNull(stage, "stage");
         this.configuration = Objects.requireNonNull(configuration, "configuration");
         this.sessions = Objects.requireNonNull(sessions, "sessions");
@@ -44,6 +49,8 @@ public final class ViewRouter {
         this.passwordRecovery = passwordRecovery;
         this.requests = requests;
         this.reviews = reviews;
+        this.volunteers = volunteers;
+        this.assignments = assignments;
     }
 
     public void showLogin() {
@@ -103,7 +110,8 @@ public final class ViewRouter {
             return new LoginViewController(this, configuration, sessions, authentication);
         }
         if (type == AppShellController.class) {
-            return new AppShellController(this, sessions, navigationPolicy, authentication, requests, reviews);
+            return new AppShellController(this, sessions, navigationPolicy, authentication, requests, reviews,
+                    volunteers, assignments);
         }
         if (type == RegistrationViewController.class) {
             return new RegistrationViewController(this, authentication);

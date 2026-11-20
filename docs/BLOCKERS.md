@@ -16,9 +16,9 @@ No Phase 1 build or launch blocker remains. The `aafatlink-dev` hosted project i
 - **Needed from owner:** Choose the new password only inside AafatLink, open Gmail on the same computer, and click the newest recovery link once within ten minutes. Do not send the password in chat or open the link on a phone.
 - **Work that can continue:** All local tests, database work and unrelated JavaFX implementation.
 
-## Latest requester-progress policy not deployed
+## Live end-to-end demonstration data not prepared
 
-- **Blocked:** Applying the pending requester-progress, reliable-evidence and UC04 alignment migrations to the designated development project, then running hosted advisors.
-- **Why:** The Supabase connector returned a transport failure on two consecutive read-only attempts on 2026-11-20. The standalone CLI is not installed, and the on-demand CLI download did not complete.
-- **Needed from owner:** No immediate action. Retry the connected Supabase tools in a later session; if the connection remains unavailable, reconnect the Supabase plugin.
-- **Work that can continue:** Java adapter tests, static migration contracts, UI work and all non-hosted development.
+- **Blocked:** Proving UC01 through UC08 end to end with real Requester, Volunteer and Coordinator sessions and retained demonstration records.
+- **Why:** The hosted schema and policies are deployed, but the owner-selected password recovery and administrator-provisioned demo roles have not been completed.
+- **Needed from owner:** When available, finish the same-computer password recovery once. Coordinator and Administrator accounts must be provisioned through the secured database workflow, never public registration.
+- **Work that can continue:** Mandatory Java, JavaFX, migration and automated-test implementation for UC06 and UC09 through UC12.

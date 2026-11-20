@@ -61,3 +61,21 @@
 **Decision:** Derive the suggested level consistently from affected-person counts, urgent vulnerability/assistance keywords, disaster type and waiting time. Waiting at least 24 hours escalates one level. The coordinator remains the final decision-maker, but an override requires 10 to 1000 characters of justification. Reprioritization is restricted to `VERIFIED`, `ASSIGNED` and `IN_PROGRESS`, and every assessment stores the previous level.
 
 **Reason:** Deliverable 3 requires consistent predefined criteria, a rule-based suggestion, coordinator control, traceable changes and no `PRIORITIZED` request status.
+
+## D010: UC05 conflicts are based on operational overlap
+
+**Decision:** Block active assignments whose time ranges overlap. Allow non-overlapping scheduled work. Treat an unscheduled new or existing active assignment as a conflict because the system cannot prove that the work is nonconflicting. Reassignment first records the old assignment as `REASSIGNED` and releases the request to `VERIFIED`; the ordinary eligibility flow then selects the replacement.
+
+**Reason:** This protects volunteers from conflicting work without imposing an unnecessarily broad one-active-assignment limit. Reusing the normal assignment operation also prevents a reassignment path from bypassing approval, readiness, skill or service-area checks.
+
+## D011: UC07 readiness is an Information Expert
+
+**Decision:** `VolunteerProfile` owns readiness and matching rules, while `VolunteerController` coordinates authenticated repository operations. The JavaFX controller only collects input and presents outcomes.
+
+**Reason:** This makes encapsulation, GRASP Information Expert, Controller, Low Coupling and High Cohesion visible in the implementation and keeps business rules out of JavaFX.
+
+## D012: Intentional privileged RPCs are narrowly hardened
+
+**Decision:** Use SECURITY INVOKER for readiness updates and eligibility reads. Use SECURITY DEFINER only for atomic multi-table workflows that cannot rely on direct table grants. Every such RPC derives the actor from `auth.uid()`, checks role and ownership, validates expected versions, uses `search_path = ''`, restricts execution to `authenticated`, and records idempotent operation results.
+
+**Reason:** The hosted security advisor flags any authenticated SECURITY DEFINER function generically. These functions are intentional trust boundaries rather than unreviewed broad privilege grants.
