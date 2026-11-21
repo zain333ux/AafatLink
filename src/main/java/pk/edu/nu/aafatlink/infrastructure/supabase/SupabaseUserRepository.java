@@ -48,6 +48,18 @@ public final class SupabaseUserRepository implements UserRepository {
     }
 
     @Override
+    public String findContactNumber(AuthSession session, UUID accountId) {
+        Objects.requireNonNull(accountId, "accountId");
+        JsonNode rows = send(session, "/rest/v1/accounts?id=eq." + accountId + "&select=phone&limit=1", "GET", null);
+        requireArray(rows);
+        if (rows.isEmpty()) {
+            throw new RepositoryException("The volunteer account no longer exists.");
+        }
+        JsonNode phone = rows.get(0).get("phone");
+        return phone == null || phone.isNull() ? "" : phone.asText();
+    }
+
+    @Override
     public List<UserAccount> findUsers(AuthSession session) {
         JsonNode accounts = send(session, "/rest/v1/accounts?select=id,display_name,email,role,status,version&order=display_name", "GET", null);
         JsonNode profiles = send(session, "/rest/v1/volunteer_profiles?select=account_id,approval_status", "GET", null);

@@ -15,7 +15,7 @@ public final class NavigationPolicy {
             case VOLUNTEER -> List.of(NavigationItem.DASHBOARD, NavigationItem.READINESS_PROFILE,
                     NavigationItem.ASSIGNMENTS, NavigationItem.TASK_PROGRESS);
             case COORDINATOR -> List.of(NavigationItem.DASHBOARD, NavigationItem.VERIFICATION_QUEUE,
-                    NavigationItem.PRIORITY_QUEUE, NavigationItem.VOLUNTEER_ASSIGNMENT,
+                    NavigationItem.RECORD_REQUEST, NavigationItem.PRIORITY_QUEUE, NavigationItem.VOLUNTEER_ASSIGNMENT,
                     NavigationItem.CLOSURE_REVIEW, NavigationItem.REPORTS);
             case ADMINISTRATOR -> List.of(NavigationItem.DASHBOARD, NavigationItem.ACCESS_MANAGEMENT,
                     NavigationItem.REPORTS);

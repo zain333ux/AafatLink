@@ -35,6 +35,17 @@
                maxWidth="Infinity" wrapText="true" styleClass="demo-inline-notice" />
 
         <VBox spacing="20.0" styleClass="panel-card form-panel">
+            <HBox fx:id="coordinatorCallerBox" visible="false" managed="false" spacing="16.0">
+                <VBox spacing="8.0" HBox.hgrow="ALWAYS">
+                    <Label text="Requester or caller name *" styleClass="field-label" />
+                    <TextField fx:id="requesterNameField" promptText="Name provided by the caller" styleClass="form-control" />
+                </VBox>
+                <VBox spacing="8.0" HBox.hgrow="ALWAYS">
+                    <Label text="Requester contact number *" styleClass="field-label" />
+                    <TextField fx:id="requesterContactField" promptText="+92 300 1234567" styleClass="form-control" />
+                </VBox>
+            </HBox>
+
             <HBox spacing="16.0">
                 <VBox spacing="8.0" HBox.hgrow="ALWAYS">
                     <Label text="Disaster type *" styleClass="field-label" />

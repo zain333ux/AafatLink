@@ -40,6 +40,12 @@ class DatabaseMigrationContractTest {
             "20261121141500_allow_volunteer_rework_visibility.sql");
     private static final Path REPORTING_ACCESS = Path.of("supabase", "migrations",
             "20261121153000_add_reporting_and_access_management.sql");
+    private static final Path COORDINATOR_REVIEW = Path.of("supabase", "migrations",
+            "20261121170000_align_coordinator_entry_and_review_details.sql");
+    private static final Path REVIEW_PRIVILEGES = Path.of("supabase", "migrations",
+            "20261121171500_minimize_request_review_privileges.sql");
+    private static final Path COORDINATOR_OPERATIONS = Path.of("supabase", "migrations",
+            "20261121173000_support_coordinator_request_operations.sql");
 
     @Test
     void everyPublicTableEnablesRowLevelSecurity() throws IOException {
@@ -78,7 +84,7 @@ class DatabaseMigrationContractTest {
     void everyDefinerFunctionDerivesIdentityAndPinsSearchPath() throws IOException {
         String sql = normalized(DOMAIN) + "\n" + normalized(RPCS) + "\n" + normalized(ONBOARDING)
                 + "\n" + normalized(VOLUNTEER_COORDINATION) + "\n" + normalized(TASK_EXECUTION)
-                + "\n" + normalized(REPORTING_ACCESS);
+                + "\n" + normalized(REPORTING_ACCESS) + "\n" + normalized(COORDINATOR_REVIEW);
         String[] functions = sql.split("create or replace function ");
         int definerCount = 0;
         for (int index = 1; index < functions.length; index++) {
@@ -243,6 +249,46 @@ class DatabaseMigrationContractTest {
         assertTrue(sql.contains("target.version <> p_expected_version"));
         assertTrue(sql.contains("set search_path = ''"));
         assertTrue(sql.contains("revoke all on function public.update_user_access"));
+    }
+
+    @Test
+    void coordinatorEntryAndVerificationDetailsMatchReviewedArtifacts() throws IOException {
+        String sql = normalized(COORDINATOR_REVIEW);
+
+        assertTrue(sql.contains("alter column requester_account_id drop not null"));
+        assertTrue(sql.contains("requester_contact_name"));
+        assertTrue(sql.contains("recorded_by_account_id"));
+        assertTrue(sql.contains("'coordinator_entered'"));
+        assertTrue(sql.contains("private.current_app_role() <> 'coordinator'"));
+        assertTrue(sql.contains("create or replace function public.get_request_review_details"));
+        assertTrue(sql.contains("evidence.state = 'committed'"));
+        assertTrue(sql.contains("candidate.status not in ('closed', 'rejected')"));
+        assertFalse(sql.contains("account.email"));
+        assertTrue(sql.contains("set search_path = ''"));
+        assertTrue(sql.contains("revoke all on function public.get_request_review_details"));
+    }
+
+    @Test
+    void requestReviewReadUsesInvokerAfterContactSnapshot() throws IOException {
+        String sql = normalized(REVIEW_PRIVILEGES);
+
+        assertTrue(sql.contains("private.populate_request_contact_snapshot"));
+        assertTrue(sql.contains("coalesce(account.phone, account.email)"));
+        assertTrue(sql.contains("create or replace function public.get_request_review_details"));
+        assertTrue(sql.contains("security invoker"));
+        assertFalse(sql.contains("join public.accounts"));
+    }
+
+    @Test
+    void coordinatorEntryUsesTheReliableEvidenceOperationLifecycle() throws IOException {
+        String sql = normalized(COORDINATOR_OPERATIONS);
+
+        assertTrue(sql.contains("'record_coordinator_request'"));
+        assertTrue(sql.contains("create or replace function public.begin_request_operation"));
+        assertTrue(sql.contains("create or replace function public.abandon_request_operation"));
+        assertTrue(sql.contains("private.current_app_role() <> 'coordinator'"));
+        assertTrue(sql.contains("if operation.status <> 'pending' then return false"));
+        assertTrue(sql.contains("state = 'orphan_candidate'"));
     }
 
     private static String normalized(Path path) throws IOException {

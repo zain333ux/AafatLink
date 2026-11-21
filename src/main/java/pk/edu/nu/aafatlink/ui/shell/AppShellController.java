@@ -139,6 +139,7 @@ public final class AppShellController {
         switch (item) {
             case DASHBOARD -> showStaticView("dashboard-view.fxml");
             case SUBMIT_REQUEST -> showRequestForm(null);
+            case RECORD_REQUEST -> showRequestForm(null);
             case MY_REQUESTS -> showRequestList();
             case VERIFICATION_QUEUE -> showRequestReview(RequestReviewViewController.Mode.VERIFICATION);
             case PRIORITY_QUEUE -> showRequestReview(RequestReviewViewController.Mode.PRIORITY);
@@ -341,6 +342,7 @@ public final class AppShellController {
         descriptions.put(NavigationItem.DASHBOARD,
                 "Your role-aware command centre for the documented response workflow.");
         descriptions.put(NavigationItem.SUBMIT_REQUEST, "Create a validated assistance request or resubmit one returned for more information.");
+        descriptions.put(NavigationItem.RECORD_REQUEST, "Record a caller's UC01 request while preserving the Coordinator as the recorder.");
         descriptions.put(NavigationItem.MY_REQUESTS, "Review your requests, current status, priority and latest available progress.");
         descriptions.put(NavigationItem.READINESS_PROFILE, "Maintain UC07 availability, skills, service areas and contact details.");
         descriptions.put(NavigationItem.ASSIGNMENTS, "Review and respond to UC08 assignments awaiting your decision.");

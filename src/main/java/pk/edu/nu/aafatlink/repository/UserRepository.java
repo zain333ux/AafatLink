@@ -10,6 +10,8 @@ import pk.edu.nu.aafatlink.domain.auth.AuthSession;
 
 /** Protected Variation boundary for UC12 account administration. */
 public interface UserRepository {
+    String findContactNumber(AuthSession session, UUID accountId);
+
     List<UserAccount> findUsers(AuthSession session);
     Optional<UserAccount> findUser(AuthSession session, UUID accountId);
     int countActiveAdministrators(AuthSession session);

@@ -94,7 +94,7 @@ public final class VolunteerAssignment {
         return update;
     }
 
-    /** Creates the sole completion record and submits the task for coordinator review. */
+    /** Creates the next completion attempt and submits the task for coordinator review. */
     public TaskCompletion createCompletion(UUID actorId, String remarks, Instant completedAt) {
         if (!canCompleteTask(Objects.requireNonNull(actorId, "actorId"))) {
             throw new IllegalStateException("Only the assigned volunteer can complete an active task.");

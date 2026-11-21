@@ -18,6 +18,7 @@ import pk.edu.nu.aafatlink.domain.request.AssistanceRequest;
 import pk.edu.nu.aafatlink.domain.request.AssistanceRequestDraft;
 import pk.edu.nu.aafatlink.domain.request.DisasterType;
 import pk.edu.nu.aafatlink.domain.request.RequestStatus;
+import pk.edu.nu.aafatlink.domain.request.RequesterContact;
 import pk.edu.nu.aafatlink.domain.request.RequestSubmissionResult;
 import pk.edu.nu.aafatlink.domain.request.PriorityAssessmentResult;
 import pk.edu.nu.aafatlink.domain.request.RequestPriority;
@@ -46,6 +47,18 @@ class RequestControllerTest {
         assertEquals(userId, repository.requesterId);
         assertSame(draft, repository.submittedDraft);
         assertEquals(RequestStatus.PENDING_VERIFICATION, result.status());
+    }
+
+    @Test
+    void coordinatorRecordsCallerIdentitySeparatelyFromAuthenticatedRecorder() {
+        FakeWorkflowRepository repository = new FakeWorkflowRepository();
+        RequestController controller = new RequestController(repository);
+
+        controller.recordCoordinatorRequest(session, "Ayesha Khan", "+92 300 7654321", draft);
+
+        assertEquals("Ayesha Khan", repository.requesterName);
+        assertEquals("+92 300 7654321", repository.requesterContact);
+        assertSame(draft, repository.submittedDraft);
     }
 
     @Test
@@ -128,6 +141,8 @@ class RequestControllerTest {
         private boolean failSubmission;
         private RequestSubmissionResult reconciledResult;
         private boolean abandoned;
+        private String requesterName;
+        private String requesterContact;
 
         @Override
         public void beginRequestOperation(AuthSession session, UUID operationId, String operationType) {
@@ -158,6 +173,15 @@ class RequestControllerTest {
             if (failSubmission) {
                 throw new RepositoryException("Connection lost after submission.");
             }
+            return new RequestSubmissionResult(UUID.randomUUID(), RequestStatus.PENDING_VERIFICATION, false, 0);
+        }
+
+        @Override
+        public RequestSubmissionResult recordCoordinatorRequest(AuthSession session, UUID operationId,
+                RequesterContact requester, AssistanceRequestDraft draft) {
+            this.requesterName = requester.name();
+            this.requesterContact = requester.contactNumber();
+            this.submittedDraft = draft;
             return new RequestSubmissionResult(UUID.randomUUID(), RequestStatus.PENDING_VERIFICATION, false, 0);
         }
 

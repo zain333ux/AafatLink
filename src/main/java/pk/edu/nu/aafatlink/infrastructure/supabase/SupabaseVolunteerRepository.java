@@ -83,7 +83,6 @@ public final class SupabaseVolunteerRepository implements VolunteerRepository {
             return Optional.empty();
         }
         JsonNode row = rows.get(0);
-        String phone = findPhone(session, volunteerId);
         Set<Long> skillIds = ids(session, "/rest/v1/volunteer_skills?volunteer_account_id=eq."
                 + volunteerId + "&select=skill_id", "skill_id");
         Set<Long> areaIds = ids(session, "/rest/v1/volunteer_service_areas?volunteer_account_id=eq."
@@ -94,7 +93,7 @@ public final class SupabaseVolunteerRepository implements VolunteerRepository {
         try {
             return Optional.of(new VolunteerProfile(volunteerId,
                     VolunteerApprovalStatus.valueOf(required(row, "approval_status")),
-                    AvailabilityStatus.valueOf(required(row, "availability_status")), phone,
+                    AvailabilityStatus.valueOf(required(row, "availability_status")), "",
                     nullable(row, "availability_notes"), instant(row, "available_from"),
                     instant(row, "available_until"), skills, areas, row.path("version").asLong()));
         } catch (IllegalArgumentException exception) {
@@ -176,13 +175,6 @@ public final class SupabaseVolunteerRepository implements VolunteerRepository {
         } catch (IllegalArgumentException exception) {
             throw new RepositoryException("AafatLink received invalid eligible-volunteer data.", exception);
         }
-    }
-
-    private String findPhone(AuthSession session, UUID volunteerId) {
-        JsonNode rows = send(session, "/rest/v1/accounts?id=eq." + volunteerId + "&select=phone&limit=1",
-                "GET", null);
-        requireArray(rows, "volunteer account");
-        return rows.isEmpty() ? "" : Objects.requireNonNullElse(nullable(rows.get(0), "phone"), "");
     }
 
     private Set<Long> ids(AuthSession session, String path, String field) {

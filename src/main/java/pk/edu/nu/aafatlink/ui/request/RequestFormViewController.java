@@ -21,6 +21,7 @@ import pk.edu.nu.aafatlink.domain.request.AssistanceRequest;
 import pk.edu.nu.aafatlink.domain.request.AssistanceRequestDraft;
 import pk.edu.nu.aafatlink.domain.request.DisasterType;
 import pk.edu.nu.aafatlink.domain.request.RequestSubmissionResult;
+import pk.edu.nu.aafatlink.domain.account.UserRole;
 import pk.edu.nu.aafatlink.service.evidence.EvidenceAttachment;
 import pk.edu.nu.aafatlink.service.evidence.EvidenceFileValidator;
 
@@ -32,11 +33,15 @@ public final class RequestFormViewController {
     private final Runnable openMyRequests;
     private AssistanceRequest resubmission;
     private EvidenceAttachment evidence;
+    private boolean coordinatorEntry;
 
     @FXML private Label formTitleLabel;
     @FXML private Label formIntroLabel;
     @FXML private Label returnReasonLabel;
     @FXML private VBox returnReasonBox;
+    @FXML private javafx.scene.layout.HBox coordinatorCallerBox;
+    @FXML private TextField requesterNameField;
+    @FXML private TextField requesterContactField;
     @FXML private ComboBox<DisasterType> disasterTypeBox;
     @FXML private VBox otherTypeBox;
     @FXML private TextField otherTypeField;
@@ -75,6 +80,16 @@ public final class RequestFormViewController {
         disasterTypeBox.getSelectionModel().select(DisasterType.FLOOD);
         updateOtherTypeVisibility();
         updateEvidenceDisplay();
+
+        coordinatorEntry = sessions.currentUser().orElseThrow().role() == UserRole.COORDINATOR;
+        coordinatorCallerBox.setVisible(coordinatorEntry);
+        coordinatorCallerBox.setManaged(coordinatorEntry);
+        if (coordinatorEntry) {
+            formTitleLabel.setText("Record a phone assistance request");
+            formIntroLabel.setText("Capture the caller's details and request facts. Your Coordinator identity is stored separately as the recorder.");
+            submitButton.setText("Record request");
+            accessNoticeLabel.setText("Read-only demonstration: sign in with a connected Coordinator account to record operational data.");
+        }
 
         boolean authenticated = sessions.authSession().isPresent() && requests != null;
         submitButton.setDisable(!authenticated);
@@ -153,6 +168,13 @@ public final class RequestFormViewController {
         showMessage(resubmission == null ? "Submitting request…" : "Resubmitting request…", false);
         Task<RequestSubmissionResult> task = new Task<>() {
             @Override protected RequestSubmissionResult call() {
+                if (coordinatorEntry) {
+                    return evidence == null
+                            ? requests.recordCoordinatorRequest(session, requesterNameField.getText(),
+                                    requesterContactField.getText(), draft)
+                            : requests.recordCoordinatorRequest(session, requesterNameField.getText(),
+                                    requesterContactField.getText(), draft, evidence);
+                }
                 if (resubmission == null) {
                     return evidence == null
                             ? requests.submitRequest(session, draft)
@@ -169,8 +191,8 @@ public final class RequestFormViewController {
             String duplicateNote = result.possibleDuplicate()
                     ? " It was flagged as a possible duplicate for coordinator review." : "";
             showMessage("Request submitted successfully. Request ID: " + result.requestId() + "." + duplicateNote, false);
-            viewRequestsButton.setVisible(true);
-            viewRequestsButton.setManaged(true);
+            viewRequestsButton.setVisible(!coordinatorEntry);
+            viewRequestsButton.setManaged(!coordinatorEntry);
             submitButton.setDisable(true);
         });
         task.setOnFailed(event -> {
@@ -226,6 +248,8 @@ public final class RequestFormViewController {
         descriptionField.setDisable(busy);
         assistanceField.setDisable(busy);
         affectedPeopleField.setDisable(busy);
+        requesterNameField.setDisable(busy);
+        requesterContactField.setDisable(busy);
     }
 
     private static String formatBytes(long bytes) {

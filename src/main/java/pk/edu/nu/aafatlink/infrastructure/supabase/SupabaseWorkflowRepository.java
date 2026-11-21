@@ -40,8 +40,12 @@ import pk.edu.nu.aafatlink.domain.request.DisasterType;
 import pk.edu.nu.aafatlink.domain.request.RequestPriority;
 import pk.edu.nu.aafatlink.domain.request.PriorityAssessmentResult;
 import pk.edu.nu.aafatlink.domain.request.RequestReviewResult;
+import pk.edu.nu.aafatlink.domain.request.RequestReviewDetails;
 import pk.edu.nu.aafatlink.domain.request.RequestStatus;
 import pk.edu.nu.aafatlink.domain.request.RequestSubmissionResult;
+import pk.edu.nu.aafatlink.domain.request.RequesterContact;
+import pk.edu.nu.aafatlink.domain.request.ReviewEvidence;
+import pk.edu.nu.aafatlink.domain.request.PossibleDuplicateMatch;
 import pk.edu.nu.aafatlink.domain.request.VerificationDecision;
 import pk.edu.nu.aafatlink.repository.RepositoryException;
 import pk.edu.nu.aafatlink.repository.WorkflowRepository;
@@ -134,6 +138,26 @@ public final class SupabaseWorkflowRepository implements WorkflowRepository {
     }
 
     @Override
+    public RequestSubmissionResult recordCoordinatorRequest(AuthSession session, UUID operationId,
+            RequesterContact requester, AssistanceRequestDraft draft) {
+        Objects.requireNonNull(requester, "requester");
+        Objects.requireNonNull(draft, "draft");
+        ObjectNode body = JSON.createObjectNode();
+        body.put("p_operation_id", operationId.toString());
+        body.put("p_requester_contact_name", requester.name());
+        body.put("p_requester_contact_no", requester.contactNumber());
+        body.put("p_disaster_type", draft.disasterType().databaseValue());
+        putNullable(body, "p_disaster_type_other", draft.disasterTypeOther());
+        body.put("p_location_address", draft.locationAddress());
+        body.put("p_description", draft.description());
+        body.put("p_required_assistance", draft.requiredAssistance());
+        body.put("p_affected_person_details", draft.affectedPersonDetails());
+        JsonNode result = send(session, "/rest/v1/rpc/record_coordinator_assistance_request", "POST",
+                body.toString());
+        return submissionResult(result);
+    }
+
+    @Override
     public RequestSubmissionResult resubmitRequest(AuthSession session, UUID operationId,
             UUID requestId, long expectedVersion, AssistanceRequestDraft draft) {
         Objects.requireNonNull(draft, "draft");
@@ -215,6 +239,34 @@ public final class SupabaseWorkflowRepository implements WorkflowRepository {
             throw new RepositoryException("AafatLink received an invalid coordinator request response.");
         }
         return rows.isEmpty() ? Optional.empty() : Optional.of(mapRequest(rows.get(0)));
+    }
+
+    @Override
+    public Optional<RequestReviewDetails> findRequestReviewDetails(AuthSession session, UUID requestId) {
+        Optional<AssistanceRequest> request = findRequestForReview(session, requestId);
+        if (request.isEmpty()) return Optional.empty();
+        ObjectNode body = JSON.createObjectNode();
+        body.put("p_request_id", requestId.toString());
+        JsonNode result = send(session, "/rest/v1/rpc/get_request_review_details", "POST", body.toString());
+        try {
+            List<ReviewEvidence> evidence = new ArrayList<>();
+            JsonNode evidenceRows = result.path("evidence");
+            if (!evidenceRows.isArray()) throw new RepositoryException("Invalid request evidence response.");
+            evidenceRows.forEach(row -> evidence.add(new ReviewEvidence(UUID.fromString(required(row, "id")),
+                    required(row, "file_name"), required(row, "content_type"), row.path("size_bytes").asLong(),
+                    Instant.parse(required(row, "uploaded_at")))));
+            List<PossibleDuplicateMatch> duplicates = new ArrayList<>();
+            JsonNode duplicateRows = result.path("possible_duplicates");
+            if (!duplicateRows.isArray()) throw new RepositoryException("Invalid duplicate-match response.");
+            duplicateRows.forEach(row -> duplicates.add(new PossibleDuplicateMatch(
+                    UUID.fromString(required(row, "request_id")), RequestStatus.valueOf(required(row, "status")),
+                    row.path("priority").isNull() ? null : RequestPriority.valueOf(row.path("priority").asText()),
+                    Instant.parse(required(row, "submitted_at")))));
+            return Optional.of(new RequestReviewDetails(request.get(), nullable(result, "requester_name"),
+                    nullable(result, "requester_contact"), evidence, duplicates));
+        } catch (IllegalArgumentException exception) {
+            throw new RepositoryException("AafatLink received invalid request-review details.", exception);
+        }
     }
 
     @Override

@@ -28,6 +28,7 @@ import pk.edu.nu.aafatlink.domain.request.DisasterType;
 import pk.edu.nu.aafatlink.domain.request.PriorityAssessmentResult;
 import pk.edu.nu.aafatlink.domain.request.RequestPriority;
 import pk.edu.nu.aafatlink.domain.request.RequestReviewResult;
+import pk.edu.nu.aafatlink.domain.request.RequestReviewDetails;
 import pk.edu.nu.aafatlink.domain.request.RequestStatus;
 import pk.edu.nu.aafatlink.domain.request.RequestSubmissionResult;
 import pk.edu.nu.aafatlink.domain.request.VerificationDecision;
@@ -51,6 +52,19 @@ class RequestReviewControllerTest {
         assertEquals(RequestStatus.VERIFIED, result.status());
         assertEquals(3, repository.expectedVersion);
         assertEquals(VerificationDecision.VERIFIED, repository.decision);
+    }
+
+    @Test
+    void delegatesCompleteVerificationDetailsToTheWorkflowRepository() {
+        StubRepository repository = new StubRepository();
+        RequestReviewController controller = controller(repository);
+        AssistanceRequest request = request(RequestStatus.PENDING_VERIFICATION, 1);
+        repository.reviewDetails = new RequestReviewDetails(request, "Ayesha Khan", "+92 300 7654321",
+                List.of(), List.of());
+
+        RequestReviewDetails details = controller.getRequestReviewDetails(session, request.id()).orElseThrow();
+
+        assertEquals("Ayesha Khan", details.requesterName());
     }
 
     @Test
@@ -158,6 +172,7 @@ class RequestReviewControllerTest {
         private RequestPriority suggested;
         private RequestPriority selected;
         private String reason;
+        private RequestReviewDetails reviewDetails;
 
         @Override public RequestReviewResult decideRequestVerification(AuthSession session, UUID operationId,
                 UUID requestId, long expectedVersion, VerificationDecision decision, String reason) {
@@ -180,6 +195,9 @@ class RequestReviewControllerTest {
         @Override public List<AssistanceRequest> findPendingVerificationRequests(AuthSession session) { return List.of(); }
         @Override public List<AssistanceRequest> findPrioritizableRequests(AuthSession session) { return List.of(); }
         @Override public Optional<AssistanceRequest> findRequestForReview(AuthSession session, UUID requestId) { return Optional.empty(); }
+        @Override public Optional<RequestReviewDetails> findRequestReviewDetails(AuthSession session, UUID requestId) {
+            return Optional.ofNullable(reviewDetails);
+        }
         @Override public void beginRequestOperation(AuthSession session, UUID operationId, String operationType) { }
         @Override public void registerStagedEvidence(AuthSession session, UUID evidenceId, UUID operationId, String objectPath, EvidenceAttachment evidence) { }
         @Override public Optional<RequestSubmissionResult> reconcileRequestOperation(AuthSession session, UUID operationId) { return Optional.empty(); }

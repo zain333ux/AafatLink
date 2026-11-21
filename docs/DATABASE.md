@@ -16,6 +16,9 @@
 12. `add_task_execution_and_closure_workflows` adds append-only progress, numbered completion attempts, completion-evidence links and idempotent progress, completion and closure RPCs.
 13. `allow_volunteer_rework_visibility` permits only the assigned volunteer, requester owner and privileged reviewers to read the relevant closure decision.
 14. `add_reporting_and_access_management` adds four authorized committed-data report functions and the atomic, idempotent UC12 access-change workflow.
+15. `align_coordinator_entry_and_review_details` permits coordinator-recorded phone requests without inventing a requester account, snapshots caller details separately from the recorder and returns the full UC03 review context.
+16. `minimize_request_review_privileges` moves requester contact snapshotting to an invoker trigger and makes review-detail retrieval `SECURITY INVOKER`.
+17. `support_coordinator_request_operations` extends operation begin/abandon handling to the authorized coordinator-recording operation without weakening requester ownership checks.
 
 All exposed `public` tables enable RLS. Broad `anon` and `authenticated` table privileges are revoked before minimal grants are added.
 
@@ -43,7 +46,7 @@ The private role lookup is the sole base helper requiring definer rights because
 
 ## Validation status
 
-All fourteen migrations through reporting and access management are applied to the designated `aafatlink-dev` project. Hosted checks confirmed the workflow functions and their invoker/definer modes. The request-status, outstanding-request and response-performance reports use `SECURITY INVOKER`. Volunteer workload uses a narrowly scoped definer boundary because coordinator RLS intentionally cannot expose all account email rows; it returns only display names and aggregate workload. The atomic access function also requires definer rights, repeats every authorization rule, uses an empty search path and is executable only by authenticated users.
+All seventeen migrations through coordinator request/review alignment are applied to the designated `aafatlink-dev` project. Hosted checks confirmed the workflow functions and their invoker/definer modes. Request-review details and the request-status, outstanding-request and response-performance reports use `SECURITY INVOKER`. Coordinator phone recording, volunteer workload and atomic access changes use narrowly scoped definer boundaries because they cross deliberate RLS boundaries; each derives the actor from `auth.uid()`, repeats authorization checks, uses an empty search path and is executable only by authenticated users.
 
 Security and performance advisors were rerun after deployment. SECURITY DEFINER notices cover the reviewed atomic/privacy boundaries described above; leaked-password protection remains an owner-controlled hosted Auth setting.
 

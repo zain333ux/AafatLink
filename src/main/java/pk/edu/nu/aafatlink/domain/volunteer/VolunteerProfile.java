@@ -66,6 +66,12 @@ public final class VolunteerProfile {
                 selectedSkills, selectedAreas, version);
     }
 
+    /** Combines readiness data with the account-owned contact value required by UC07. */
+    public VolunteerProfile withContactNumber(String contactNumber) {
+        return new VolunteerProfile(accountId, approvalStatus, availability, contactNumber,
+                availabilityNotes, availableFrom, availableUntil, skills, serviceAreas, version);
+    }
+
     private static <T> List<T> select(Set<Long> selectedIds, List<T> catalog,
             Function<T, Long> idExtractor, String label) {
         Objects.requireNonNull(catalog, "catalog");

@@ -15,6 +15,7 @@ import pk.edu.nu.aafatlink.domain.request.AssistanceRequest;
 import pk.edu.nu.aafatlink.domain.request.PriorityAssessmentResult;
 import pk.edu.nu.aafatlink.domain.request.RequestPriority;
 import pk.edu.nu.aafatlink.domain.request.RequestReviewResult;
+import pk.edu.nu.aafatlink.domain.request.RequestReviewDetails;
 import pk.edu.nu.aafatlink.domain.request.VerificationDecision;
 import pk.edu.nu.aafatlink.repository.WorkflowRepository;
 import pk.edu.nu.aafatlink.service.request.PriorityAssessmentService;
@@ -41,6 +42,11 @@ public final class RequestReviewController {
 
     public Optional<AssistanceRequest> getRequestForReview(AuthSession session, UUID requestId) {
         return workflows.findRequestForReview(Objects.requireNonNull(session, "session"),
+                Objects.requireNonNull(requestId, "requestId"));
+    }
+
+    public Optional<RequestReviewDetails> getRequestReviewDetails(AuthSession session, UUID requestId) {
+        return workflows.findRequestReviewDetails(Objects.requireNonNull(session, "session"),
                 Objects.requireNonNull(requestId, "requestId"));
     }
 

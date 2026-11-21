@@ -24,6 +24,7 @@ import pk.edu.nu.aafatlink.domain.request.AssistanceRequestDraft;
 import pk.edu.nu.aafatlink.domain.request.DisasterType;
 import pk.edu.nu.aafatlink.domain.request.RequestStatus;
 import pk.edu.nu.aafatlink.domain.request.RequestSubmissionResult;
+import pk.edu.nu.aafatlink.domain.request.RequesterContact;
 
 class SupabaseWorkflowRepositoryTest {
     private static final UUID USER_ID = UUID.fromString("1260546b-6f62-4096-b705-d05be484f8d2");
@@ -46,6 +47,13 @@ class SupabaseWorkflowRepositoryTest {
         server.createContext("/rest/v1/volunteer_assignments", this::handleAssignment);
         server.createContext("/rest/v1/task_progress_updates", this::handleProgress);
         server.createContext("/rest/v1/rpc/record_task_progress", this::handleRecordProgress);
+        server.createContext("/rest/v1/rpc/record_coordinator_assistance_request", this::handleSubmit);
+        server.createContext("/rest/v1/rpc/get_request_review_details", exchange -> respond(exchange,
+                "{\"requester_name\":\"Ayesha Khan\",\"requester_contact\":\"+92 300 7654321\"," +
+                "\"evidence\":[{\"id\":\"" + UUID.randomUUID() + "\",\"file_name\":\"damage.jpg\"," +
+                "\"content_type\":\"image/jpeg\",\"size_bytes\":2048,\"uploaded_at\":\"2026-11-15T01:05:00Z\"}]," +
+                "\"possible_duplicates\":[{\"request_id\":\"" + UUID.randomUUID() + "\"," +
+                "\"status\":\"VERIFIED\",\"priority\":\"HIGH\",\"submitted_at\":\"2026-11-15T00:30:00Z\"}]}"));
         server.start();
         repository = new SupabaseWorkflowRepository(
                 URI.create("http://127.0.0.1:" + server.getAddress().getPort()), "sb_publishable_test");
@@ -71,6 +79,34 @@ class SupabaseWorkflowRepositoryTest {
         assertEquals("Bearer user-access", authorization.get());
         assertTrue(body.get().contains("\"p_required_assistance\":\"Evacuation and drinking water\""));
         assertTrue(body.get().contains("\"p_requester_account_id\":\"" + USER_ID + "\""));
+    }
+
+    @Test
+    void recordsCoordinatorEnteredRequestWithCallerSnapshot() {
+        AuthSession session = new AuthSession(USER_ID, "coordinator@example.com", "user-access", "refresh",
+                Instant.parse("2026-11-15T02:00:00Z"));
+        AssistanceRequestDraft draft = new AssistanceRequestDraft(DisasterType.FLOOD, null,
+                "Sector G-10, Islamabad", "Water entered the ground floor.",
+                "Evacuation and drinking water", "Four adults and two children");
+
+        repository.recordCoordinatorRequest(session, UUID.randomUUID(),
+                new RequesterContact("Ayesha Khan", "+92 300 7654321"), draft);
+
+        assertTrue(body.get().contains("\"p_requester_contact_name\":\"Ayesha Khan\""));
+        assertTrue(body.get().contains("\"p_requester_contact_no\":\"+92 300 7654321\""));
+    }
+
+    @Test
+    void loadsRequesterEvidenceAndDuplicateMatchesForVerification() {
+        AuthSession session = new AuthSession(USER_ID, "coordinator@example.com", "user-access", "refresh",
+                Instant.parse("2026-11-15T02:00:00Z"));
+
+        var details = repository.findRequestReviewDetails(session, REQUEST_ID).orElseThrow();
+
+        assertEquals("Ayesha Khan", details.requesterName());
+        assertEquals("+92 300 7654321", details.requesterContact());
+        assertEquals("damage.jpg", details.evidence().get(0).fileName());
+        assertEquals(RequestStatus.VERIFIED, details.possibleDuplicates().get(0).status());
     }
 
     @Test

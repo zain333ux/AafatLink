@@ -33,7 +33,7 @@ class SupabaseUserRepositoryTest {
     @BeforeEach void start() throws IOException {
         server = HttpServer.create(new InetSocketAddress("127.0.0.1", 0), 0);
         server.createContext("/rest/v1/accounts", exchange -> respond(exchange,
-                "[{\"id\":\"" + VOLUNTEER + "\",\"display_name\":\"Volunteer One\",\"email\":\"v@example.com\",\"role\":\"VOLUNTEER\",\"status\":\"ACTIVE\",\"version\":2}]") );
+                "[{\"id\":\"" + VOLUNTEER + "\",\"display_name\":\"Volunteer One\",\"email\":\"v@example.com\",\"phone\":\"+92 311 7654321\",\"role\":\"VOLUNTEER\",\"status\":\"ACTIVE\",\"version\":2}]") );
         server.createContext("/rest/v1/volunteer_profiles", exchange -> respond(exchange,
                 "[{\"account_id\":\"" + VOLUNTEER + "\",\"approval_status\":\"PENDING\"}]") );
         server.createContext("/rest/v1/role_permissions", exchange -> respond(exchange,
@@ -51,6 +51,7 @@ class SupabaseUserRepositoryTest {
     @Test void loadsAccessConfigurationWithoutCredentialsAndInvokesAtomicUpdate() {
         AuthSession session = new AuthSession(ADMIN, "admin@example.com", "access", "refresh", Instant.now().plusSeconds(300));
         var account = repository.findUsers(session).get(0);
+        assertEquals("+92 311 7654321", repository.findContactNumber(session, VOLUNTEER));
         var updated = repository.saveAccessWithAudit(session, UUID.randomUUID(), account,
                 new AccessChanges(UserRole.VOLUNTEER, AccountStatus.ACTIVE,
                         VolunteerApprovalStatus.APPROVED, "Documents checked"), account.version());

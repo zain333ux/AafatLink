@@ -23,6 +23,8 @@ import pk.edu.nu.aafatlink.domain.request.RequestSubmissionResult;
 import pk.edu.nu.aafatlink.domain.request.PriorityAssessmentResult;
 import pk.edu.nu.aafatlink.domain.request.RequestPriority;
 import pk.edu.nu.aafatlink.domain.request.RequestReviewResult;
+import pk.edu.nu.aafatlink.domain.request.RequestReviewDetails;
+import pk.edu.nu.aafatlink.domain.request.RequesterContact;
 import pk.edu.nu.aafatlink.domain.request.VerificationDecision;
 import pk.edu.nu.aafatlink.service.evidence.EvidenceAttachment;
 
@@ -41,6 +43,9 @@ public interface WorkflowRepository {
     RequestSubmissionResult submitRequest(AuthSession session, UUID operationId,
             UUID requesterId, AssistanceRequestDraft draft);
 
+    RequestSubmissionResult recordCoordinatorRequest(AuthSession session, UUID operationId,
+            RequesterContact requester, AssistanceRequestDraft draft);
+
     RequestSubmissionResult resubmitRequest(AuthSession session, UUID operationId,
             UUID requestId, long expectedVersion, AssistanceRequestDraft draft);
 
@@ -53,6 +58,8 @@ public interface WorkflowRepository {
     List<AssistanceRequest> findPrioritizableRequests(AuthSession session);
 
     Optional<AssistanceRequest> findRequestForReview(AuthSession session, UUID requestId);
+
+    Optional<RequestReviewDetails> findRequestReviewDetails(AuthSession session, UUID requestId);
 
     RequestReviewResult decideRequestVerification(AuthSession session, UUID operationId, UUID requestId,
             long expectedVersion, VerificationDecision decision, String reason);

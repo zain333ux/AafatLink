@@ -5,6 +5,7 @@ public enum NavigationItem {
     DASHBOARD("Dashboard", "mdi2v-view-dashboard-outline"),
     SUBMIT_REQUEST("Submit request", "mdi2p-plus-circle-outline"),
     MY_REQUESTS("My requests", "mdi2f-format-list-bulleted"),
+    RECORD_REQUEST("Record phone request", "mdi2p-plus-circle-outline"),
     READINESS_PROFILE("Readiness profile", "mdi2a-account-check-outline"),
     ASSIGNMENTS("Assignments", "mdi2c-clipboard-text-outline"),
     TASK_PROGRESS("Task progress", "mdi2p-progress-clock"),

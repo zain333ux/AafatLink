@@ -121,3 +121,15 @@
 **Decision:** `AccessController` performs fast validation for own-role, last-admin and active-assignment restrictions, then `update_user_access` locks and rechecks the target account, actor role, administrator count, active assignments, compatibility and expected version before writing both access state and audit records atomically.
 
 **Reason:** Desktop checks improve feedback but are not a security boundary. Repeating every rule in the transaction prevents frontend tampering and time-of-check/time-of-use races.
+
+## D020: Coordinator phone requests preserve caller and recorder identities
+
+**Decision:** A coordinator may record a caller's UC01 request without creating or impersonating a requester account. `requester_account_id` is nullable for this source, caller name and contact are stored as a validated pair, and `recorded_by_account_id` always comes from the authenticated coordinator inside the RPC.
+
+**Reason:** Deliverable 3 requires coordinator-entered requests and the reviewed correction requires caller/requester identity to remain separate from the employee who recorded it.
+
+## D021: UC03 review projection remains invoker-secured
+
+**Decision:** Snapshot requester contact onto the request through an invoker trigger and expose caller, committed evidence metadata and possible duplicate matches through `get_request_review_details` as `SECURITY INVOKER`.
+
+**Reason:** The review screen needs the documented facts, but it does not need account-table privileges, credentials, email disclosure or storage object paths. Removing that join eliminates an unnecessary privileged function.

@@ -55,6 +55,17 @@
                             <Label fx:id="detailStatusLabel" styleClass="status-chip"/>
                         </HBox>
                         <Label fx:id="duplicateLabel" wrapText="true" styleClass="warning-copy"/>
+                        <VBox fx:id="verificationContextBox" spacing="10" styleClass="decision-panel">
+                            <Label text="REQUESTER AND REVIEW MATERIAL" styleClass="card-kicker"/>
+                            <HBox spacing="18">
+                                <VBox spacing="4" HBox.hgrow="ALWAYS"><Label text="Requester" styleClass="detail-label"/><Label fx:id="requesterNameLabel" wrapText="true" styleClass="detail-value"/></VBox>
+                                <VBox spacing="4" HBox.hgrow="ALWAYS"><Label text="Contact" styleClass="detail-label"/><Label fx:id="requesterContactLabel" wrapText="true" styleClass="detail-value"/></VBox>
+                            </HBox>
+                            <Label text="Committed evidence" styleClass="detail-label"/>
+                            <ListView fx:id="evidenceList" prefHeight="82"/>
+                            <Label text="Related open requests" styleClass="detail-label"/>
+                            <ListView fx:id="duplicateList" prefHeight="82"/>
+                        </VBox>
                         <Separator/>
                         <VBox spacing="4"><Label text="Location" styleClass="detail-label"/><Label fx:id="detailLocationLabel" wrapText="true" styleClass="detail-value"/></VBox>
                         <VBox spacing="4"><Label text="Situation" styleClass="detail-label"/><Label fx:id="detailDescriptionLabel" wrapText="true" styleClass="detail-value"/></VBox>

@@ -20,6 +20,7 @@ import pk.edu.nu.aafatlink.domain.volunteer.Skill;
 import pk.edu.nu.aafatlink.domain.volunteer.VolunteerProfile;
 import pk.edu.nu.aafatlink.domain.volunteer.VolunteerReadinessChanges;
 import pk.edu.nu.aafatlink.repository.VolunteerRepository;
+import pk.edu.nu.aafatlink.repository.UserRepository;
 import pk.edu.nu.aafatlink.repository.WorkflowRepository;
 import pk.edu.nu.aafatlink.service.evidence.EvidenceAttachment;
 import pk.edu.nu.aafatlink.service.evidence.EvidenceStorage;
@@ -27,17 +28,20 @@ import pk.edu.nu.aafatlink.service.evidence.EvidenceStorage;
 /** GRASP application controller for UC07 readiness and UC08 assignment response. */
 public final class VolunteerController {
     private final VolunteerRepository volunteers;
+    private final UserRepository users;
     private final WorkflowRepository workflows;
     private final Clock clock;
     private final EvidenceStorage evidenceStorage;
 
-    public VolunteerController(VolunteerRepository volunteers, WorkflowRepository workflows, Clock clock) {
-        this(volunteers, workflows, clock, null);
+    public VolunteerController(VolunteerRepository volunteers, UserRepository users,
+            WorkflowRepository workflows, Clock clock) {
+        this(volunteers, users, workflows, clock, null);
     }
 
-    public VolunteerController(VolunteerRepository volunteers, WorkflowRepository workflows, Clock clock,
-            EvidenceStorage evidenceStorage) {
+    public VolunteerController(VolunteerRepository volunteers, UserRepository users,
+            WorkflowRepository workflows, Clock clock, EvidenceStorage evidenceStorage) {
         this.volunteers = Objects.requireNonNull(volunteers, "volunteers");
+        this.users = Objects.requireNonNull(users, "users");
         this.workflows = Objects.requireNonNull(workflows, "workflows");
         this.clock = Objects.requireNonNull(clock, "clock");
         this.evidenceStorage = evidenceStorage;
@@ -45,7 +49,8 @@ public final class VolunteerController {
 
     public Optional<VolunteerProfile> getReadinessProfile(AuthSession session) {
         Objects.requireNonNull(session, "session");
-        return volunteers.findProfile(session, session.userId());
+        return volunteers.findProfile(session, session.userId())
+                .map(profile -> profile.withContactNumber(users.findContactNumber(session, session.userId())));
     }
 
     public List<Skill> getSkills(AuthSession session) {

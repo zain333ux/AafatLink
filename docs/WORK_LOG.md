@@ -246,3 +246,20 @@ Implement and validate the PostgreSQL schema, RLS foundation and transactional w
 ### Next
 
 - Run the final package and diff checks, commit the complete UC11/UC12 increment, then audit Deliverables 2-5 against the implementation before adding optional portfolio features.
+
+### Deliverables 3-5 alignment audit: UC01, UC03 and UC07
+
+- Added the documented coordinator phone-entry path for UC01, including validated caller details, a distinct database-derived coordinator recorder and optional requester account identity.
+- Added authorized operation begin/abandon support and an atomic, idempotent coordinator request RPC with safe evidence commit handling.
+- Expanded UC03 review details to include the caller/requester snapshot, committed evidence metadata and related open-request matches before a coordinator decision.
+- Reduced UC03 database privilege by replacing the initial privileged review projection with a `SECURITY INVOKER` function and an invoker contact-snapshot trigger.
+- Restored the reviewed UC07 `UserRepository` dependency: account contact retrieval is separate from volunteer readiness persistence and the application controller composes the profile.
+- Added and deployed `align_coordinator_entry_and_review_details`, `minimize_request_review_privileges` and `support_coordinator_request_operations` to `aafatlink-dev`.
+- Hosted checks confirmed nullable requester account support, invoker review-detail retrieval and the hardened coordinator-recording boundary.
+- Visually inspected Coordinator > Record phone request and Coordinator > Verification queue at 1280 x 720; both FXML screens loaded without errors.
+- `mvnw.cmd clean test`: 108 tests passed with no failures, errors or skips.
+- `mvnw.cmd package`: reran all 108 tests successfully and produced `target/aafatlink-0.1.0-SNAPSHOT.jar`.
+
+### Next
+
+- Run the full regression/package checks, commit this alignment slice, then continue the artifact audit with UC12 permissions/reference data and exact domain/design class responsibilities.

@@ -38,6 +38,7 @@ import pk.edu.nu.aafatlink.domain.volunteer.Skill;
 import pk.edu.nu.aafatlink.domain.volunteer.VolunteerApprovalStatus;
 import pk.edu.nu.aafatlink.domain.volunteer.VolunteerProfile;
 import pk.edu.nu.aafatlink.domain.volunteer.VolunteerReadinessChanges;
+import pk.edu.nu.aafatlink.repository.UserRepository;
 import pk.edu.nu.aafatlink.repository.VolunteerRepository;
 import pk.edu.nu.aafatlink.repository.WorkflowRepository;
 import pk.edu.nu.aafatlink.service.evidence.EvidenceAttachment;
@@ -62,6 +63,16 @@ class VolunteerControllerTest {
         assertEquals(4, volunteers.expectedVersion);
         assertEquals(AvailabilityStatus.AVAILABLE, saved.availability());
         assertEquals("+92 333 7654321", saved.contactNumber());
+    }
+
+    @Test
+    void combinesVolunteerProfileWithContactFromUserRepository() {
+        FakeVolunteerRepository volunteers = new FakeVolunteerRepository(profile());
+        VolunteerController controller = controller(volunteers, new FakeWorkflowRepository(null));
+
+        VolunteerProfile loaded = controller.getReadinessProfile(session).orElseThrow();
+
+        assertEquals("+92 311 7654321", loaded.contactNumber());
     }
 
     @Test
@@ -117,7 +128,8 @@ class VolunteerControllerTest {
     }
 
     private VolunteerController controller(VolunteerRepository volunteers, WorkflowRepository workflows) {
-        return new VolunteerController(volunteers, workflows, Clock.fixed(NOW, ZoneOffset.UTC));
+        return new VolunteerController(volunteers, new FakeUserRepository(), workflows,
+                Clock.fixed(NOW, ZoneOffset.UTC));
     }
 
     private VolunteerProfile profile() {
@@ -210,6 +222,26 @@ class VolunteerControllerTest {
         @Override public List<pk.edu.nu.aafatlink.domain.assignment.VolunteerCandidate> findEligible(
                 AuthSession session, AssistanceRequest request,
                 pk.edu.nu.aafatlink.domain.assignment.AssignmentFilter filter) { return List.of(); }
+    }
+
+    private static final class FakeUserRepository implements UserRepository {
+        @Override public String findContactNumber(AuthSession session, UUID accountId) {
+            return "+92 311 7654321";
+        }
+        @Override public List<pk.edu.nu.aafatlink.domain.account.UserAccount> findUsers(AuthSession session) {
+            throw new UnsupportedOperationException();
+        }
+        @Override public Optional<pk.edu.nu.aafatlink.domain.account.UserAccount> findUser(
+                AuthSession session, UUID accountId) { throw new UnsupportedOperationException(); }
+        @Override public int countActiveAdministrators(AuthSession session) {
+            throw new UnsupportedOperationException();
+        }
+        @Override public pk.edu.nu.aafatlink.domain.account.UserAccount saveAccessWithAudit(
+                AuthSession session, UUID operationId,
+                pk.edu.nu.aafatlink.domain.account.UserAccount account,
+                pk.edu.nu.aafatlink.domain.account.AccessChanges changes, long expectedVersion) {
+            throw new UnsupportedOperationException();
+        }
     }
 
     private static final class FakeWorkflowRepository extends pk.edu.nu.aafatlink.repository.WorkflowRepositoryStub {

@@ -18,12 +18,14 @@ public abstract class WorkflowRepositoryStub implements WorkflowRepository {
     @Override public Optional<RequestSubmissionResult> reconcileRequestOperation(AuthSession s, UUID o) { throw unsupported(); }
     @Override public boolean abandonRequestOperation(AuthSession s, UUID o) { throw unsupported(); }
     @Override public RequestSubmissionResult submitRequest(AuthSession s, UUID o, UUID r, AssistanceRequestDraft d) { throw unsupported(); }
+    @Override public RequestSubmissionResult recordCoordinatorRequest(AuthSession s, UUID o, RequesterContact c, AssistanceRequestDraft d) { throw unsupported(); }
     @Override public RequestSubmissionResult resubmitRequest(AuthSession s, UUID o, UUID r, long v, AssistanceRequestDraft d) { throw unsupported(); }
     @Override public List<AssistanceRequest> findRequestsByRequester(AuthSession s, UUID r) { throw unsupported(); }
     @Override public Optional<AssistanceRequest> findRequestForRequester(AuthSession s, UUID r, UUID u) { throw unsupported(); }
     @Override public List<AssistanceRequest> findPendingVerificationRequests(AuthSession s) { throw unsupported(); }
     @Override public List<AssistanceRequest> findPrioritizableRequests(AuthSession s) { throw unsupported(); }
     @Override public Optional<AssistanceRequest> findRequestForReview(AuthSession s, UUID r) { throw unsupported(); }
+    @Override public Optional<RequestReviewDetails> findRequestReviewDetails(AuthSession s, UUID r) { throw unsupported(); }
     @Override public RequestReviewResult decideRequestVerification(AuthSession s, UUID o, UUID r, long v, VerificationDecision d, String n) { throw unsupported(); }
     @Override public PriorityAssessmentResult recordPriorityAssessment(AuthSession s, UUID o, UUID r, long v, RequestPriority a, RequestPriority b, String j) { throw unsupported(); }
     @Override public List<AssignmentContext> findPendingAssignments(AuthSession s, UUID v) { throw unsupported(); }

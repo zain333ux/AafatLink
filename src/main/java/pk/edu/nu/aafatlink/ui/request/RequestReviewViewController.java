@@ -22,6 +22,7 @@ import pk.edu.nu.aafatlink.application.request.RequestReviewController;
 import pk.edu.nu.aafatlink.domain.auth.AuthSession;
 import pk.edu.nu.aafatlink.domain.request.AssistanceRequest;
 import pk.edu.nu.aafatlink.domain.request.RequestPriority;
+import pk.edu.nu.aafatlink.domain.request.RequestReviewDetails;
 
 /** Coordinator presentation controller for UC03 and UC04. */
 public final class RequestReviewViewController {
@@ -54,6 +55,11 @@ public final class RequestReviewViewController {
     @FXML private Label detailAssistanceLabel;
     @FXML private Label detailAffectedLabel;
     @FXML private Label duplicateLabel;
+    @FXML private VBox verificationContextBox;
+    @FXML private Label requesterNameLabel;
+    @FXML private Label requesterContactLabel;
+    @FXML private javafx.scene.control.ListView<String> evidenceList;
+    @FXML private javafx.scene.control.ListView<String> duplicateList;
     @FXML private VBox verificationActions;
     @FXML private TextArea decisionReasonArea;
     @FXML private VBox priorityActions;
@@ -78,6 +84,8 @@ public final class RequestReviewViewController {
                 : "Apply the consistent suggestion rules, then record the coordinator's final priority.");
         verificationActions.setVisible(verification);
         verificationActions.setManaged(verification);
+        verificationContextBox.setVisible(verification);
+        verificationContextBox.setManaged(verification);
         priorityActions.setVisible(!verification);
         priorityActions.setManaged(!verification);
         selectedPriorityBox.setItems(FXCollections.observableArrayList(RequestPriority.values()));
@@ -179,7 +187,8 @@ public final class RequestReviewViewController {
         detailDescriptionLabel.setText(request.details().description());
         detailAssistanceLabel.setText(request.details().requiredAssistance());
         detailAffectedLabel.setText(request.details().affectedPersonDetails());
-        duplicateLabel.setText(request.possibleDuplicate() ? "Possible duplicate - review related records" : "No duplicate flag");
+        duplicateLabel.setText(request.possibleDuplicate() ? "Possible duplicate - loading related records…" : "No duplicate flag");
+        if (mode == Mode.VERIFICATION) loadVerificationContext(request);
         decisionReasonArea.clear(); overrideJustificationArea.clear();
         if (mode == Mode.PRIORITY) {
             RequestPriority suggestion = reviews.suggestPriority(request);
@@ -188,6 +197,57 @@ public final class RequestReviewViewController {
         }
         verificationActions.setDisable(false); priorityActions.setDisable(false);
         showActionMessage("", false);
+    }
+
+    private void loadVerificationContext(AssistanceRequest request) {
+        requesterNameLabel.setText("Loading…");
+        requesterContactLabel.setText("Loading…");
+        evidenceList.setItems(FXCollections.observableArrayList("Loading committed evidence…"));
+        duplicateList.setItems(FXCollections.observableArrayList("Loading related requests…"));
+        if (sessions.authSession().isEmpty() || reviews == null) {
+            requesterNameLabel.setText("Demonstration data unavailable");
+            requesterContactLabel.setText("—");
+            evidenceList.setItems(FXCollections.observableArrayList("No operational evidence loaded"));
+            duplicateList.setItems(FXCollections.observableArrayList("No operational records loaded"));
+            return;
+        }
+        Task<java.util.Optional<RequestReviewDetails>> task = new Task<>() {
+            @Override protected java.util.Optional<RequestReviewDetails> call() {
+                return reviews.getRequestReviewDetails(sessions.authSession().orElseThrow(), request.id());
+            }
+        };
+        task.setOnSucceeded(event -> {
+            if (selected() == null || !selected().id().equals(request.id())) return;
+            RequestReviewDetails details = task.getValue().orElse(null);
+            if (details == null) {
+                showActionMessage("The request changed or is no longer available.", true);
+                return;
+            }
+            requesterNameLabel.setText(details.requesterName());
+            requesterContactLabel.setText(details.requesterContact());
+            var evidenceRows = details.evidence().stream()
+                    .map(item -> item.fileName() + " · " + item.contentType() + " · " + formatBytes(item.sizeBytes()))
+                    .toList();
+            evidenceList.setItems(FXCollections.observableArrayList(evidenceRows.isEmpty()
+                    ? List.of("No evidence attached") : evidenceRows));
+            var duplicateRows = details.possibleDuplicates().stream()
+                    .map(match -> match.requestId() + " · " + match.status().displayName()
+                            + match.optionalPriority().map(priority -> " · " + priority.name()).orElse(""))
+                    .toList();
+            duplicateList.setItems(FXCollections.observableArrayList(duplicateRows.isEmpty()
+                    ? List.of("No related open requests") : duplicateRows));
+            duplicateLabel.setText(duplicateRows.isEmpty()
+                    ? "No related open request matched the duplicate rule"
+                    : "Possible duplicate - compare " + duplicateRows.size() + " related request(s) before deciding");
+        });
+        task.setOnFailed(event -> {
+            if (selected() == null || !selected().id().equals(request.id())) return;
+            requesterNameLabel.setText("Unavailable"); requesterContactLabel.setText("Unavailable");
+            evidenceList.setItems(FXCollections.observableArrayList("Evidence could not be loaded"));
+            duplicateList.setItems(FXCollections.observableArrayList("Related requests could not be loaded"));
+            showActionMessage(message(task.getException(), "Review details could not be loaded."), true);
+        });
+        start(task, "aafatlink-verification-details");
     }
 
     private AssistanceRequest selected() { return requestTable.getSelectionModel().getSelectedItem(); }
@@ -208,6 +268,10 @@ public final class RequestReviewViewController {
     }
     private static void start(Task<?> task, String name) {
         Thread worker = new Thread(task, name); worker.setDaemon(true); worker.start();
+    }
+    private static String formatBytes(long bytes) {
+        return bytes < 1024 * 1024 ? Math.max(1, bytes / 1024) + " KB"
+                : String.format("%.1f MB", bytes / (1024.0 * 1024.0));
     }
     private enum Action { VERIFY, RETURN, REJECT }
 }

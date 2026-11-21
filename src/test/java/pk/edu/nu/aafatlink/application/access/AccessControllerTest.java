@@ -95,6 +95,7 @@ class AccessControllerTest {
             this.administratorCount = administratorCount;
         }
 
+        @Override public String findContactNumber(AuthSession session, UUID accountId) { return ""; }
         @Override public List<UserAccount> findUsers(AuthSession session) { return List.of(target); }
         @Override public Optional<UserAccount> findUser(AuthSession session, UUID id) {
             return target.id().equals(id) ? Optional.of(target) : Optional.empty();

@@ -1,6 +1,6 @@
 # External blockers
 
-No Phase 1 build or launch blocker remains. The `aafatlink-dev` hosted project is configured and all current migrations are applied.
+No build or launch blocker remains. The `aafatlink-dev` hosted project is configured and all seventeen current migrations are applied.
 
 ## Local Supabase runtime unavailable
 

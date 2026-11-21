@@ -9,6 +9,7 @@ import pk.edu.nu.aafatlink.domain.auth.AuthSession;
 import pk.edu.nu.aafatlink.domain.request.AssistanceRequest;
 import pk.edu.nu.aafatlink.domain.request.AssistanceRequestDraft;
 import pk.edu.nu.aafatlink.domain.request.RequestSubmissionResult;
+import pk.edu.nu.aafatlink.domain.request.RequesterContact;
 import pk.edu.nu.aafatlink.repository.WorkflowRepository;
 import pk.edu.nu.aafatlink.service.evidence.EvidenceAttachment;
 import pk.edu.nu.aafatlink.service.evidence.EvidenceStorage;
@@ -41,6 +42,25 @@ public final class RequestController {
         Objects.requireNonNull(evidence, "evidence");
         return executeWithEvidence(session, "SUBMIT_REQUEST", evidence,
                 operationId -> workflows.submitRequest(session, operationId, session.userId(), details));
+    }
+
+    public RequestSubmissionResult recordCoordinatorRequest(AuthSession session, String requesterName,
+            String requesterContact, AssistanceRequestDraft details) {
+        Objects.requireNonNull(session, "session");
+        Objects.requireNonNull(details, "details");
+        RequesterContact contact = new RequesterContact(requesterName, requesterContact);
+        return executeWithoutEvidence(session, "RECORD_COORDINATOR_REQUEST",
+                operationId -> workflows.recordCoordinatorRequest(session, operationId, contact, details));
+    }
+
+    public RequestSubmissionResult recordCoordinatorRequest(AuthSession session, String requesterName,
+            String requesterContact, AssistanceRequestDraft details, EvidenceAttachment evidence) {
+        Objects.requireNonNull(session, "session");
+        Objects.requireNonNull(details, "details");
+        Objects.requireNonNull(evidence, "evidence");
+        RequesterContact contact = new RequesterContact(requesterName, requesterContact);
+        return executeWithEvidence(session, "RECORD_COORDINATOR_REQUEST", evidence,
+                operationId -> workflows.recordCoordinatorRequest(session, operationId, contact, details));
     }
 
     public RequestSubmissionResult resubmitRequest(AuthSession session, UUID requestId,
