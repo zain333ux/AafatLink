@@ -1,6 +1,6 @@
 # Mandatory use-case traceability
 
-Deliverable 3 is the functional authority. A use case is marked complete only when its required main flow, important alternatives and automated tests are implemented. Phase 1 establishes destinations and traceability; it does not claim workflow completion.
+Deliverable 3 is the functional authority. A use case is marked implemented only when its required main flow, important alternatives and automated tests exist. Hosted demonstration data is tracked separately so implementation status never implies that a live evaluation record has already been prepared.
 
 ## UC01: Submit Disaster Assistance Request
 
@@ -124,27 +124,27 @@ Deliverable 3 is the functional authority. A use case is marked complete only wh
 
 ## UC11: Generate Disaster Response Reports
 
-- **Status:** Planned; Coordinator and Administrator navigation destination exists only.
-- **Java:** `application.ReportController`; planned `ReportGenerator` interface and four implementations with `ReportRepository`.
-- **Methods:** planned `generateReport` and `exportCsv`.
-- **Screen:** Reports.
-- **Database:** authorized reporting views/RPCs over requests, assignments and history.
+- **Status:** Implemented and deployed; the four reports, validated filters, committed-data queries, polymorphic generation and CSV export are connected.
+- **Java:** `application.reporting.ReportController`, `reporting.ReportService`, abstract `ReportGenerator`, `RequestStatusReport`, `OutstandingRequestsReport`, `VolunteerWorkloadReport`, `ResponsePerformanceReport`, `repository.ReportRepository` and `SupabaseReportRepository`.
+- **Methods:** `generateReport`, `validateFilters`, polymorphic `ReportGenerator.generateReport`, repository report methods and `exportReportToCsv` / `exportCsv`.
+- **Screen:** Coordinator or Administrator > Reports (`report-view.fxml`), with type, date, disaster, status, priority and service-area filters.
+- **Database:** deployed `report_request_status`, `report_outstanding_requests`, `report_volunteer_workload` and `report_response_performance` functions over committed request and assignment history.
 - **Success:** generate Request Status Summary, Outstanding Requests, Volunteer Workload or Response Performance with validated filters.
-- **Alternatives:** empty result, invalid date range, export failure and restricted scope.
-- **Tests:** planned calculation, filter, polymorphism, CSV escaping and authorization tests.
-- **Demonstration:** generate each report from sample data and export one CSV.
+- **Alternatives:** reject incomplete/reversed date ranges; show an honest empty state; show no partial data after retrieval failure; preserve the generated report after export failure; reject non-report roles at the database boundary.
+- **Tests:** `ReportServiceTest`, `SupabaseReportRepositoryTest` and `DatabaseMigrationContractTest` cover polymorphic strategy dispatch, date validation, CSV escaping, exact response-time definitions, data minimization and authorization/hardening contracts.
+- **Demonstration:** generate one summary, show a response-performance metric, switch report type through the common generator contract and export one CSV.
 
 ## UC12: Configure User Access Permissions
 
-- **Status:** Planned; Administrator navigation destination exists only.
-- **Java:** `application.AccessController`; `UserRepository` and required `WorkflowRepository` dependency.
-- **Methods:** planned `changeRole`, `changeAccountStatus`, `reviewVolunteerApproval`.
-- **Screen:** Administrator > Access management.
-- **Database:** `accounts`, `account_roles`, `role_permissions`, `volunteer_approval_reviews`, `access_change_audit`; restricted authorization RPCs.
+- **Status:** Implemented and deployed; administrator-only role, account-status and volunteer-approval changes are versioned, atomic and audited.
+- **Java:** `application.access.AccessController`, `AccessValidation`, `domain.account.UserAccount`, `AccessChanges`, `AccessChangeLog`, `repository.UserRepository`, the required `WorkflowRepository` dependency and `SupabaseUserRepository`.
+- **Methods:** `listUsers`, `getAccessConfiguration`, `validateAccessChange`, `applyAccessChanges`, `hasActiveAssignment` and `saveAccessWithAudit`.
+- **Screen:** Administrator > Access management (`access-management-view.fxml`) with list/selection, current access, editable changes, reason and confirmation.
+- **Database:** `accounts`, `account_roles`, `role_permissions`, `volunteer_approval_reviews`, `access_change_audit`, `workflow_operations`; deployed restricted `update_user_access` RPC.
 - **Success:** an administrator performs an allowed access change and creates an immutable audit record.
-- **Alternatives:** block self-promotion, last-administrator removal, active-assignment deactivation and unauthorized calls.
-- **Tests:** planned privilege escalation, last-admin, active assignment, volunteer approval and audit tests.
-- **Demonstration:** approve a volunteer, update a safe account permission, then show blocked self/last-admin operations.
+- **Alternatives:** reject stale/deleted accounts, incompatible role/approval combinations, own-role changes, last-active-administrator removal, active-assignment deactivation/role change/approval withdrawal and unauthorized calls without modifying access.
+- **Tests:** `AccessControllerTest`, `SupabaseUserRepositoryTest` and `DatabaseMigrationContractTest` cover self-role protection, last-admin protection, active-assignment restrictions, approved changes, versioning, audit fields, database-derived actor identity and restricted execution.
+- **Demonstration:** approve a volunteer or make one safe role/status change, inspect the resulting audit data, then show a blocked own-role or active-assignment operation.
 
 ## Additional portfolio features
 

@@ -14,6 +14,8 @@ import pk.edu.nu.aafatlink.application.request.RequestController;
 import pk.edu.nu.aafatlink.application.request.RequestReviewController;
 import pk.edu.nu.aafatlink.application.assignment.AssignmentController;
 import pk.edu.nu.aafatlink.application.volunteer.VolunteerController;
+import pk.edu.nu.aafatlink.application.reporting.ReportController;
+import pk.edu.nu.aafatlink.application.access.AccessController;
 import pk.edu.nu.aafatlink.app.AppConfiguration;
 import pk.edu.nu.aafatlink.app.SessionManager;
 import pk.edu.nu.aafatlink.app.navigation.NavigationPolicy;
@@ -35,12 +37,14 @@ public final class ViewRouter {
     private final RequestReviewController reviews;
     private final VolunteerController volunteers;
     private final AssignmentController assignments;
+    private final ReportController reports;
+    private final AccessController access;
 
     public ViewRouter(Stage stage, AppConfiguration configuration, SessionManager sessions,
             NavigationPolicy navigationPolicy, AuthenticationController authentication,
             PasswordRecoveryCoordinator passwordRecovery, RequestController requests,
             RequestReviewController reviews, VolunteerController volunteers,
-            AssignmentController assignments) {
+            AssignmentController assignments, ReportController reports, AccessController access) {
         this.stage = Objects.requireNonNull(stage, "stage");
         this.configuration = Objects.requireNonNull(configuration, "configuration");
         this.sessions = Objects.requireNonNull(sessions, "sessions");
@@ -51,6 +55,8 @@ public final class ViewRouter {
         this.reviews = reviews;
         this.volunteers = volunteers;
         this.assignments = assignments;
+        this.reports = reports;
+        this.access = access;
     }
 
     public void showLogin() {
@@ -111,7 +117,7 @@ public final class ViewRouter {
         }
         if (type == AppShellController.class) {
             return new AppShellController(this, sessions, navigationPolicy, authentication, requests, reviews,
-                    volunteers, assignments);
+                    volunteers, assignments, reports, access);
         }
         if (type == RegistrationViewController.class) {
             return new RegistrationViewController(this, authentication);

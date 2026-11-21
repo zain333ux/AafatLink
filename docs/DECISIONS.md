@@ -97,3 +97,27 @@
 **Decision:** The assigned volunteer, requester owner, coordinator and administrator may read the closure review for an accessible request; other users cannot. A private helper derives identity from `auth.uid()` and is not exposed through the Data API.
 
 **Reason:** The volunteer must see the coordinator's rework reason while RLS must still prevent disclosure across unrelated requests.
+
+## D016: UC11 uses genuine generator polymorphism
+
+**Decision:** Model the four documented reports as subclasses of `ReportGenerator`. `ReportService` selects them by `ReportType` and calls the shared parent operation. Each subclass supplies its query, column order and summary without type checks in the caller.
+
+**Reason:** This is the reviewed design interaction and a meaningful OOP example: the reports share an algorithm shape but vary in committed-data retrieval and presentation metadata.
+
+## D017: UC12 keeps the documented account states at the UI boundary
+
+**Decision:** Present `ACTIVE` as Active and `DISABLED` as Deactivated in UC12. Retain the existing `SUSPENDED` database value for operational compatibility, but do not expose it as a new documented administrator choice.
+
+**Reason:** Deliverable 3 defines Active and Deactivated. Removing an existing safe state would be a destructive schema change, while exposing it as a new option would silently change the use case.
+
+## D018: Aggregated volunteer workload has a narrow privacy boundary
+
+**Decision:** Keep three report functions as `SECURITY INVOKER`. Use one hardened `SECURITY DEFINER` function for Volunteer Workload because coordinator RLS deliberately cannot read every account email row. It derives the actor from `auth.uid()`, accepts no actor ID, returns only display name and workload aggregates, uses `search_path = ''`, and grants execution only to `authenticated`.
+
+**Reason:** The report needs a volunteer label without weakening account-table RLS or exposing email/contact details. The smallest privileged surface returns only the documented aggregate.
+
+## D019: Access checks run in both Java and PostgreSQL
+
+**Decision:** `AccessController` performs fast validation for own-role, last-admin and active-assignment restrictions, then `update_user_access` locks and rechecks the target account, actor role, administrator count, active assignments, compatibility and expected version before writing both access state and audit records atomically.
+
+**Reason:** Desktop checks improve feedback but are not a security boundary. Repeating every rule in the transaction prevents frontend tampering and time-of-check/time-of-use races.

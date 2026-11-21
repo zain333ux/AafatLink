@@ -228,3 +228,21 @@ Implement and validate the PostgreSQL schema, RLS foundation and transactional w
 ### Next
 
 - Commit UC06/UC09/UC10, then implement UC11 reporting and UC12 access management before optional portfolio work.
+
+### UC11 reporting and UC12 access management
+
+- Implemented all four documented reports with validated date, disaster-type, request-status, priority and service-area filters.
+- Added `ReportGenerator` inheritance and runtime polymorphism for Request Status Summary, Outstanding Requests, Volunteer Workload and Response Performance.
+- Added committed-data Supabase report adapters and CSV export with stable column order and correct field escaping.
+- Implemented administrator-only user listing, role/account-status changes and volunteer approval through `AccessController`, `UserRepository` and the required `WorkflowRepository` active-assignment check.
+- Added own-role, last-active-administrator, incompatible-role, active-assignment and optimistic-version protections in both Java and PostgreSQL.
+- Added the atomic, idempotent `update_user_access` RPC and immutable access/approval audit records.
+- Added and deployed `add_reporting_and_access_management` to `aafatlink-dev`; live function inspection confirmed the three invoker reports and the two narrowly justified definer boundaries.
+- Reran hosted security and performance advisors. New findings are limited to intentional hardened definer functions and unused indexes in the unseeded development project.
+- `mvnw.cmd clean test`: 100 tests passed with no failures, errors or skips.
+- `mvnw.cmd package`: reran all 100 tests successfully and produced `target/aafatlink-0.1.0-SNAPSHOT.jar`.
+- `mvnw.cmd javafx:run`: Coordinator Reports and Administrator Access Management loaded without FXML errors and were visually inspected at 1280 x 720; both demonstration empty states are explicit and read-only.
+
+### Next
+
+- Run the final package and diff checks, commit the complete UC11/UC12 increment, then audit Deliverables 2-5 against the implementation before adding optional portfolio features.

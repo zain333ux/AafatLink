@@ -755,6 +755,18 @@ public final class SupabaseWorkflowRepository implements WorkflowRepository {
         return value;
     }
 
+    @Override
+    public boolean hasActiveAssignment(AuthSession session, UUID accountId) {
+        Objects.requireNonNull(accountId, "accountId");
+        JsonNode rows = send(session, "/rest/v1/volunteer_assignments?volunteer_account_id=eq." + accountId
+                + "&status=in.(PENDING_ACCEPTANCE,ACCEPTED,IN_PROGRESS,AWAITING_CLOSURE_REVIEW)"
+                + "&select=id&limit=1", "GET", null);
+        if (!rows.isArray()) {
+            throw new RepositoryException("AafatLink received invalid assignment-conflict data.");
+        }
+        return !rows.isEmpty();
+    }
+
     private static String nullable(JsonNode object, String name) {
         JsonNode value = object.get(name);
         return value == null || value.isNull() || value.asText().isBlank() ? null : value.asText();

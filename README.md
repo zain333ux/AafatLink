@@ -4,7 +4,7 @@ AafatLink is a Java desktop system for disaster assistance requests, volunteer c
 
 ## Current status
 
-Phase 1 is complete and the database/Auth foundation is established. UC01-UC04 now have connected application controllers and JavaFX workflows for requester submission/tracking and coordinator verification/prioritization. Secure evidence staging, operation reconciliation, optimistic decisions and auditable priority changes are covered locally. The newest migrations and live authenticated use-case transactions remain pending because the Supabase connector is temporarily unavailable. Mandatory UC05-UC12 implementation takes priority over optional portfolio additions.
+The complete UC01-UC12 academic baseline is implemented across JavaFX screens, plain-Java application controllers, domain rules, repository interfaces, Supabase HTTP adapters and deployed PostgreSQL migrations. Automated coverage includes request submission and tracking, verification, priority, assignment, readiness, assignment response, task progress, completion, closure, four polymorphic reports and audited access management. Live evaluation data and final same-computer password-recovery proof still require owner-controlled credentials; optional portfolio additions remain lower priority than demonstrating the reviewed artifacts.
 
 Demonstration accounts are read-only and never imitate successful remote writes. All operational access still depends on a real Supabase session and database policies.
 
@@ -47,6 +47,8 @@ The application intentionally uses the classpath instead of `module-info.java`. 
 - [Database](docs/DATABASE.md)
 - [Engineering decisions](docs/DECISIONS.md)
 - [Use-case traceability](docs/USE_CASE_TRACEABILITY.md)
+- [Ten-minute demonstration guide](docs/DEMO_GUIDE.md)
+- [Rubric traceability](docs/RUBRIC_TRACEABILITY.md)
 - [Work log](docs/WORK_LOG.md)
 - [Known blockers](docs/BLOCKERS.md)
 

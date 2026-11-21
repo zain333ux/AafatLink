@@ -38,6 +38,8 @@ class DatabaseMigrationContractTest {
             "20261121133000_add_task_execution_and_closure_workflows.sql");
     private static final Path REWORK_VISIBILITY = Path.of("supabase", "migrations",
             "20261121141500_allow_volunteer_rework_visibility.sql");
+    private static final Path REPORTING_ACCESS = Path.of("supabase", "migrations",
+            "20261121153000_add_reporting_and_access_management.sql");
 
     @Test
     void everyPublicTableEnablesRowLevelSecurity() throws IOException {
@@ -75,7 +77,8 @@ class DatabaseMigrationContractTest {
     @Test
     void everyDefinerFunctionDerivesIdentityAndPinsSearchPath() throws IOException {
         String sql = normalized(DOMAIN) + "\n" + normalized(RPCS) + "\n" + normalized(ONBOARDING)
-                + "\n" + normalized(VOLUNTEER_COORDINATION) + "\n" + normalized(TASK_EXECUTION);
+                + "\n" + normalized(VOLUNTEER_COORDINATION) + "\n" + normalized(TASK_EXECUTION)
+                + "\n" + normalized(REPORTING_ACCESS);
         String[] functions = sql.split("create or replace function ");
         int definerCount = 0;
         for (int index = 1; index < functions.length; index++) {
@@ -207,6 +210,39 @@ class DatabaseMigrationContractTest {
         assertTrue(sql.contains("request.requester_account_id = auth.uid()"));
         assertTrue(sql.contains("drop policy if exists closure_reviews_select"));
         assertTrue(sql.contains("set search_path = ''"));
+    }
+
+    @Test
+    void reportingUsesFixedMetricsAndDoesNotExposePersonalDetails() throws IOException {
+        String sql = normalized(REPORTING_ACCESS);
+
+        assertTrue(sql.contains("report_request_status"));
+        assertTrue(sql.contains("report_outstanding_requests"));
+        assertTrue(sql.contains("report_volunteer_workload"));
+        assertTrue(sql.contains("report_response_performance"));
+        assertTrue(sql.contains("verified_at - submitted_at"));
+        assertTrue(sql.contains("assigned_at - verified_at"));
+        assertTrue(sql.contains("closed_at - submitted_at"));
+        assertTrue(sql.contains("limit 5000"));
+        assertFalse(sql.contains("affected_person_details"));
+        assertFalse(sql.contains("requester_account_id"));
+    }
+
+    @Test
+    void accessUpdateRechecksUc12SecurityRulesAndAuditsAtomically() throws IOException {
+        String sql = normalized(REPORTING_ACCESS);
+
+        assertTrue(sql.contains("create or replace function public.update_user_access"));
+        assertTrue(sql.contains("private.current_app_role() <> 'administrator'"));
+        assertTrue(sql.contains("actor_id = target.id and p_role <> target.role"));
+        assertTrue(sql.contains("the last active administrator cannot be removed"));
+        assertTrue(sql.contains("active assignments must be completed or reassigned first"));
+        assertTrue(sql.contains("insert into public.access_change_audit"));
+        assertTrue(sql.contains("insert into public.volunteer_approval_reviews"));
+        assertTrue(sql.contains("where id = p_target_account_id for update"));
+        assertTrue(sql.contains("target.version <> p_expected_version"));
+        assertTrue(sql.contains("set search_path = ''"));
+        assertTrue(sql.contains("revoke all on function public.update_user_access"));
     }
 
     private static String normalized(Path path) throws IOException {

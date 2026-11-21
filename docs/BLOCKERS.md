@@ -18,7 +18,7 @@ No Phase 1 build or launch blocker remains. The `aafatlink-dev` hosted project i
 
 ## Live end-to-end demonstration data not prepared
 
-- **Blocked:** Proving UC01 through UC10 end to end with real Requester, Volunteer and Coordinator sessions and retained demonstration records.
+- **Blocked:** Proving UC01 through UC12 end to end with real Requester, Volunteer, Coordinator and Administrator sessions and retained demonstration records.
 - **Why:** The hosted schema and policies are deployed, but the owner-selected password recovery and administrator-provisioned demo roles have not been completed.
 - **Needed from owner:** When available, finish the same-computer password recovery once. Coordinator and Administrator accounts must be provisioned through the secured database workflow, never public registration.
-- **Work that can continue:** Mandatory Java, JavaFX, migration and automated-test implementation for UC11 and UC12.
+- **Work that can continue:** Demo seeding scripts, source-to-artifact review, automated regression coverage and evaluation preparation that do not require owner credentials.

@@ -40,7 +40,7 @@ The project is intentionally nonmodular. Maven builds on the classpath and Suref
 
 Startup configuration failures produce an actionable dialog and a logged exception. A default uncaught-exception handler records unexpected failures through `java.util.logging`. Workflow increments will introduce typed domain and remote-operation failures rather than leaking HTTP exceptions into JavaFX controllers.
 
-## Planned data boundary
+## Data boundary
 
 Schema migrations live in `supabase/migrations`. Multi-record state transitions use RPCs with idempotency operation IDs and optimistic version checks. Functions remain `SECURITY INVOKER` unless a reviewed permission boundary requires definer rights.
 
@@ -69,3 +69,9 @@ The request form keeps entered data after remote failure and validates mandatory
 `VolunteerController` also coordinates UC09 and UC10. `ProgressUpdate` and `TaskCompletion` validate the volunteer's input, while `VolunteerAssignment` owns legal progress, completion, closure and rework transitions. Optional completion evidence reuses the staged-storage protocol and operation UUID used by request submission.
 
 `RequestReviewController` coordinates UC06 without importing JavaFX. `TaskContext` provides the request, assignment, chronological progress, latest completion attempt, evidence and prior closure decision required by both presentation screens. Atomic RPCs lock the request and assignment, validate expected versions, append audit records and commit both states together. Uncertain results are reconciled through `workflow_operations` before any evidence cleanup.
+
+## Reporting and access boundary
+
+`ReportController` delegates UC11 to `ReportService`, which validates filters and selects one of four `ReportGenerator` strategies through a `Map<ReportType, ReportGenerator>`. The concrete generators override their repository query, columns and summaries; callers use the parent type without `if` or `instanceof` dispatch. `ReportRepository` keeps committed reporting queries outside JavaFX, while CSV export retains the already generated result if the file write fails.
+
+`AccessController` coordinates UC12 through `UserRepository` and the reviewed `WorkflowRepository` dependency. The `UserAccount` aggregate encapsulates access state. Java validation gives immediate feedback, while `update_user_access` repeats all authorization, own-role, last-administrator, active-assignment, compatibility and optimistic-version checks inside one atomic transaction and writes the access audit record before success is returned.

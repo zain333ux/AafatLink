@@ -15,6 +15,7 @@
 11. `index_volunteer_assignment_matches` covers both UC05 reference joins reported by the hosted performance advisor.
 12. `add_task_execution_and_closure_workflows` adds append-only progress, numbered completion attempts, completion-evidence links and idempotent progress, completion and closure RPCs.
 13. `allow_volunteer_rework_visibility` permits only the assigned volunteer, requester owner and privileged reviewers to read the relevant closure decision.
+14. `add_reporting_and_access_management` adds four authorized committed-data report functions and the atomic, idempotent UC12 access-change workflow.
 
 All exposed `public` tables enable RLS. Broad `anon` and `authenticated` table privileges are revoked before minimal grants are added.
 
@@ -42,6 +43,8 @@ The private role lookup is the sole base helper requiring definer rights because
 
 ## Validation status
 
-All thirteen migrations through task execution, closure and rework visibility are applied to the designated `aafatlink-dev` project. Hosted checks confirmed the workflow functions and their invoker/definer modes. Security and performance advisors were rerun after deployment. SECURITY DEFINER notices cover intentional atomic workflow boundaries described above; leaked-password protection remains an owner-controlled hosted Auth setting.
+All fourteen migrations through reporting and access management are applied to the designated `aafatlink-dev` project. Hosted checks confirmed the workflow functions and their invoker/definer modes. The request-status, outstanding-request and response-performance reports use `SECURITY INVOKER`. Volunteer workload uses a narrowly scoped definer boundary because coordinator RLS intentionally cannot expose all account email rows; it returns only display names and aggregate workload. The atomic access function also requires definer rights, repeats every authorization rule, uses an empty search path and is executable only by authenticated users.
+
+Security and performance advisors were rerun after deployment. SECURITY DEFINER notices cover the reviewed atomic/privacy boundaries described above; leaked-password protection remains an owner-controlled hosted Auth setting.
 
 Java contract tests check RLS coverage, request status vocabulary, assignment conflict constraints, definer hardening, hosted hardening and evidence cleanup protection. Docker is still unavailable, so `supabase db reset` and local pgTAP execution remain blocked.

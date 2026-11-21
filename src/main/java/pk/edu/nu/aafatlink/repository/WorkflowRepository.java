@@ -28,6 +28,7 @@ import pk.edu.nu.aafatlink.service.evidence.EvidenceAttachment;
 
 /** Persistence boundary shared by the GRASP workflow controllers. */
 public interface WorkflowRepository {
+    boolean hasActiveAssignment(AuthSession session, UUID accountId);
     void beginRequestOperation(AuthSession session, UUID operationId, String operationType);
 
     void registerStagedEvidence(AuthSession session, UUID evidenceId, UUID operationId,

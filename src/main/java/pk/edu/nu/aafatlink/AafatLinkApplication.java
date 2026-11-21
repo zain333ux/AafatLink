@@ -12,6 +12,8 @@ import pk.edu.nu.aafatlink.application.request.RequestController;
 import pk.edu.nu.aafatlink.application.request.RequestReviewController;
 import pk.edu.nu.aafatlink.application.assignment.AssignmentController;
 import pk.edu.nu.aafatlink.application.volunteer.VolunteerController;
+import pk.edu.nu.aafatlink.application.reporting.ReportController;
+import pk.edu.nu.aafatlink.application.access.AccessController;
 import pk.edu.nu.aafatlink.app.AppConfiguration;
 import pk.edu.nu.aafatlink.app.ConfigurationException;
 import pk.edu.nu.aafatlink.app.SessionManager;
@@ -21,6 +23,9 @@ import pk.edu.nu.aafatlink.infrastructure.supabase.SupabaseAuthClient;
 import pk.edu.nu.aafatlink.infrastructure.supabase.SupabaseEvidenceStorage;
 import pk.edu.nu.aafatlink.infrastructure.supabase.SupabaseWorkflowRepository;
 import pk.edu.nu.aafatlink.infrastructure.supabase.SupabaseVolunteerRepository;
+import pk.edu.nu.aafatlink.infrastructure.supabase.SupabaseReportRepository;
+import pk.edu.nu.aafatlink.infrastructure.supabase.SupabaseUserRepository;
+import pk.edu.nu.aafatlink.reporting.ReportService;
 import pk.edu.nu.aafatlink.service.request.PriorityAssessmentService;
 import java.time.Clock;
 import pk.edu.nu.aafatlink.ui.ViewRouter;
@@ -66,9 +71,15 @@ public final class AafatLinkApplication extends Application {
                     : new VolunteerController(volunteerRepository, workflows, Clock.systemUTC(), evidenceStorage);
             AssignmentController assignments = volunteerRepository == null ? null
                     : new AssignmentController(workflows, volunteerRepository);
+            ReportController reports = workflows == null ? null
+                    : new ReportController(ReportService.standard(new SupabaseReportRepository(
+                            configuration.supabaseUrl().orElseThrow(), configuration.publishableKey().orElseThrow())));
+            AccessController access = workflows == null ? null
+                    : new AccessController(new SupabaseUserRepository(configuration.supabaseUrl().orElseThrow(),
+                            configuration.publishableKey().orElseThrow()), workflows);
             ViewRouter router = new ViewRouter(primaryStage, configuration, sessions,
                     new NavigationPolicy(), authentication, passwordRecovery, requests, reviews,
-                    volunteers, assignments);
+                    volunteers, assignments, reports, access);
             primaryStage.setTitle("AafatLink");
             primaryStage.setMinWidth(1_020);
             primaryStage.setMinHeight(680);

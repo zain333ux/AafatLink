@@ -27,6 +27,8 @@ import pk.edu.nu.aafatlink.application.request.RequestController;
 import pk.edu.nu.aafatlink.application.request.RequestReviewController;
 import pk.edu.nu.aafatlink.application.assignment.AssignmentController;
 import pk.edu.nu.aafatlink.application.volunteer.VolunteerController;
+import pk.edu.nu.aafatlink.application.reporting.ReportController;
+import pk.edu.nu.aafatlink.application.access.AccessController;
 import pk.edu.nu.aafatlink.domain.request.AssistanceRequest;
 import pk.edu.nu.aafatlink.service.evidence.EvidenceFileValidator;
 import pk.edu.nu.aafatlink.ui.ViewRouter;
@@ -38,6 +40,8 @@ import pk.edu.nu.aafatlink.ui.assignment.VolunteerAssignmentViewController;
 import pk.edu.nu.aafatlink.ui.volunteer.VolunteerAssignmentsViewController;
 import pk.edu.nu.aafatlink.ui.volunteer.VolunteerReadinessViewController;
 import pk.edu.nu.aafatlink.ui.volunteer.TaskProgressViewController;
+import pk.edu.nu.aafatlink.ui.reporting.ReportViewController;
+import pk.edu.nu.aafatlink.ui.access.AccessManagementViewController;
 
 /** Presentation controller for the reusable role-aware application frame. */
 public final class AppShellController {
@@ -50,6 +54,8 @@ public final class AppShellController {
     private final RequestReviewController reviews;
     private final VolunteerController volunteers;
     private final AssignmentController assignments;
+    private final ReportController reports;
+    private final AccessController access;
     private final Map<NavigationItem, Button> navigationButtons = new EnumMap<>(NavigationItem.class);
 
     @FXML
@@ -73,7 +79,8 @@ public final class AppShellController {
 
     public AppShellController(ViewRouter router, SessionManager sessions, NavigationPolicy navigationPolicy,
             AuthenticationController authentication, RequestController requests, RequestReviewController reviews,
-            VolunteerController volunteers, AssignmentController assignments) {
+            VolunteerController volunteers, AssignmentController assignments, ReportController reports,
+            AccessController access) {
         this.router = Objects.requireNonNull(router, "router");
         this.sessions = Objects.requireNonNull(sessions, "sessions");
         this.navigationPolicy = Objects.requireNonNull(navigationPolicy, "navigationPolicy");
@@ -82,6 +89,8 @@ public final class AppShellController {
         this.reviews = reviews;
         this.volunteers = volunteers;
         this.assignments = assignments;
+        this.reports = reports;
+        this.access = access;
     }
 
     @FXML
@@ -138,6 +147,8 @@ public final class AppShellController {
             case TASK_PROGRESS -> showTaskProgress();
             case VOLUNTEER_ASSIGNMENT -> showVolunteerAssignment();
             case CLOSURE_REVIEW -> showClosureReview();
+            case REPORTS -> showReports();
+            case ACCESS_MANAGEMENT -> showAccessManagement();
             default -> showUnavailable(item);
         }
     }
@@ -242,6 +253,28 @@ public final class AppShellController {
         setContent(load(loader));
     }
 
+    private void showReports() {
+        FXMLLoader loader = loader("report-view.fxml");
+        loader.setControllerFactory(type -> {
+            if (type == ReportViewController.class) {
+                return new ReportViewController(sessions, reports, assignments);
+            }
+            throw new IllegalArgumentException("Unsupported report controller: " + type.getName());
+        });
+        setContent(load(loader));
+    }
+
+    private void showAccessManagement() {
+        FXMLLoader loader = loader("access-management-view.fxml");
+        loader.setControllerFactory(type -> {
+            if (type == AccessManagementViewController.class) {
+                return new AccessManagementViewController(sessions, access);
+            }
+            throw new IllegalArgumentException("Unsupported access controller: " + type.getName());
+        });
+        setContent(load(loader));
+    }
+
     private void showUnavailable(NavigationItem item) {
         Label message = new Label(item.label() + " is not implemented yet. Its mandatory behavior remains tracked in the use-case traceability document.");
         message.setWrapText(true);
@@ -316,8 +349,8 @@ public final class AppShellController {
         descriptions.put(NavigationItem.PRIORITY_QUEUE, "Apply UC04 priority rules and record the coordinator's final decision.");
         descriptions.put(NavigationItem.VOLUNTEER_ASSIGNMENT, "Match and reassign volunteers using UC05 eligibility and conflict rules.");
         descriptions.put(NavigationItem.CLOSURE_REVIEW, "Approve UC06 closure or return incomplete assistance for rework.");
-        descriptions.put(NavigationItem.REPORTS, "UC11 reporting is scheduled for the reporting and administration phase.");
-        descriptions.put(NavigationItem.ACCESS_MANAGEMENT, "UC12 access control is scheduled for the administration phase.");
+        descriptions.put(NavigationItem.REPORTS, "Generate and export the four committed-data reports required by UC11.");
+        descriptions.put(NavigationItem.ACCESS_MANAGEMENT, "Apply audited UC12 role, status and volunteer-approval changes.");
         return Map.copyOf(descriptions);
     }
 }
