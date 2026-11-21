@@ -52,17 +52,18 @@ public final class AafatLinkApplication extends Application {
             SupabaseWorkflowRepository workflows = authClient == null ? null
                     : new SupabaseWorkflowRepository(configuration.supabaseUrl().orElseThrow(),
                             configuration.publishableKey().orElseThrow());
+            SupabaseEvidenceStorage evidenceStorage = workflows == null ? null
+                    : new SupabaseEvidenceStorage(configuration.supabaseUrl().orElseThrow(),
+                            configuration.publishableKey().orElseThrow());
             RequestController requests = workflows == null
-                    ? null : new RequestController(workflows,
-                            new SupabaseEvidenceStorage(configuration.supabaseUrl().orElseThrow(),
-                                    configuration.publishableKey().orElseThrow()));
+                    ? null : new RequestController(workflows, evidenceStorage);
             RequestReviewController reviews = workflows == null ? null
                     : new RequestReviewController(workflows, new PriorityAssessmentService(), Clock.systemUTC());
             SupabaseVolunteerRepository volunteerRepository = workflows == null ? null
                     : new SupabaseVolunteerRepository(configuration.supabaseUrl().orElseThrow(),
                             configuration.publishableKey().orElseThrow());
             VolunteerController volunteers = volunteerRepository == null ? null
-                    : new VolunteerController(volunteerRepository, workflows, Clock.systemUTC());
+                    : new VolunteerController(volunteerRepository, workflows, Clock.systemUTC(), evidenceStorage);
             AssignmentController assignments = volunteerRepository == null ? null
                     : new AssignmentController(workflows, volunteerRepository);
             ViewRouter router = new ViewRouter(primaryStage, configuration, sessions,

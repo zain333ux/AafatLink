@@ -10,6 +10,13 @@ import pk.edu.nu.aafatlink.domain.assignment.AssignmentCreationResult;
 import pk.edu.nu.aafatlink.domain.assignment.AssignmentFilter;
 import pk.edu.nu.aafatlink.domain.assignment.AssignmentResponseResult;
 import pk.edu.nu.aafatlink.domain.assignment.ReassignmentResult;
+import pk.edu.nu.aafatlink.domain.assignment.ClosureReview;
+import pk.edu.nu.aafatlink.domain.assignment.ClosureReviewResult;
+import pk.edu.nu.aafatlink.domain.assignment.ProgressUpdate;
+import pk.edu.nu.aafatlink.domain.assignment.ProgressUpdateResult;
+import pk.edu.nu.aafatlink.domain.assignment.TaskCompletion;
+import pk.edu.nu.aafatlink.domain.assignment.TaskCompletionResult;
+import pk.edu.nu.aafatlink.domain.assignment.TaskContext;
 import pk.edu.nu.aafatlink.domain.request.AssistanceRequest;
 import pk.edu.nu.aafatlink.domain.request.AssistanceRequestDraft;
 import pk.edu.nu.aafatlink.domain.request.RequestSubmissionResult;
@@ -68,4 +75,31 @@ public interface WorkflowRepository {
 
     ReassignmentResult reassignVolunteer(AuthSession session, UUID operationId, UUID assignmentId,
             long expectedAssignmentVersion, String reason);
+
+    List<TaskContext> findActiveTasks(AuthSession session, UUID volunteerId);
+
+    Optional<TaskContext> findTaskContext(AuthSession session, UUID assignmentId);
+
+    ProgressUpdateResult saveProgressAndStatus(AuthSession session, UUID operationId, ProgressUpdate update,
+            UUID requestId, long expectedAssignmentVersion, long expectedRequestVersion);
+
+    Optional<ProgressUpdateResult> reconcileProgressOperation(AuthSession session, UUID operationId);
+
+    void beginTaskOperation(AuthSession session, UUID operationId, String operationType);
+
+    TaskCompletionResult saveCompletionAndStatus(AuthSession session, UUID operationId,
+            TaskCompletion completion, UUID requestId, long expectedAssignmentVersion, long expectedRequestVersion);
+
+    Optional<TaskCompletionResult> reconcileTaskCompletion(AuthSession session, UUID operationId);
+
+    boolean abandonTaskOperation(AuthSession session, UUID operationId);
+
+    List<TaskContext> findRequestsAwaitingClosure(AuthSession session);
+
+    Optional<TaskContext> findClosureContext(AuthSession session, UUID requestId);
+
+    ClosureReviewResult saveClosureAndStatus(AuthSession session, UUID operationId, ClosureReview review,
+            long expectedAssignmentVersion, long expectedRequestVersion);
+
+    Optional<ClosureReviewResult> reconcileClosureOperation(AuthSession session, UUID operationId);
 }

@@ -93,7 +93,7 @@ class AssignmentControllerTest {
         @Override public List<VolunteerCandidate> findEligible(AuthSession session, AssistanceRequest request, AssignmentFilter filter) { return List.of(candidate); }
     }
 
-    private static final class FakeWorkflowRepository implements WorkflowRepository {
+    private static final class FakeWorkflowRepository extends pk.edu.nu.aafatlink.repository.WorkflowRepositoryStub {
         private final AssistanceRequest request;
         private long expectedRequestVersion;
         private FakeWorkflowRepository(AssistanceRequest request) { this.request = request; }

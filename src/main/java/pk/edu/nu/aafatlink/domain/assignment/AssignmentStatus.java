@@ -23,7 +23,7 @@ public enum AssignmentStatus {
     private Set<AssignmentStatus> allowedTargets() {
         return switch (this) {
             case PENDING_ACCEPTANCE -> EnumSet.of(ACCEPTED, DECLINED, REASSIGNED);
-            case ACCEPTED -> EnumSet.of(IN_PROGRESS, REASSIGNED);
+            case ACCEPTED -> EnumSet.of(IN_PROGRESS, AWAITING_CLOSURE_REVIEW, REASSIGNED);
             case IN_PROGRESS -> EnumSet.of(AWAITING_CLOSURE_REVIEW, REASSIGNED);
             case AWAITING_CLOSURE_REVIEW -> EnumSet.of(COMPLETED, IN_PROGRESS);
             case COMPLETED, DECLINED, REASSIGNED -> EnumSet.noneOf(AssignmentStatus.class);

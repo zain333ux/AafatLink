@@ -64,14 +64,14 @@ Deliverable 3 is the functional authority. A use case is marked complete only wh
 
 ## UC06: Close Assistance Request
 
-- **Status:** Planned; Coordinator navigation destination exists only.
-- **Java:** `application.RequestReviewController`; planned closure service and `WorkflowRepository`.
-- **Methods:** planned `approveClosure` and `returnForRework`.
-- **Screen:** Coordinator > Closure review.
-- **Database:** `closure_reviews`, `assistance_requests`, `volunteer_assignments`; planned `review_request_closure` RPC.
-- **Success:** approve a request awaiting review and atomically mark request `CLOSED` and assignment `COMPLETED`.
-- **Alternatives:** return for rework with a mandatory reason; stale-version conflict.
-- **Tests:** planned atomic transition, rework reason, authorization and concurrency tests.
+- **Status:** Implemented and deployed; coordinator closure approval and return-for-rework paths are connected through JavaFX, domain rules, the repository and an atomic RPC.
+- **Java:** `application.request.RequestReviewController`, `ui.request.ClosureReviewViewController`, `domain.assignment.ClosureReview`, `ClosureDecision`, `TaskContext`, `VolunteerAssignment`, `repository.WorkflowRepository` and `SupabaseWorkflowRepository`.
+- **Methods:** `loadClosureQueue`, `getClosureDetails`, `approveClosure`, `returnForRework`, `saveClosureAndStatus` and `reconcileClosureOperation`.
+- **Screen:** Coordinator > Closure review (`closure-review-view.fxml`).
+- **Database:** `closure_reviews`, `task_completions`, `task_progress_updates`, `request_evidence`, `assistance_requests`, `volunteer_assignments`, `workflow_operations`; deployed `review_request_closure` RPC and rework-visibility policy.
+- **Success:** inspect the latest completion context, approve it and atomically mark the request `CLOSED` and assignment `COMPLETED` with an audit record.
+- **Alternatives:** return both records to `IN_PROGRESS` with a mandatory reason visible to the assigned volunteer; reject stale versions, invalid states and unauthorized actors; reconcile uncertain RPC results by operation ID.
+- **Tests:** `ClosureReviewTest`, `VolunteerAssignmentTest`, `RequestReviewControllerTest`, `SupabaseWorkflowRepositoryTest` and `DatabaseMigrationContractTest` cover decisions, state transitions, rework reason, authorization, idempotency and concurrency contracts.
 - **Demonstration:** inspect completion evidence, approve closure, then demonstrate a separate return-for-rework record.
 
 ## UC07: Maintain Volunteer Readiness Profile
@@ -100,26 +100,26 @@ Deliverable 3 is the functional authority. A use case is marked complete only wh
 
 ## UC09: Update Assistance Task Progress
 
-- **Status:** Planned; Volunteer task destination exists only.
-- **Java:** `application.AssignmentController`; progress validation service and `WorkflowRepository`.
-- **Methods:** planned `addProgressUpdate`.
-- **Screen:** Volunteer > Task progress.
-- **Database:** `task_progress_updates`, `volunteer_assignments`, `assistance_requests`; planned `record_task_progress` RPC.
-- **Success:** record a note and optional 0 to 99 percent value, moving accepted work to `IN_PROGRESS` atomically.
-- **Alternatives:** reject invalid percentage, wrong volunteer, completed assignment or stale version.
-- **Tests:** planned boundary, transition, ownership and concurrency tests.
+- **Status:** Implemented and deployed; active-task lookup, append-only history, domain validation, JavaFX controls and an atomic version-checked RPC are connected.
+- **Java:** `application.volunteer.VolunteerController`, `ui.volunteer.TaskProgressViewController`, `domain.assignment.ProgressUpdate`, `TaskContext`, `VolunteerAssignment`, `WorkflowRepository` and `SupabaseWorkflowRepository`.
+- **Methods:** `getActiveTasks`, `getTaskDetails`, `recordProgress`, `VolunteerAssignment.recordProgress`, `saveProgressAndStatus` and `reconcileProgressOperation`.
+- **Screen:** Volunteer > Task progress (`task-progress-view.fxml`).
+- **Database:** `task_progress_updates`, `volunteer_assignments`, `assistance_requests`, `workflow_operations`; deployed `record_task_progress` RPC.
+- **Success:** append a required note and optional 0 to 99 percentage, then atomically move accepted request/assignment work to `IN_PROGRESS`.
+- **Alternatives:** reject a blank or over-500-character note, invalid percentage, wrong owner, stale/reassigned task, invalid state or concurrent version; recover an uncertain result by operation ID.
+- **Tests:** `ProgressUpdateTest`, `VolunteerAssignmentTest`, `VolunteerControllerTest`, `SupabaseWorkflowRepositoryTest` and `DatabaseMigrationContractTest` cover boundaries, state transitions, authenticated ownership delegation, adapter mapping and RPC hardening.
 - **Demonstration:** add progress without a percentage, then add a valid percentage and inspect history.
 
 ## UC10: Complete Assistance Task
 
-- **Status:** Planned; Volunteer task destination exists only.
-- **Java:** `application.AssignmentController`; completion validation/evidence services and `WorkflowRepository`.
-- **Methods:** planned `completeTask` and uncertain-operation recovery.
-- **Screen:** Volunteer > Task progress > Complete task.
-- **Database:** `task_completions`, `request_evidence`, assignments and requests; planned `complete_assistance_task` RPC.
-- **Success:** record completion remarks and optional evidence, then atomically move assignment and request to `AWAITING_CLOSURE_REVIEW`.
-- **Alternatives:** staged-upload failure, uncertain RPC result resolved by operation ID, invalid owner and safe retry.
-- **Tests:** planned idempotency, evidence reference safety, ownership and atomic transition tests.
+- **Status:** Implemented and deployed; validated completion, optional reliable evidence staging, retry reconciliation and atomic state changes are connected.
+- **Java:** `application.volunteer.VolunteerController`, `ui.volunteer.TaskProgressViewController`, `domain.assignment.TaskCompletion`, `CompletionEvidence`, `TaskCompletionResult`, `VolunteerAssignment`, `EvidenceStorage`, `WorkflowRepository` and their Supabase adapters.
+- **Methods:** `completeTask`, `VolunteerAssignment.createCompletion`, `beginTaskOperation`, `saveCompletionAndStatus`, `reconcileTaskCompletion` and `abandonTaskOperation`.
+- **Screen:** Volunteer > Task progress > Complete task (`task-progress-view.fxml`).
+- **Database:** `task_completions`, `request_evidence`, `workflow_operations`, `volunteer_assignments`, `assistance_requests`; deployed `begin_task_operation`, `complete_assistance_task`, `reconcile_workflow_operation` and `abandon_task_operation` functions.
+- **Success:** store required completion remarks and optional staged evidence, then atomically move assignment and request to `AWAITING_CLOSURE_REVIEW`.
+- **Alternatives:** multiple auditable attempts after rework; invalid remarks/evidence/owner/state/version; uncertain RPC recovery by operation ID; cleanup only after confirmed non-commit and with committed-reference protection.
+- **Tests:** `VolunteerAssignmentTest`, `VolunteerControllerTest`, `SupabaseWorkflowRepositoryTest`, `SupabaseEvidenceStorageTest` and `DatabaseMigrationContractTest` cover direct accepted completion, rework attempts, idempotency, evidence safety, ownership and atomic transition contracts.
 - **Demonstration:** stage evidence, complete the task and show its closure-review state.
 
 ## UC11: Generate Disaster Response Reports

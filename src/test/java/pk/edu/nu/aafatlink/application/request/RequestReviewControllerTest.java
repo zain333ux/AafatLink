@@ -15,6 +15,13 @@ import org.junit.jupiter.api.Test;
 import pk.edu.nu.aafatlink.domain.auth.AuthSession;
 import pk.edu.nu.aafatlink.domain.assignment.AssignmentContext;
 import pk.edu.nu.aafatlink.domain.assignment.AssignmentResponseResult;
+import pk.edu.nu.aafatlink.domain.assignment.AssignmentStatus;
+import pk.edu.nu.aafatlink.domain.assignment.ClosureDecision;
+import pk.edu.nu.aafatlink.domain.assignment.ClosureReview;
+import pk.edu.nu.aafatlink.domain.assignment.ClosureReviewResult;
+import pk.edu.nu.aafatlink.domain.assignment.TaskCompletion;
+import pk.edu.nu.aafatlink.domain.assignment.TaskContext;
+import pk.edu.nu.aafatlink.domain.assignment.VolunteerAssignment;
 import pk.edu.nu.aafatlink.domain.request.AssistanceRequest;
 import pk.edu.nu.aafatlink.domain.request.AssistanceRequestDraft;
 import pk.edu.nu.aafatlink.domain.request.DisasterType;
@@ -74,6 +81,30 @@ class RequestReviewControllerTest {
         assertEquals("Access roads have become unsafe.", repository.reason);
     }
 
+    @Test
+    void approvesClosureWithAtomicExpectedVersions() {
+        TaskContext context = closureContext();
+        ClosureRepository repository = new ClosureRepository(context);
+        RequestReviewController controller = controller(repository);
+
+        ClosureReviewResult result = controller.approveClosure(session, context, "Reviewed and confirmed.");
+
+        assertEquals(RequestStatus.CLOSED, result.requestStatus());
+        assertEquals(ClosureDecision.APPROVED, repository.review.decision());
+        assertEquals(2, repository.assignmentVersion);
+        assertEquals(7, repository.requestVersion);
+    }
+
+    @Test
+    void returningClosureForReworkRequiresReason() {
+        TaskContext context = closureContext();
+        ClosureRepository repository = new ClosureRepository(context);
+        RequestReviewController controller = controller(repository);
+
+        assertThrows(IllegalArgumentException.class,
+                () -> controller.returnForRework(session, context, " "));
+    }
+
     private static RequestReviewController controller(WorkflowRepository repository) {
         return new RequestReviewController(repository, new PriorityAssessmentService(),
                 Clock.fixed(NOW, ZoneOffset.UTC));
@@ -85,7 +116,43 @@ class RequestReviewControllerTest {
                 "One adult"), status, null, false, NOW.minusSeconds(3600), null, version, null, null, null);
     }
 
-    private static final class StubRepository implements WorkflowRepository {
+    private TaskContext closureContext() {
+        UUID requestId = UUID.randomUUID();
+        UUID volunteerId = UUID.randomUUID();
+        VolunteerAssignment assignment = new VolunteerAssignment(UUID.randomUUID(), requestId, volunteerId,
+                AssignmentStatus.AWAITING_CLOSURE_REVIEW, NOW.minusSeconds(7200), null, null, null, null, 2);
+        AssistanceRequest request = request(RequestStatus.AWAITING_CLOSURE_REVIEW, 7);
+        request = new AssistanceRequest(requestId, request.details(), request.status(), request.priority(),
+                request.possibleDuplicate(), request.submittedAt(), request.resubmittedAt(), request.version(),
+                null, null, null);
+        TaskCompletion completion = new TaskCompletion(UUID.randomUUID(), assignment.id(), volunteerId,
+                "Assistance delivered.", NOW.minusSeconds(300));
+        return new TaskContext(new AssignmentContext(assignment, request), List.of(), completion, List.of(), null);
+    }
+
+    private static final class ClosureRepository
+            extends pk.edu.nu.aafatlink.repository.WorkflowRepositoryStub {
+        private final TaskContext context;
+        private ClosureReview review;
+        private long assignmentVersion;
+        private long requestVersion;
+        private ClosureRepository(TaskContext context) { this.context = context; }
+        @Override public ClosureReviewResult saveClosureAndStatus(AuthSession session, UUID operationId,
+                ClosureReview review, long assignmentVersion, long requestVersion) {
+            this.review = review;
+            this.assignmentVersion = assignmentVersion;
+            this.requestVersion = requestVersion;
+            boolean approved = review.decision() == ClosureDecision.APPROVED;
+            return new ClosureReviewResult(review.reviewId(), review.assignmentId(),
+                    approved ? AssignmentStatus.COMPLETED : AssignmentStatus.IN_PROGRESS,
+                    review.requestId(), approved ? RequestStatus.CLOSED : RequestStatus.IN_PROGRESS,
+                    assignmentVersion + 1, requestVersion + 1);
+        }
+        @Override public Optional<ClosureReviewResult> reconcileClosureOperation(AuthSession session,
+                UUID operationId) { return Optional.empty(); }
+    }
+
+    private static final class StubRepository extends pk.edu.nu.aafatlink.repository.WorkflowRepositoryStub {
         private long expectedVersion;
         private VerificationDecision decision;
         private RequestPriority suggested;

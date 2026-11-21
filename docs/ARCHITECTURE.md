@@ -63,3 +63,9 @@ The request form keeps entered data after remote failure and validates mandatory
 `VolunteerController` coordinates UC07 readiness and UC08 assignment response. It depends on `VolunteerRepository` for readiness/reference data and `WorkflowRepository` for operational assignment state, matching the reviewed UML dependency correction. `AssignmentController` coordinates UC05 candidate search, assignment and reassignment for coordinators. Neither controller imports JavaFX.
 
 `VolunteerProfile` is the Information Expert for approval, availability and capability matching. `VolunteerAssignment` encapsulates the legal response states. Repository interfaces provide Protected Variation around PostgREST and RPC details. The presentation controllers run these operations off the JavaFX thread and expose explicit loading, empty, validation, success and failure states.
+
+## Task execution and closure boundary
+
+`VolunteerController` also coordinates UC09 and UC10. `ProgressUpdate` and `TaskCompletion` validate the volunteer's input, while `VolunteerAssignment` owns legal progress, completion, closure and rework transitions. Optional completion evidence reuses the staged-storage protocol and operation UUID used by request submission.
+
+`RequestReviewController` coordinates UC06 without importing JavaFX. `TaskContext` provides the request, assignment, chronological progress, latest completion attempt, evidence and prior closure decision required by both presentation screens. Atomic RPCs lock the request and assignment, validate expected versions, append audit records and commit both states together. Uncertain results are reconciled through `workflow_operations` before any evidence cleanup.

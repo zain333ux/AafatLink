@@ -7,6 +7,10 @@ import java.util.Optional;
 import java.util.UUID;
 
 import pk.edu.nu.aafatlink.domain.auth.AuthSession;
+import pk.edu.nu.aafatlink.domain.assignment.ClosureDecision;
+import pk.edu.nu.aafatlink.domain.assignment.ClosureReview;
+import pk.edu.nu.aafatlink.domain.assignment.ClosureReviewResult;
+import pk.edu.nu.aafatlink.domain.assignment.TaskContext;
 import pk.edu.nu.aafatlink.domain.request.AssistanceRequest;
 import pk.edu.nu.aafatlink.domain.request.PriorityAssessmentResult;
 import pk.edu.nu.aafatlink.domain.request.RequestPriority;
@@ -69,6 +73,54 @@ public final class RequestReviewController {
                 Objects.requireNonNull(selected, "selected"), justification);
         return workflows.recordPriorityAssessment(session, UUID.randomUUID(), request.id(), request.version(),
                 suggested, selected, normalized);
+    }
+
+    public List<TaskContext> loadClosureQueue(AuthSession session) {
+        return workflows.findRequestsAwaitingClosure(Objects.requireNonNull(session, "session"));
+    }
+
+    public Optional<TaskContext> getClosureDetails(AuthSession session, UUID requestId) {
+        return workflows.findClosureContext(Objects.requireNonNull(session, "session"),
+                Objects.requireNonNull(requestId, "requestId"));
+    }
+
+    public ClosureReviewResult approveClosure(AuthSession session, TaskContext context, String remarks) {
+        return reviewClosure(session, context, ClosureDecision.APPROVED, remarks);
+    }
+
+    public ClosureReviewResult returnForRework(AuthSession session, TaskContext context, String reason) {
+        return reviewClosure(session, context, ClosureDecision.RETURNED_FOR_REWORK, reason);
+    }
+
+    private ClosureReviewResult reviewClosure(AuthSession session, TaskContext context,
+            ClosureDecision decision, String remarks) {
+        Objects.requireNonNull(session, "session");
+        Objects.requireNonNull(context, "context");
+        if (!context.assignmentContext().request().canBeClosed()
+                || !context.assignmentContext().assignment().canBeClosed()
+                || context.completionDetails().isEmpty()) {
+            throw new IllegalStateException("This request is no longer ready for closure review.");
+        }
+        ClosureReview review = new ClosureReview(UUID.randomUUID(),
+                context.assignmentContext().request().id(), context.assignmentContext().assignment().id(),
+                session.userId(), decision, remarks, clock.instant());
+        if (decision == ClosureDecision.APPROVED) {
+            context.assignmentContext().assignment().approveClosure();
+        } else {
+            context.assignmentContext().assignment().returnForRework(remarks);
+        }
+        UUID operationId = UUID.randomUUID();
+        try {
+            return workflows.saveClosureAndStatus(session, operationId, review,
+                    context.assignmentContext().assignment().version(),
+                    context.assignmentContext().request().version());
+        } catch (RuntimeException failure) {
+            Optional<ClosureReviewResult> committed = workflows.reconcileClosureOperation(session, operationId);
+            if (committed.isPresent()) {
+                return committed.get();
+            }
+            throw failure;
+        }
     }
 
     private RequestReviewResult decide(AuthSession session, AssistanceRequest request,

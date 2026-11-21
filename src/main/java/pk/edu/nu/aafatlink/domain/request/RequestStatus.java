@@ -44,7 +44,7 @@ public enum RequestStatus {
             case PENDING_VERIFICATION -> EnumSet.of(VERIFIED, ADDITIONAL_INFORMATION_REQUIRED, REJECTED);
             case ADDITIONAL_INFORMATION_REQUIRED -> EnumSet.of(PENDING_VERIFICATION);
             case VERIFIED -> EnumSet.of(ASSIGNED);
-            case ASSIGNED -> EnumSet.of(IN_PROGRESS);
+            case ASSIGNED -> EnumSet.of(IN_PROGRESS, AWAITING_CLOSURE_REVIEW);
             case IN_PROGRESS -> EnumSet.of(AWAITING_CLOSURE_REVIEW);
             case AWAITING_CLOSURE_REVIEW -> EnumSet.of(CLOSED, IN_PROGRESS);
             case CLOSED, REJECTED -> EnumSet.noneOf(RequestStatus.class);

@@ -18,6 +18,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import pk.edu.nu.aafatlink.domain.auth.AuthSession;
+import pk.edu.nu.aafatlink.domain.assignment.AssignmentStatus;
+import pk.edu.nu.aafatlink.domain.assignment.ProgressUpdate;
 import pk.edu.nu.aafatlink.domain.request.AssistanceRequestDraft;
 import pk.edu.nu.aafatlink.domain.request.DisasterType;
 import pk.edu.nu.aafatlink.domain.request.RequestStatus;
@@ -43,6 +45,7 @@ class SupabaseWorkflowRepositoryTest {
         server.createContext("/rest/v1/assistance_requests", this::handleRequestDetail);
         server.createContext("/rest/v1/volunteer_assignments", this::handleAssignment);
         server.createContext("/rest/v1/task_progress_updates", this::handleProgress);
+        server.createContext("/rest/v1/rpc/record_task_progress", this::handleRecordProgress);
         server.start();
         repository = new SupabaseWorkflowRepository(
                 URI.create("http://127.0.0.1:" + server.getAddress().getPort()), "sb_publishable_test");
@@ -94,6 +97,21 @@ class SupabaseWorkflowRepositoryTest {
         assertTrue(repository.abandonRequestOperation(session, operationId));
     }
 
+    @Test
+    void recordsProgressThroughVersionCheckedRpc() {
+        AuthSession session = new AuthSession(USER_ID, "volunteer@example.com", "user-access", "refresh",
+                Instant.parse("2026-11-15T02:00:00Z"));
+        ProgressUpdate update = new ProgressUpdate(UUID.randomUUID(), ASSIGNMENT_ID, USER_ID,
+                "Reached the affected location.", 20, Instant.parse("2026-11-15T01:30:00Z"));
+
+        var result = repository.saveProgressAndStatus(session, UUID.randomUUID(), update, REQUEST_ID, 4, 7);
+
+        assertEquals(AssignmentStatus.IN_PROGRESS, result.assignmentStatus());
+        assertEquals(5, result.assignmentVersion());
+        assertTrue(body.get().contains("\"p_expected_assignment_version\":4"));
+        assertTrue(body.get().contains("\"p_percentage\":20"));
+    }
+
     private void handleSubmit(HttpExchange exchange) throws IOException {
         authorization.set(exchange.getRequestHeaders().getFirst("Authorization"));
         body.set(new String(exchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8));
@@ -124,6 +142,15 @@ class SupabaseWorkflowRepositoryTest {
     private void handleProgress(HttpExchange exchange) throws IOException {
         respond(exchange, "[{\"note\":\"Drinking water delivered\",\"percentage\":60," +
                 "\"created_at\":\"2026-11-15T01:30:00Z\"}]");
+    }
+
+    private void handleRecordProgress(HttpExchange exchange) throws IOException {
+        body.set(new String(exchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8));
+        respond(exchange, "{\"update_id\":\"" + UUID.randomUUID()
+                + "\",\"assignment_id\":\"" + ASSIGNMENT_ID
+                + "\",\"assignment_status\":\"IN_PROGRESS\",\"request_id\":\"" + REQUEST_ID
+                + "\",\"request_status\":\"IN_PROGRESS\",\"assignment_version\":5,"
+                + "\"request_version\":8}");
     }
 
     private static void respond(HttpExchange exchange, String response) throws IOException {

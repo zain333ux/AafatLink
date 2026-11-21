@@ -16,6 +16,11 @@ import org.junit.jupiter.api.Test;
 import pk.edu.nu.aafatlink.domain.assignment.AssignmentContext;
 import pk.edu.nu.aafatlink.domain.assignment.AssignmentResponseResult;
 import pk.edu.nu.aafatlink.domain.assignment.AssignmentStatus;
+import pk.edu.nu.aafatlink.domain.assignment.ProgressUpdate;
+import pk.edu.nu.aafatlink.domain.assignment.ProgressUpdateResult;
+import pk.edu.nu.aafatlink.domain.assignment.TaskCompletion;
+import pk.edu.nu.aafatlink.domain.assignment.TaskCompletionResult;
+import pk.edu.nu.aafatlink.domain.assignment.TaskContext;
 import pk.edu.nu.aafatlink.domain.assignment.VolunteerAssignment;
 import pk.edu.nu.aafatlink.domain.auth.AuthSession;
 import pk.edu.nu.aafatlink.domain.request.AssistanceRequest;
@@ -84,6 +89,33 @@ class VolunteerControllerTest {
         assertEquals(0, workflows.responseWrites);
     }
 
+    @Test
+    void recordsProgressWithDocumentedVersionsAndTransition() {
+        TaskWorkflowRepository workflows = new TaskWorkflowRepository(taskContext(AssignmentStatus.ACCEPTED));
+        VolunteerController controller = controller(new FakeVolunteerRepository(profile()), workflows);
+
+        ProgressUpdateResult result = controller.recordProgress(session,
+                workflows.context.assignmentContext().assignment().id(), "Reached the affected family.", 25);
+
+        assertEquals(AssignmentStatus.IN_PROGRESS, result.assignmentStatus());
+        assertEquals(2, workflows.expectedAssignmentVersion);
+        assertEquals(5, workflows.expectedRequestVersion);
+        assertEquals("Reached the affected family.", workflows.progress.progressNote());
+    }
+
+    @Test
+    void completesAcceptedTaskWithoutRequiringEvidence() {
+        TaskWorkflowRepository workflows = new TaskWorkflowRepository(taskContext(AssignmentStatus.ACCEPTED));
+        VolunteerController controller = controller(new FakeVolunteerRepository(profile()), workflows);
+
+        TaskCompletionResult result = controller.completeTask(session,
+                workflows.context.assignmentContext().assignment().id(), "Shelter material delivered.");
+
+        assertEquals(AssignmentStatus.AWAITING_CLOSURE_REVIEW, result.assignmentStatus());
+        assertEquals("COMPLETE_TASK", workflows.operationType);
+        assertEquals("Shelter material delivered.", workflows.completion.remarks());
+    }
+
     private VolunteerController controller(VolunteerRepository volunteers, WorkflowRepository workflows) {
         return new VolunteerController(volunteers, workflows, Clock.fixed(NOW, ZoneOffset.UTC));
     }
@@ -104,6 +136,56 @@ class VolunteerControllerTest {
                 RequestStatus.ASSIGNED, RequestPriority.HIGH, false, NOW.minusSeconds(3600), null, 5,
                 null, null, null);
         return new AssignmentContext(assignment, request);
+    }
+
+    private TaskContext taskContext(AssignmentStatus status) {
+        UUID requestId = UUID.randomUUID();
+        VolunteerAssignment assignment = new VolunteerAssignment(UUID.randomUUID(), requestId, volunteerId,
+                status, NOW.minusSeconds(300), null, null, null, null, 2);
+        AssistanceRequest request = new AssistanceRequest(requestId,
+                new AssistanceRequestDraft(DisasterType.FLOOD, null, "G-10, Islamabad",
+                        "Family displaced by floodwater.", "Temporary shelter", "Two adults"),
+                status == AssignmentStatus.ACCEPTED ? RequestStatus.ASSIGNED : RequestStatus.IN_PROGRESS,
+                RequestPriority.HIGH, false, NOW.minusSeconds(3600), null, 5, null, null, null);
+        return new TaskContext(new AssignmentContext(assignment, request), List.of(), null, List.of(), null);
+    }
+
+    private static final class TaskWorkflowRepository
+            extends pk.edu.nu.aafatlink.repository.WorkflowRepositoryStub {
+        private final TaskContext context;
+        private long expectedAssignmentVersion;
+        private long expectedRequestVersion;
+        private ProgressUpdate progress;
+        private TaskCompletion completion;
+        private String operationType;
+
+        private TaskWorkflowRepository(TaskContext context) { this.context = context; }
+        @Override public Optional<TaskContext> findTaskContext(AuthSession session, UUID assignmentId) {
+            return Optional.of(context);
+        }
+        @Override public ProgressUpdateResult saveProgressAndStatus(AuthSession session, UUID operationId,
+                ProgressUpdate update, UUID requestId, long assignmentVersion, long requestVersion) {
+            progress = update;
+            expectedAssignmentVersion = assignmentVersion;
+            expectedRequestVersion = requestVersion;
+            return new ProgressUpdateResult(update.updateId(), update.assignmentId(), AssignmentStatus.IN_PROGRESS,
+                    requestId, RequestStatus.IN_PROGRESS, assignmentVersion + 1, requestVersion + 1);
+        }
+        @Override public Optional<ProgressUpdateResult> reconcileProgressOperation(AuthSession session,
+                UUID operationId) { return Optional.empty(); }
+        @Override public void beginTaskOperation(AuthSession session, UUID operationId, String operationType) {
+            this.operationType = operationType;
+        }
+        @Override public TaskCompletionResult saveCompletionAndStatus(AuthSession session, UUID operationId,
+                TaskCompletion completion, UUID requestId, long assignmentVersion, long requestVersion) {
+            this.completion = completion;
+            return new TaskCompletionResult(completion.completionId(), completion.assignmentId(),
+                    AssignmentStatus.AWAITING_CLOSURE_REVIEW, requestId,
+                    RequestStatus.AWAITING_CLOSURE_REVIEW, assignmentVersion + 1, requestVersion + 1);
+        }
+        @Override public Optional<TaskCompletionResult> reconcileTaskCompletion(AuthSession session,
+                UUID operationId) { return Optional.empty(); }
+        @Override public boolean abandonTaskOperation(AuthSession session, UUID operationId) { return false; }
     }
 
     private static final class FakeVolunteerRepository implements VolunteerRepository {
@@ -130,7 +212,7 @@ class VolunteerControllerTest {
                 pk.edu.nu.aafatlink.domain.assignment.AssignmentFilter filter) { return List.of(); }
     }
 
-    private static final class FakeWorkflowRepository implements WorkflowRepository {
+    private static final class FakeWorkflowRepository extends pk.edu.nu.aafatlink.repository.WorkflowRepositoryStub {
         private final AssignmentContext context;
         private long expectedVersion;
         private boolean accepted;

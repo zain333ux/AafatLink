@@ -23,7 +23,16 @@ import pk.edu.nu.aafatlink.domain.assignment.AssignmentCreationResult;
 import pk.edu.nu.aafatlink.domain.assignment.AssignmentFilter;
 import pk.edu.nu.aafatlink.domain.assignment.AssignmentResponseResult;
 import pk.edu.nu.aafatlink.domain.assignment.AssignmentStatus;
+import pk.edu.nu.aafatlink.domain.assignment.ClosureDecision;
+import pk.edu.nu.aafatlink.domain.assignment.ClosureReview;
+import pk.edu.nu.aafatlink.domain.assignment.ClosureReviewResult;
+import pk.edu.nu.aafatlink.domain.assignment.CompletionEvidence;
+import pk.edu.nu.aafatlink.domain.assignment.ProgressUpdate;
+import pk.edu.nu.aafatlink.domain.assignment.ProgressUpdateResult;
 import pk.edu.nu.aafatlink.domain.assignment.ReassignmentResult;
+import pk.edu.nu.aafatlink.domain.assignment.TaskCompletion;
+import pk.edu.nu.aafatlink.domain.assignment.TaskCompletionResult;
+import pk.edu.nu.aafatlink.domain.assignment.TaskContext;
 import pk.edu.nu.aafatlink.domain.assignment.VolunteerAssignment;
 import pk.edu.nu.aafatlink.domain.request.AssistanceRequest;
 import pk.edu.nu.aafatlink.domain.request.AssistanceRequestDraft;
@@ -376,6 +385,179 @@ public final class SupabaseWorkflowRepository implements WorkflowRepository {
         }
     }
 
+    @Override
+    public List<TaskContext> findActiveTasks(AuthSession session, UUID volunteerId) {
+        String path = "/rest/v1/volunteer_assignments?volunteer_account_id=eq." + volunteerId
+                + "&status=in.(ACCEPTED,IN_PROGRESS)&select=id,request_id,volunteer_account_id,status,assigned_at,"
+                + "scheduled_start_at,scheduled_end_at,version&order=updated_at.desc";
+        return taskContexts(session, send(session, path, "GET", null), "active task");
+    }
+
+    @Override
+    public Optional<TaskContext> findTaskContext(AuthSession session, UUID assignmentId) {
+        String path = "/rest/v1/volunteer_assignments?id=eq." + assignmentId
+                + "&select=id,request_id,volunteer_account_id,status,assigned_at,scheduled_start_at,"
+                + "scheduled_end_at,version&limit=1";
+        JsonNode rows = send(session, path, "GET", null);
+        if (!rows.isArray() || rows.size() > 1) {
+            throw new RepositoryException("AafatLink received invalid task details.");
+        }
+        return rows.isEmpty() ? Optional.empty() : Optional.of(loadTaskContext(session, mapAssignment(rows.get(0))));
+    }
+
+    @Override
+    public ProgressUpdateResult saveProgressAndStatus(AuthSession session, UUID operationId, ProgressUpdate update,
+            UUID requestId, long expectedAssignmentVersion, long expectedRequestVersion) {
+        ObjectNode body = JSON.createObjectNode();
+        body.put("p_operation_id", operationId.toString());
+        body.put("p_update_id", update.updateId().toString());
+        body.put("p_assignment_id", update.assignmentId().toString());
+        body.put("p_request_id", requestId.toString());
+        body.put("p_expected_assignment_version", expectedAssignmentVersion);
+        body.put("p_expected_request_version", expectedRequestVersion);
+        body.put("p_note", update.progressNote());
+        if (update.completionPercent() == null) body.putNull("p_percentage");
+        else body.put("p_percentage", update.completionPercent());
+        return progressResult(send(session, "/rest/v1/rpc/record_task_progress", "POST", body.toString()));
+    }
+
+    @Override
+    public Optional<ProgressUpdateResult> reconcileProgressOperation(AuthSession session, UUID operationId) {
+        return reconcileOperation(session, operationId).map(SupabaseWorkflowRepository::progressResult);
+    }
+
+    @Override
+    public void beginTaskOperation(AuthSession session, UUID operationId, String operationType) {
+        ObjectNode body = JSON.createObjectNode();
+        body.put("p_operation_id", operationId.toString());
+        body.put("p_operation_type", operationType);
+        send(session, "/rest/v1/rpc/begin_task_operation", "POST", body.toString());
+    }
+
+    @Override
+    public TaskCompletionResult saveCompletionAndStatus(AuthSession session, UUID operationId,
+            TaskCompletion completion, UUID requestId, long expectedAssignmentVersion, long expectedRequestVersion) {
+        ObjectNode body = JSON.createObjectNode();
+        body.put("p_operation_id", operationId.toString());
+        body.put("p_completion_id", completion.completionId().toString());
+        body.put("p_assignment_id", completion.assignmentId().toString());
+        body.put("p_request_id", requestId.toString());
+        body.put("p_expected_assignment_version", expectedAssignmentVersion);
+        body.put("p_expected_request_version", expectedRequestVersion);
+        body.put("p_remarks", completion.remarks());
+        return completionResult(send(session, "/rest/v1/rpc/complete_assistance_task", "POST", body.toString()));
+    }
+
+    @Override
+    public Optional<TaskCompletionResult> reconcileTaskCompletion(AuthSession session, UUID operationId) {
+        return reconcileOperation(session, operationId).map(SupabaseWorkflowRepository::completionResult);
+    }
+
+    @Override
+    public boolean abandonTaskOperation(AuthSession session, UUID operationId) {
+        ObjectNode body = JSON.createObjectNode();
+        body.put("p_operation_id", operationId.toString());
+        return send(session, "/rest/v1/rpc/abandon_task_operation", "POST", body.toString()).asBoolean(false);
+    }
+
+    @Override
+    public List<TaskContext> findRequestsAwaitingClosure(AuthSession session) {
+        String path = "/rest/v1/volunteer_assignments?status=eq.AWAITING_CLOSURE_REVIEW"
+                + "&select=id,request_id,volunteer_account_id,status,assigned_at,scheduled_start_at,"
+                + "scheduled_end_at,version&order=updated_at.asc";
+        return taskContexts(session, send(session, path, "GET", null), "closure queue");
+    }
+
+    @Override
+    public Optional<TaskContext> findClosureContext(AuthSession session, UUID requestId) {
+        String path = "/rest/v1/volunteer_assignments?request_id=eq." + requestId
+                + "&status=eq.AWAITING_CLOSURE_REVIEW&select=id,request_id,volunteer_account_id,status,assigned_at,"
+                + "scheduled_start_at,scheduled_end_at,version&limit=1";
+        JsonNode rows = send(session, path, "GET", null);
+        if (!rows.isArray() || rows.size() > 1) {
+            throw new RepositoryException("AafatLink received invalid closure-review details.");
+        }
+        return rows.isEmpty() ? Optional.empty() : Optional.of(loadTaskContext(session, mapAssignment(rows.get(0))));
+    }
+
+    @Override
+    public ClosureReviewResult saveClosureAndStatus(AuthSession session, UUID operationId, ClosureReview review,
+            long expectedAssignmentVersion, long expectedRequestVersion) {
+        ObjectNode body = JSON.createObjectNode();
+        body.put("p_operation_id", operationId.toString());
+        body.put("p_review_id", review.reviewId().toString());
+        body.put("p_request_id", review.requestId().toString());
+        body.put("p_assignment_id", review.assignmentId().toString());
+        body.put("p_expected_assignment_version", expectedAssignmentVersion);
+        body.put("p_expected_request_version", expectedRequestVersion);
+        body.put("p_decision", review.decision().name());
+        putNullable(body, "p_remarks", review.remarks().orElse(null));
+        return closureResult(send(session, "/rest/v1/rpc/review_request_closure", "POST", body.toString()));
+    }
+
+    @Override
+    public Optional<ClosureReviewResult> reconcileClosureOperation(AuthSession session, UUID operationId) {
+        return reconcileOperation(session, operationId).map(SupabaseWorkflowRepository::closureResult);
+    }
+
+    private List<TaskContext> taskContexts(AuthSession session, JsonNode rows, String label) {
+        if (!rows.isArray()) {
+            throw new RepositoryException("AafatLink received invalid " + label + " data.");
+        }
+        List<TaskContext> contexts = new ArrayList<>();
+        rows.forEach(row -> contexts.add(loadTaskContext(session, mapAssignment(row))));
+        return List.copyOf(contexts);
+    }
+
+    private TaskContext loadTaskContext(AuthSession session, VolunteerAssignment assignment) {
+        AssistanceRequest request = findRequestForReview(session, assignment.requestId())
+                .orElseThrow(() -> new RepositoryException("The task request could not be loaded."));
+        JsonNode progressRows = send(session, "/rest/v1/task_progress_updates?assignment_id=eq." + assignment.id()
+                + "&select=id,assignment_id,volunteer_account_id,note,percentage,created_at&order=created_at.asc",
+                "GET", null);
+        if (!progressRows.isArray()) {
+            throw new RepositoryException("AafatLink received invalid progress history.");
+        }
+        List<ProgressUpdate> progress = new ArrayList<>();
+        progressRows.forEach(row -> progress.add(mapProgress(row)));
+
+        JsonNode completionRows = send(session, "/rest/v1/task_completions?assignment_id=eq." + assignment.id()
+                + "&select=id,assignment_id,volunteer_account_id,remarks,completed_at"
+                + "&order=completed_at.desc&limit=1", "GET", null);
+        if (!completionRows.isArray() || completionRows.size() > 1) {
+            throw new RepositoryException("AafatLink received invalid completion details.");
+        }
+        TaskCompletion completion = completionRows.isEmpty() ? null : mapCompletion(completionRows.get(0));
+        List<CompletionEvidence> evidence = completion == null ? List.of()
+                : mapEvidence(send(session, "/rest/v1/request_evidence?task_completion_id=eq."
+                        + completion.completionId()
+                        + "&state=eq.COMMITTED&select=id,original_filename,content_type,size_bytes&order=created_at.asc",
+                        "GET", null));
+
+        JsonNode reviewRows = send(session, "/rest/v1/closure_reviews?assignment_id=eq." + assignment.id()
+                + "&select=id,request_id,assignment_id,coordinator_account_id,decision,reason,created_at"
+                + "&order=created_at.desc&limit=1", "GET", null);
+        if (!reviewRows.isArray() || reviewRows.size() > 1) {
+            throw new RepositoryException("AafatLink received invalid closure history.");
+        }
+        ClosureReview latestReview = reviewRows.isEmpty() ? null : mapClosureReview(reviewRows.get(0));
+        return new TaskContext(new AssignmentContext(assignment, request), progress, completion, evidence, latestReview);
+    }
+
+    private Optional<JsonNode> reconcileOperation(AuthSession session, UUID operationId) {
+        ObjectNode body = JSON.createObjectNode();
+        body.put("p_operation_id", operationId.toString());
+        JsonNode operation = send(session, "/rest/v1/rpc/reconcile_workflow_operation", "POST", body.toString());
+        if (!"COMMITTED".equals(operation.path("status").asText())) {
+            return Optional.empty();
+        }
+        JsonNode result = operation.get("result");
+        if (result == null || !result.isObject()) {
+            throw new RepositoryException("A committed workflow operation did not include its result.");
+        }
+        return Optional.of(result);
+    }
+
     private AssistanceRequest enrichTracking(AuthSession session, AssistanceRequest request) {
         String assignmentPath = "/rest/v1/volunteer_assignments?request_id=eq." + request.id()
                 + "&select=id,status&order=updated_at.desc&limit=1";
@@ -406,6 +588,80 @@ public final class SupabaseWorkflowRepository implements WorkflowRepository {
         String note = required(progress, "note");
         JsonNode percentage = progress.get("percentage");
         return percentage == null || percentage.isNull() ? note : percentage.asInt() + "% · " + note;
+    }
+
+    private static ProgressUpdate mapProgress(JsonNode row) {
+        return new ProgressUpdate(UUID.fromString(required(row, "id")),
+                UUID.fromString(required(row, "assignment_id")),
+                UUID.fromString(required(row, "volunteer_account_id")),
+                required(row, "note"), row.path("percentage").isNull() ? null : row.path("percentage").asInt(),
+                Instant.parse(required(row, "created_at")));
+    }
+
+    private static TaskCompletion mapCompletion(JsonNode row) {
+        return new TaskCompletion(UUID.fromString(required(row, "id")),
+                UUID.fromString(required(row, "assignment_id")),
+                UUID.fromString(required(row, "volunteer_account_id")),
+                required(row, "remarks"), Instant.parse(required(row, "completed_at")));
+    }
+
+    private static List<CompletionEvidence> mapEvidence(JsonNode rows) {
+        if (!rows.isArray()) {
+            throw new RepositoryException("AafatLink received invalid completion evidence.");
+        }
+        List<CompletionEvidence> evidence = new ArrayList<>();
+        rows.forEach(row -> evidence.add(new CompletionEvidence(UUID.fromString(required(row, "id")),
+                required(row, "original_filename"), required(row, "content_type"),
+                row.path("size_bytes").asLong())));
+        return List.copyOf(evidence);
+    }
+
+    private static ClosureReview mapClosureReview(JsonNode row) {
+        return new ClosureReview(UUID.fromString(required(row, "id")),
+                UUID.fromString(required(row, "request_id")),
+                UUID.fromString(required(row, "assignment_id")),
+                UUID.fromString(required(row, "coordinator_account_id")),
+                ClosureDecision.valueOf(required(row, "decision")), nullable(row, "reason"),
+                Instant.parse(required(row, "created_at")));
+    }
+
+    private static ProgressUpdateResult progressResult(JsonNode result) {
+        try {
+            return new ProgressUpdateResult(UUID.fromString(required(result, "update_id")),
+                    UUID.fromString(required(result, "assignment_id")),
+                    AssignmentStatus.valueOf(required(result, "assignment_status")),
+                    UUID.fromString(required(result, "request_id")),
+                    RequestStatus.valueOf(required(result, "request_status")),
+                    result.path("assignment_version").asLong(), result.path("request_version").asLong());
+        } catch (IllegalArgumentException exception) {
+            throw new RepositoryException("AafatLink received an invalid progress result.", exception);
+        }
+    }
+
+    private static TaskCompletionResult completionResult(JsonNode result) {
+        try {
+            return new TaskCompletionResult(UUID.fromString(required(result, "completion_id")),
+                    UUID.fromString(required(result, "assignment_id")),
+                    AssignmentStatus.valueOf(required(result, "assignment_status")),
+                    UUID.fromString(required(result, "request_id")),
+                    RequestStatus.valueOf(required(result, "request_status")),
+                    result.path("assignment_version").asLong(), result.path("request_version").asLong());
+        } catch (IllegalArgumentException exception) {
+            throw new RepositoryException("AafatLink received an invalid task-completion result.", exception);
+        }
+    }
+
+    private static ClosureReviewResult closureResult(JsonNode result) {
+        try {
+            return new ClosureReviewResult(UUID.fromString(required(result, "review_id")),
+                    UUID.fromString(required(result, "assignment_id")),
+                    AssignmentStatus.valueOf(required(result, "assignment_status")),
+                    UUID.fromString(required(result, "request_id")),
+                    RequestStatus.valueOf(required(result, "request_status")),
+                    result.path("assignment_version").asLong(), result.path("request_version").asLong());
+        } catch (IllegalArgumentException exception) {
+            throw new RepositoryException("AafatLink received an invalid closure-review result.", exception);
+        }
     }
 
     private static VolunteerAssignment mapAssignment(JsonNode row) {

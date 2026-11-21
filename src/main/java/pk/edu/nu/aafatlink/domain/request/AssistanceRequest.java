@@ -26,4 +26,9 @@ public record AssistanceRequest(
             throw new IllegalArgumentException("version must not be negative");
         }
     }
+
+    /** Whether UC06 may review this request for final closure. */
+    public boolean canBeClosed() {
+        return status == RequestStatus.AWAITING_CLOSURE_REVIEW;
+    }
 }

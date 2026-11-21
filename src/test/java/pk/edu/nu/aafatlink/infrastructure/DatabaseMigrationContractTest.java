@@ -34,6 +34,10 @@ class DatabaseMigrationContractTest {
             "20261120103000_align_priority_with_uc04.sql");
     private static final Path VOLUNTEER_COORDINATION = Path.of("supabase", "migrations",
             "20261121090000_add_volunteer_coordination_workflows.sql");
+    private static final Path TASK_EXECUTION = Path.of("supabase", "migrations",
+            "20261121133000_add_task_execution_and_closure_workflows.sql");
+    private static final Path REWORK_VISIBILITY = Path.of("supabase", "migrations",
+            "20261121141500_allow_volunteer_rework_visibility.sql");
 
     @Test
     void everyPublicTableEnablesRowLevelSecurity() throws IOException {
@@ -71,7 +75,7 @@ class DatabaseMigrationContractTest {
     @Test
     void everyDefinerFunctionDerivesIdentityAndPinsSearchPath() throws IOException {
         String sql = normalized(DOMAIN) + "\n" + normalized(RPCS) + "\n" + normalized(ONBOARDING)
-                + "\n" + normalized(VOLUNTEER_COORDINATION);
+                + "\n" + normalized(VOLUNTEER_COORDINATION) + "\n" + normalized(TASK_EXECUTION);
         String[] functions = sql.split("create or replace function ");
         int definerCount = 0;
         for (int index = 1; index < functions.length; index++) {
@@ -171,6 +175,38 @@ class DatabaseMigrationContractTest {
         assertTrue(sql.contains("operation.status = 'committed' then return operation.result"));
         assertTrue(sql.contains("set status = 'verified'"));
         assertTrue(sql.contains("revoke execute on function public.assign_volunteer"));
+    }
+
+    @Test
+    void taskExecutionAndClosureMatchUc06Uc09AndUc10() throws IOException {
+        String sql = normalized(TASK_EXECUTION);
+
+        assertTrue(sql.contains("create or replace function public.record_task_progress"));
+        assertTrue(sql.contains("length(btrim(p_note)) not between 1 and 500"));
+        assertTrue(sql.contains("p_percentage not between 0 and 99"));
+        assertTrue(sql.contains("assignment.status not in ('accepted', 'in_progress')"));
+        assertTrue(sql.contains("create or replace function public.complete_assistance_task"));
+        assertTrue(sql.contains("task_completions_assignment_attempt_idx"));
+        assertTrue(sql.contains("task_completion_id = p_completion_id"));
+        assertTrue(sql.contains("state = 'committed', committed_at = now()"));
+        assertTrue(sql.contains("create or replace function public.review_request_closure"));
+        assertTrue(sql.contains("target_assignment_status := 'completed'"));
+        assertTrue(sql.contains("target_request_status := 'closed'"));
+        assertTrue(sql.contains("target_assignment_status := 'in_progress'"));
+        assertTrue(sql.contains("operation.status = 'committed' then return operation.result"));
+        assertTrue(sql.contains("where id = p_assignment_id for update"));
+        assertTrue(sql.contains("where id = p_request_id for update"));
+    }
+
+    @Test
+    void returnedReworkReasonIsVisibleToAssignedVolunteer() throws IOException {
+        String sql = normalized(REWORK_VISIBILITY);
+
+        assertTrue(sql.contains("private.can_read_closure_review"));
+        assertTrue(sql.contains("assignment.volunteer_account_id = auth.uid()"));
+        assertTrue(sql.contains("request.requester_account_id = auth.uid()"));
+        assertTrue(sql.contains("drop policy if exists closure_reviews_select"));
+        assertTrue(sql.contains("set search_path = ''"));
     }
 
     private static String normalized(Path path) throws IOException {

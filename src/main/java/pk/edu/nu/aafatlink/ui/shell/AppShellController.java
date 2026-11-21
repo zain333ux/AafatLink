@@ -33,9 +33,11 @@ import pk.edu.nu.aafatlink.ui.ViewRouter;
 import pk.edu.nu.aafatlink.ui.request.RequestFormViewController;
 import pk.edu.nu.aafatlink.ui.request.RequestListViewController;
 import pk.edu.nu.aafatlink.ui.request.RequestReviewViewController;
+import pk.edu.nu.aafatlink.ui.request.ClosureReviewViewController;
 import pk.edu.nu.aafatlink.ui.assignment.VolunteerAssignmentViewController;
 import pk.edu.nu.aafatlink.ui.volunteer.VolunteerAssignmentsViewController;
 import pk.edu.nu.aafatlink.ui.volunteer.VolunteerReadinessViewController;
+import pk.edu.nu.aafatlink.ui.volunteer.TaskProgressViewController;
 
 /** Presentation controller for the reusable role-aware application frame. */
 public final class AppShellController {
@@ -133,7 +135,9 @@ public final class AppShellController {
             case PRIORITY_QUEUE -> showRequestReview(RequestReviewViewController.Mode.PRIORITY);
             case READINESS_PROFILE -> showVolunteerReadiness();
             case ASSIGNMENTS -> showVolunteerAssignments();
+            case TASK_PROGRESS -> showTaskProgress();
             case VOLUNTEER_ASSIGNMENT -> showVolunteerAssignment();
+            case CLOSURE_REVIEW -> showClosureReview();
             default -> showUnavailable(item);
         }
     }
@@ -216,6 +220,28 @@ public final class AppShellController {
         setContent(load(loader));
     }
 
+    private void showTaskProgress() {
+        FXMLLoader loader = loader("task-progress-view.fxml");
+        loader.setControllerFactory(type -> {
+            if (type == TaskProgressViewController.class) {
+                return new TaskProgressViewController(sessions, volunteers, new EvidenceFileValidator());
+            }
+            throw new IllegalArgumentException("Unsupported task-progress controller: " + type.getName());
+        });
+        setContent(load(loader));
+    }
+
+    private void showClosureReview() {
+        FXMLLoader loader = loader("closure-review-view.fxml");
+        loader.setControllerFactory(type -> {
+            if (type == ClosureReviewViewController.class) {
+                return new ClosureReviewViewController(sessions, reviews);
+            }
+            throw new IllegalArgumentException("Unsupported closure-review controller: " + type.getName());
+        });
+        setContent(load(loader));
+    }
+
     private void showUnavailable(NavigationItem item) {
         Label message = new Label(item.label() + " is not implemented yet. Its mandatory behavior remains tracked in the use-case traceability document.");
         message.setWrapText(true);
@@ -285,11 +311,11 @@ public final class AppShellController {
         descriptions.put(NavigationItem.MY_REQUESTS, "Review your requests, current status, priority and latest available progress.");
         descriptions.put(NavigationItem.READINESS_PROFILE, "Maintain UC07 availability, skills, service areas and contact details.");
         descriptions.put(NavigationItem.ASSIGNMENTS, "Review and respond to UC08 assignments awaiting your decision.");
-        descriptions.put(NavigationItem.TASK_PROGRESS, "UC09 and UC10 task execution workflows are scheduled for Phase 7.");
+        descriptions.put(NavigationItem.TASK_PROGRESS, "Record UC09 progress or submit UC10 completion evidence for review.");
         descriptions.put(NavigationItem.VERIFICATION_QUEUE, "Review pending requests and record an auditable UC03 decision.");
         descriptions.put(NavigationItem.PRIORITY_QUEUE, "Apply UC04 priority rules and record the coordinator's final decision.");
         descriptions.put(NavigationItem.VOLUNTEER_ASSIGNMENT, "Match and reassign volunteers using UC05 eligibility and conflict rules.");
-        descriptions.put(NavigationItem.CLOSURE_REVIEW, "UC06 closure review is scheduled for Phase 7.");
+        descriptions.put(NavigationItem.CLOSURE_REVIEW, "Approve UC06 closure or return incomplete assistance for rework.");
         descriptions.put(NavigationItem.REPORTS, "UC11 reporting is scheduled for the reporting and administration phase.");
         descriptions.put(NavigationItem.ACCESS_MANAGEMENT, "UC12 access control is scheduled for the administration phase.");
         return Map.copyOf(descriptions);

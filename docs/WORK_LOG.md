@@ -211,3 +211,20 @@ Implement and validate the PostgreSQL schema, RLS foundation and transactional w
 ### Next
 
 - Implement UC09 task progress, UC10 task completion and UC06 coordinator closure as one atomic workflow slice.
+
+### UC06, UC09 and UC10 task execution and closure
+
+- Implemented volunteer progress updates with a required note, optional 0-99 percentage, chronological history and atomic `IN_PROGRESS` transitions.
+- Implemented task completion from Accepted or In Progress with required remarks, optional private evidence, operation-ID reconciliation and safe cleanup.
+- Implemented coordinator closure approval and mandatory-reason return for rework with immutable review records.
+- Preserved multiple completion attempts after rework instead of overwriting prior evidence or remarks.
+- Added domain-owned transition methods, plain-Java application controllers, protected repository methods, Supabase HTTP mappings and two connected JavaFX screens.
+- Added and deployed `add_task_execution_and_closure_workflows` and `allow_volunteer_rework_visibility` to `aafatlink-dev`.
+- Hosted verification confirmed invoker begin/reconcile functions and narrowly hardened definer functions for the atomic task workflows.
+- Visually verified the Volunteer task-progress and Coordinator closure-review screens; fixed the default JavaFX table placeholder overlapping the custom empty state.
+- `mvnw.cmd clean test`: 89 tests passed with no failures, errors or skips.
+- `mvnw.cmd package`: succeeded and produced `target/aafatlink-0.1.0-SNAPSHOT.jar`.
+
+### Next
+
+- Commit UC06/UC09/UC10, then implement UC11 reporting and UC12 access management before optional portfolio work.

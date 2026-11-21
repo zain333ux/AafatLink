@@ -120,7 +120,7 @@ class RequestControllerTest {
         assertEquals(requestId, repository.resubmittedRequestId);
     }
 
-    private static final class FakeWorkflowRepository implements WorkflowRepository {
+    private static final class FakeWorkflowRepository extends pk.edu.nu.aafatlink.repository.WorkflowRepositoryStub {
         private UUID requesterId;
         private AssistanceRequestDraft submittedDraft;
         private UUID resubmittedRequestId;

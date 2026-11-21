@@ -79,3 +79,21 @@
 **Decision:** Use SECURITY INVOKER for readiness updates and eligibility reads. Use SECURITY DEFINER only for atomic multi-table workflows that cannot rely on direct table grants. Every such RPC derives the actor from `auth.uid()`, checks role and ownership, validates expected versions, uses `search_path = ''`, restricts execution to `authenticated`, and records idempotent operation results.
 
 **Reason:** The hosted security advisor flags any authenticated SECURITY DEFINER function generically. These functions are intentional trust boundaries rather than unreviewed broad privilege grants.
+
+## D013: Completion attempts remain auditable after rework
+
+**Decision:** A task may have multiple numbered completion attempts. Returning work for rework does not overwrite or delete the previous completion, evidence or closure review. Coordinator closure always evaluates the latest attempt.
+
+**Reason:** UC06 requires a traceable return-for-rework cycle, and UC10 must support a later resubmission without destroying the original decision history.
+
+## D014: Direct completion from Accepted is valid
+
+**Decision:** Permit `ACCEPTED` assignments and their `ASSIGNED` requests to move directly to `AWAITING_CLOSURE_REVIEW` when the volunteer completes work without an intermediate percentage update.
+
+**Reason:** Deliverable 3 allows UC10 from Accepted or In Progress. UC09 progress updates are useful but not mandatory before completion.
+
+## D015: Rework reasons use scoped database visibility
+
+**Decision:** The assigned volunteer, requester owner, coordinator and administrator may read the closure review for an accessible request; other users cannot. A private helper derives identity from `auth.uid()` and is not exposed through the Data API.
+
+**Reason:** The volunteer must see the coordinator's rework reason while RLS must still prevent disclosure across unrelated requests.

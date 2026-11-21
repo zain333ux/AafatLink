@@ -70,6 +70,59 @@ public final class VolunteerAssignment {
         responseReason = normalized;
     }
 
+    public boolean canRecordProgress(UUID actorId) {
+        return volunteerAccountId.equals(actorId)
+                && (status == AssignmentStatus.ACCEPTED || status == AssignmentStatus.IN_PROGRESS);
+    }
+
+    public boolean canCompleteTask(UUID actorId) {
+        return canRecordProgress(actorId);
+    }
+
+    public boolean canBeClosed() {
+        return status == AssignmentStatus.AWAITING_CLOSURE_REVIEW;
+    }
+
+    /** Creates an append-only update and advances accepted work to In Progress. */
+    public ProgressUpdate recordProgress(UUID actorId, String note, Integer percent, Instant recordedAt) {
+        if (!canRecordProgress(Objects.requireNonNull(actorId, "actorId"))) {
+            throw new IllegalStateException("Only the assigned volunteer can update an active task.");
+        }
+        ProgressUpdate update = new ProgressUpdate(UUID.randomUUID(), id, actorId, note, percent,
+                Objects.requireNonNull(recordedAt, "recordedAt"));
+        status = AssignmentStatus.IN_PROGRESS;
+        return update;
+    }
+
+    /** Creates the sole completion record and submits the task for coordinator review. */
+    public TaskCompletion createCompletion(UUID actorId, String remarks, Instant completedAt) {
+        if (!canCompleteTask(Objects.requireNonNull(actorId, "actorId"))) {
+            throw new IllegalStateException("Only the assigned volunteer can complete an active task.");
+        }
+        TaskCompletion completion = new TaskCompletion(UUID.randomUUID(), id, actorId, remarks,
+                Objects.requireNonNull(completedAt, "completedAt"));
+        status = AssignmentStatus.AWAITING_CLOSURE_REVIEW;
+        return completion;
+    }
+
+    public void approveClosure() {
+        if (!canBeClosed()) {
+            throw new IllegalStateException("This assignment is not awaiting closure review.");
+        }
+        status = AssignmentStatus.COMPLETED;
+    }
+
+    public void returnForRework(String reason) {
+        if (!canBeClosed()) {
+            throw new IllegalStateException("This assignment is not awaiting closure review.");
+        }
+        if (normalizeOptional(reason) == null) {
+            throw new IllegalArgumentException("A reason is required when returning work for rework.");
+        }
+        status = AssignmentStatus.IN_PROGRESS;
+        responseReason = reason.trim();
+    }
+
     private void ensureCanRespond(UUID actorId) {
         Objects.requireNonNull(actorId, "actorId");
         if (!volunteerAccountId.equals(actorId)) {
