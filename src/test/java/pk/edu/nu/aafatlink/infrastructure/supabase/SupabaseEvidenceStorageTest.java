@@ -22,7 +22,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 import pk.edu.nu.aafatlink.domain.auth.AuthSession;
-import pk.edu.nu.aafatlink.service.evidence.EvidenceAttachment;
+import pk.edu.nu.aafatlink.domain.evidence.EvidenceAttachment;
 
 class SupabaseEvidenceStorageTest {
     private static final UUID USER_ID = UUID.fromString("1260546b-6f62-4096-b705-d05be484f8d2");

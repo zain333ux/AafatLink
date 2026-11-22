@@ -7,7 +7,7 @@ import java.util.UUID;
 import pk.edu.nu.aafatlink.domain.assignment.*;
 import pk.edu.nu.aafatlink.domain.auth.AuthSession;
 import pk.edu.nu.aafatlink.domain.request.*;
-import pk.edu.nu.aafatlink.service.evidence.EvidenceAttachment;
+import pk.edu.nu.aafatlink.domain.evidence.EvidenceAttachment;
 
 /** Test adapter whose subclasses override only the collaboration points under test. */
 public abstract class WorkflowRepositoryStub implements WorkflowRepository {

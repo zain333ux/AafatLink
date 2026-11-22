@@ -22,7 +22,7 @@ import pk.edu.nu.aafatlink.domain.volunteer.VolunteerReadinessChanges;
 import pk.edu.nu.aafatlink.repository.VolunteerRepository;
 import pk.edu.nu.aafatlink.repository.UserRepository;
 import pk.edu.nu.aafatlink.repository.WorkflowRepository;
-import pk.edu.nu.aafatlink.service.evidence.EvidenceAttachment;
+import pk.edu.nu.aafatlink.domain.evidence.EvidenceAttachment;
 import pk.edu.nu.aafatlink.service.evidence.EvidenceStorage;
 
 /** GRASP application controller for UC07 readiness and UC08 assignment response. */
@@ -50,7 +50,7 @@ public final class VolunteerController {
     public Optional<VolunteerProfile> getReadinessProfile(AuthSession session) {
         Objects.requireNonNull(session, "session");
         return volunteers.findProfile(session, session.userId())
-                .map(profile -> profile.withContactNumber(users.findContactNumber(session, session.userId())));
+                .map(profile -> profile.updateContactNo(users.findContactNumber(session, session.userId())));
     }
 
     public List<Skill> getSkills(AuthSession session) {
@@ -69,7 +69,7 @@ public final class VolunteerController {
         Objects.requireNonNull(session, "session");
         VolunteerProfile current = volunteers.findProfile(session, session.userId())
                 .orElseThrow(() -> new IllegalStateException("Volunteer readiness profile was not found."));
-        VolunteerProfile updated = current.withReadinessChanges(Objects.requireNonNull(changes, "changes"),
+        VolunteerProfile updated = current.applyReadinessChanges(Objects.requireNonNull(changes, "changes"),
                 volunteers.findActiveSkills(session), volunteers.findActiveServiceAreas(session));
         return volunteers.saveReadinessAndContact(session, updated, current.version());
     }

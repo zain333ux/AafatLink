@@ -52,7 +52,7 @@ class VolunteerProfileTest {
                 "+92 300 7654321", AvailabilityStatus.AVAILABLE, "Available for field response.", null, null,
                 Set.of(2L), Set.of(10L));
 
-        VolunteerProfile updated = profile.withReadinessChanges(changes,
+        VolunteerProfile updated = profile.applyReadinessChanges(changes,
                 List.of(FIRST_AID, LOGISTICS), List.of(ISLAMABAD));
 
         assertEquals(AvailabilityStatus.AVAILABLE, updated.availability());

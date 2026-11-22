@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
-import pk.edu.nu.aafatlink.service.evidence.EvidenceAttachment;
+import pk.edu.nu.aafatlink.domain.evidence.EvidenceAttachment;
 
 /** Auditable UC10 completion details created by the assigned volunteer. */
 public final class TaskCompletion {

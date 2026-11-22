@@ -7,9 +7,11 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 
+import pk.edu.nu.aafatlink.domain.evidence.EvidenceAttachment;
+
 /** Enforces the UC01 evidence type and size rules before a file is staged. */
 public final class EvidenceFileValidator {
-    public static final long MAXIMUM_BYTES = 5L * 1024L * 1024L;
+    public static final long MAXIMUM_BYTES = EvidenceAttachment.MAXIMUM_BYTES;
     private static final Map<String, String> CONTENT_TYPES = Map.of(
             "jpg", "image/jpeg",
             "jpeg", "image/jpeg",

@@ -23,7 +23,7 @@ import pk.edu.nu.aafatlink.domain.request.AssistanceRequestDraft;
 import pk.edu.nu.aafatlink.domain.request.DisasterType;
 import pk.edu.nu.aafatlink.domain.request.RequestSubmissionResult;
 import pk.edu.nu.aafatlink.domain.account.UserRole;
-import pk.edu.nu.aafatlink.service.evidence.EvidenceAttachment;
+import pk.edu.nu.aafatlink.domain.evidence.EvidenceAttachment;
 import pk.edu.nu.aafatlink.service.evidence.EvidenceFileValidator;
 
 /** JavaFX presentation controller for UC01 submission and same-ID resubmission. */

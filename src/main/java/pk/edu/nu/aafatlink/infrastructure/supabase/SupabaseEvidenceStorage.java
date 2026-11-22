@@ -13,7 +13,7 @@ import java.util.UUID;
 
 import pk.edu.nu.aafatlink.domain.auth.AuthSession;
 import pk.edu.nu.aafatlink.repository.RepositoryException;
-import pk.edu.nu.aafatlink.service.evidence.EvidenceAttachment;
+import pk.edu.nu.aafatlink.domain.evidence.EvidenceAttachment;
 import pk.edu.nu.aafatlink.service.evidence.EvidenceStorage;
 
 /** Private Supabase Storage adapter for staged request evidence. */

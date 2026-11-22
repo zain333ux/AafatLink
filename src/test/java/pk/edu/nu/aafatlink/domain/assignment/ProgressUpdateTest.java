@@ -17,6 +17,8 @@ class ProgressUpdateTest {
 
         assertTrue(withoutPercentage.percentage().isEmpty());
         assertEquals(99, atUpperBoundary.completionPercent());
+        assertTrue(withoutPercentage.isValid());
+        assertTrue(atUpperBoundary.isValid());
     }
 
     @Test

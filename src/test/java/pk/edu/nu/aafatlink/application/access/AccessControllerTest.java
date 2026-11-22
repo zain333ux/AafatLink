@@ -13,6 +13,7 @@ import java.util.UUID;
 import org.junit.jupiter.api.Test;
 
 import pk.edu.nu.aafatlink.domain.account.AccessChanges;
+import pk.edu.nu.aafatlink.domain.account.AccessChangeLog;
 import pk.edu.nu.aafatlink.domain.account.AccountStatus;
 import pk.edu.nu.aafatlink.domain.account.Permission;
 import pk.edu.nu.aafatlink.domain.account.Role;
@@ -80,6 +81,10 @@ class AccessControllerTest {
 
         assertEquals(VolunteerApprovalStatus.APPROVED, updated.volunteerApprovalStatus().orElseThrow());
         assertEquals(volunteer.id(), users.savedTarget);
+        assertEquals(ADMIN_ID, users.savedLog.administratorAccountId());
+        assertEquals(VolunteerApprovalStatus.PENDING,
+                users.savedLog.before().volunteerApprovalStatus());
+        assertEquals(changes, users.savedLog.after());
     }
 
     @Test
@@ -104,6 +109,7 @@ class AccessControllerTest {
         private final UserAccount target;
         private final int administratorCount;
         private UUID savedTarget;
+        private AccessChangeLog savedLog;
 
         private FakeUsers(UserAccount target, int administratorCount) {
             this.target = target;
@@ -123,9 +129,10 @@ class AccessControllerTest {
         }
         @Override public int countActiveAdministrators(AuthSession session) { return administratorCount; }
         @Override public UserAccount saveAccessWithAudit(AuthSession session, UUID operationId,
-                UserAccount account, AccessChanges changes, long expectedVersion) {
+                UserAccount account, AccessChangeLog log, long expectedVersion) {
             savedTarget = account.id();
-            return account.withAccess(changes, expectedVersion + 1);
+            savedLog = log;
+            return account.applyAccessChanges(log.after(), expectedVersion + 1);
         }
     }
 

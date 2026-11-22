@@ -11,7 +11,6 @@ import pk.edu.nu.aafatlink.domain.assignment.ReassignmentResult;
 import pk.edu.nu.aafatlink.domain.assignment.VolunteerCandidate;
 import pk.edu.nu.aafatlink.domain.auth.AuthSession;
 import pk.edu.nu.aafatlink.domain.request.AssistanceRequest;
-import pk.edu.nu.aafatlink.domain.request.RequestStatus;
 import pk.edu.nu.aafatlink.domain.volunteer.ServiceArea;
 import pk.edu.nu.aafatlink.domain.volunteer.Skill;
 import pk.edu.nu.aafatlink.repository.VolunteerRepository;
@@ -74,7 +73,7 @@ public final class AssignmentController {
 
     private static void requireAssignable(AssistanceRequest request) {
         Objects.requireNonNull(request, "request");
-        if (request.status() != RequestStatus.VERIFIED || request.priority() == null) {
+        if (!request.canBeAssigned()) {
             throw new IllegalArgumentException("Only verified requests with a priority can be assigned.");
         }
     }

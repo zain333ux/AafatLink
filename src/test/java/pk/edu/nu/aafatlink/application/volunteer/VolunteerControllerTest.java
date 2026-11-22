@@ -41,7 +41,7 @@ import pk.edu.nu.aafatlink.domain.volunteer.VolunteerReadinessChanges;
 import pk.edu.nu.aafatlink.repository.UserRepository;
 import pk.edu.nu.aafatlink.repository.VolunteerRepository;
 import pk.edu.nu.aafatlink.repository.WorkflowRepository;
-import pk.edu.nu.aafatlink.service.evidence.EvidenceAttachment;
+import pk.edu.nu.aafatlink.domain.evidence.EvidenceAttachment;
 
 class VolunteerControllerTest {
     private static final Instant NOW = Instant.parse("2026-11-21T08:00:00Z");
@@ -263,7 +263,7 @@ class VolunteerControllerTest {
         @Override public pk.edu.nu.aafatlink.domain.account.UserAccount saveAccessWithAudit(
                 AuthSession session, UUID operationId,
                 pk.edu.nu.aafatlink.domain.account.UserAccount account,
-                pk.edu.nu.aafatlink.domain.account.AccessChanges changes, long expectedVersion) {
+                pk.edu.nu.aafatlink.domain.account.AccessChangeLog log, long expectedVersion) {
             throw new UnsupportedOperationException();
         }
     }

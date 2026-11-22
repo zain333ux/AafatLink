@@ -1,11 +1,13 @@
 package pk.edu.nu.aafatlink.application.access;
 
+import java.time.Clock;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
 import pk.edu.nu.aafatlink.domain.account.AccessChanges;
+import pk.edu.nu.aafatlink.domain.account.AccessChangeLog;
 import pk.edu.nu.aafatlink.domain.account.AccountStatus;
 import pk.edu.nu.aafatlink.domain.account.ControlledReferenceValue;
 import pk.edu.nu.aafatlink.domain.account.ReferenceDataChange;
@@ -22,10 +24,16 @@ import pk.edu.nu.aafatlink.repository.WorkflowRepository;
 public final class AccessController {
     private final UserRepository users;
     private final WorkflowRepository workflows;
+    private final Clock clock;
 
     public AccessController(UserRepository users, WorkflowRepository workflows) {
+        this(users, workflows, Clock.systemUTC());
+    }
+
+    AccessController(UserRepository users, WorkflowRepository workflows, Clock clock) {
         this.users = Objects.requireNonNull(users, "users");
         this.workflows = Objects.requireNonNull(workflows, "workflows");
+        this.clock = Objects.requireNonNull(clock, "clock");
     }
 
     public List<UserAccount> listUsers(AuthSession session) {
@@ -80,6 +88,13 @@ public final class AccessController {
                 .orElseThrow(() -> new IllegalArgumentException("The selected account no longer exists."));
         AccessValidation validation = validateAccessChange(session, fresh, changes);
         if (!validation.allowed()) throw new IllegalArgumentException(validation.reason());
-        return users.saveAccessWithAudit(session, UUID.randomUUID(), fresh, changes, fresh.version());
+        VolunteerApprovalStatus previousApproval = fresh.volunteerApprovalStatus().orElse(null);
+        String previousReason = previousApproval == VolunteerApprovalStatus.REJECTED
+                ? "Existing rejected approval state" : null;
+        AccessChanges before = new AccessChanges(fresh.role(),
+                fresh.status() == AccountStatus.SUSPENDED ? AccountStatus.DISABLED : fresh.status(),
+                previousApproval, previousReason);
+        AccessChangeLog log = new AccessChangeLog(fresh.id(), session.userId(), before, changes, clock.instant());
+        return users.saveAccessWithAudit(session, UUID.randomUUID(), fresh, log, fresh.version());
     }
 }

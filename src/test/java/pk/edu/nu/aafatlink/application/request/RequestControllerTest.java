@@ -26,7 +26,7 @@ import pk.edu.nu.aafatlink.domain.request.RequestReviewResult;
 import pk.edu.nu.aafatlink.domain.request.VerificationDecision;
 import pk.edu.nu.aafatlink.repository.WorkflowRepository;
 import pk.edu.nu.aafatlink.repository.RepositoryException;
-import pk.edu.nu.aafatlink.service.evidence.EvidenceAttachment;
+import pk.edu.nu.aafatlink.domain.evidence.EvidenceAttachment;
 import pk.edu.nu.aafatlink.service.evidence.EvidenceStorage;
 
 class RequestControllerTest {

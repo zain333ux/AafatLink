@@ -18,6 +18,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import pk.edu.nu.aafatlink.domain.account.AccessChanges;
+import pk.edu.nu.aafatlink.domain.account.AccessChangeLog;
 import pk.edu.nu.aafatlink.domain.account.AccountStatus;
 import pk.edu.nu.aafatlink.domain.account.ReferenceDataChange;
 import pk.edu.nu.aafatlink.domain.account.ReferenceDataType;
@@ -63,9 +64,14 @@ class SupabaseUserRepositoryTest {
         AuthSession session = new AuthSession(ADMIN, "admin@example.com", "access", "refresh", Instant.now().plusSeconds(300));
         var account = repository.findUsers(session).get(0);
         assertEquals("+92 311 7654321", repository.findContactNumber(session, VOLUNTEER));
+        AccessChanges changes = new AccessChanges(UserRole.VOLUNTEER, AccountStatus.ACTIVE,
+                VolunteerApprovalStatus.APPROVED, "Documents checked");
+        AccessChangeLog log = new AccessChangeLog(account.id(), ADMIN,
+                new AccessChanges(account.role(), account.status(),
+                        account.volunteerApprovalStatus().orElse(null), null),
+                changes, Instant.parse("2026-11-22T08:00:00Z"));
         var updated = repository.saveAccessWithAudit(session, UUID.randomUUID(), account,
-                new AccessChanges(UserRole.VOLUNTEER, AccountStatus.ACTIVE,
-                        VolunteerApprovalStatus.APPROVED, "Documents checked"), account.version());
+                log, account.version());
 
         assertEquals(VolunteerApprovalStatus.APPROVED, updated.volunteerApprovalStatus().orElseThrow());
         assertTrue(updated.permissions().stream().anyMatch(permission -> permission.permissionId().equals("task.update")));

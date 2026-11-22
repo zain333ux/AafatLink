@@ -50,7 +50,7 @@ public final class UserAccount {
                 : changes.volunteerApprovalStatus() == null;
     }
 
-    public UserAccount withAccess(AccessChanges changes, long newVersion) {
+    public UserAccount applyAccessChanges(AccessChanges changes, long newVersion) {
         if (!canApplyAccessChanges(changes)) {
             throw new IllegalArgumentException("Volunteer approval is compatible only with the Volunteer role.");
         }

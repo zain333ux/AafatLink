@@ -151,3 +151,15 @@
 **Decision:** Keep requester ownership, coordinator/administrator review and assigned-volunteer visibility in one permissive SELECT policy on `assistance_requests`.
 
 **Reason:** The combined expression preserves the same access union while avoiding duplicate policy evaluation reported by the hosted performance advisor.
+
+## D025: Domain transitions use immutable request previews
+
+**Decision:** `AssistanceRequest` owns verification, prioritization, assignment eligibility, priority suggestion and lifecycle-transition validation. Its `setPriority` and `transitionTo` operations return immutable preview snapshots; only the authorized version-checked RPC commits a new priority or status.
+
+**Reason:** This keeps the Information Expert responsibilities shown in the reviewed class and sequence diagrams without allowing a desktop object to claim that a database transition succeeded before the transaction commits.
+
+## D026: Application audit objects do not supply database actor identity
+
+**Decision:** `AccessController` creates the reviewed `AccessChangeLog` from the fresh before state, requested after state, authenticated session and application clock. `UserRepository` receives that object, but PostgreSQL still derives the authoritative administrator identity and timestamp from `auth.uid()` and the transaction.
+
+**Reason:** The Java interaction remains traceable to the design sequence while untrusted desktop audit fields cannot become the security boundary.

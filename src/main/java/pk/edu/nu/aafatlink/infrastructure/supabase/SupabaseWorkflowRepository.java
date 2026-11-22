@@ -50,7 +50,7 @@ import pk.edu.nu.aafatlink.domain.request.PossibleDuplicateMatch;
 import pk.edu.nu.aafatlink.domain.request.VerificationRecord;
 import pk.edu.nu.aafatlink.repository.RepositoryException;
 import pk.edu.nu.aafatlink.repository.WorkflowRepository;
-import pk.edu.nu.aafatlink.service.evidence.EvidenceAttachment;
+import pk.edu.nu.aafatlink.domain.evidence.EvidenceAttachment;
 
 /** Supabase RPC and RLS-backed implementation of the workflow persistence boundary. */
 public final class SupabaseWorkflowRepository implements WorkflowRepository {

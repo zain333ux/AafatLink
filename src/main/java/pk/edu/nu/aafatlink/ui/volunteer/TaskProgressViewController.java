@@ -19,7 +19,7 @@ import pk.edu.nu.aafatlink.application.volunteer.VolunteerController;
 import pk.edu.nu.aafatlink.domain.assignment.ClosureDecision;
 import pk.edu.nu.aafatlink.domain.assignment.ProgressUpdate;
 import pk.edu.nu.aafatlink.domain.assignment.TaskContext;
-import pk.edu.nu.aafatlink.service.evidence.EvidenceAttachment;
+import pk.edu.nu.aafatlink.domain.evidence.EvidenceAttachment;
 import pk.edu.nu.aafatlink.service.evidence.EvidenceFileValidator;
 
 /** JavaFX presentation controller for UC09 progress and UC10 completion. */

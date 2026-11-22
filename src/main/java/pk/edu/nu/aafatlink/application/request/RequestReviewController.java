@@ -73,7 +73,7 @@ public final class RequestReviewController {
             RequestPriority selected, String justification) {
         Objects.requireNonNull(session, "session");
         Objects.requireNonNull(request, "request");
-        if (!request.status().canBePrioritized()) {
+        if (!request.canBePrioritized()) {
             throw new IllegalArgumentException("This request cannot be prioritized in its current status.");
         }
         RequestPriority suggested = suggestPriority(request);
@@ -134,7 +134,7 @@ public final class RequestReviewController {
             VerificationDecision decision, String reason) {
         Objects.requireNonNull(session, "session");
         Objects.requireNonNull(request, "request");
-        if (request.status() != pk.edu.nu.aafatlink.domain.request.RequestStatus.PENDING_VERIFICATION) {
+        if (!request.canBeVerified()) {
             throw new IllegalArgumentException("This request is no longer pending verification.");
         }
         VerificationRecord record = new VerificationRecord(UUID.randomUUID(), request.id(), session.userId(),

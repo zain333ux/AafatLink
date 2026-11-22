@@ -280,3 +280,20 @@ Implement and validate the PostgreSQL schema, RLS foundation and transactional w
 ### Next
 
 - Continue the Deliverables 2-5 audit against the remaining exact domain-model classes, SSD events and design-sequence responsibilities before optional portfolio work.
+
+### Deliverables 4-5 domain-responsibility alignment
+
+- Moved UC04 priority suggestion and request-state eligibility into `AssistanceRequest`, matching the reviewed Information Expert responsibility while keeping committed transitions inside atomic RPCs.
+- Added immutable `AssistanceRequest.setPriority` and `transitionTo` previews so Java validates the documented state rules without presenting an uncommitted desktop change as persisted.
+- Updated `RequestReviewController` and `AssignmentController` to ask the request entity whether verification, prioritization and assignment are allowed.
+- Made `VolunteerAssignment` expose and reuse the reviewed `markInProgress`, `submitForClosureReview` and `markCompleted` operations.
+- Renamed volunteer readiness operations to the reviewed `applyReadinessChanges` and `updateContactNo` responsibilities.
+- Moved `EvidenceAttachment` into the domain layer and made it own the supported content-type and 5 MB rules; storage and local-file reading remain separated services.
+- Made `AccessController` create the reviewed `AccessChangeLog` before repository persistence. PostgreSQL still derives the authoritative actor and timestamp inside the secured transaction.
+- Added `AssistanceRequestTest` and expanded domain/application tests for these responsibilities.
+- `mvnw.cmd clean test`: 124 tests passed with no failures, errors or skips.
+- `mvnw.cmd package`: reran all 124 tests and produced `target/aafatlink-0.1.0-SNAPSHOT.jar`.
+
+### Next
+
+- Finish a method-by-method SSD/design trace matrix and correct any remaining behavior-bearing gaps before preparing live evaluation data.

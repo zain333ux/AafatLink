@@ -33,7 +33,7 @@ import pk.edu.nu.aafatlink.domain.request.RequestStatus;
 import pk.edu.nu.aafatlink.domain.request.RequestSubmissionResult;
 import pk.edu.nu.aafatlink.domain.request.VerificationDecision;
 import pk.edu.nu.aafatlink.repository.WorkflowRepository;
-import pk.edu.nu.aafatlink.service.evidence.EvidenceAttachment;
+import pk.edu.nu.aafatlink.domain.evidence.EvidenceAttachment;
 import pk.edu.nu.aafatlink.service.request.PriorityAssessmentService;
 
 class RequestReviewControllerTest {

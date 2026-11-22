@@ -27,7 +27,7 @@ import pk.edu.nu.aafatlink.domain.request.RequestReviewResult;
 import pk.edu.nu.aafatlink.domain.request.RequestReviewDetails;
 import pk.edu.nu.aafatlink.domain.request.RequesterContact;
 import pk.edu.nu.aafatlink.domain.request.VerificationRecord;
-import pk.edu.nu.aafatlink.service.evidence.EvidenceAttachment;
+import pk.edu.nu.aafatlink.domain.evidence.EvidenceAttachment;
 
 /** Persistence boundary shared by the GRASP workflow controllers. */
 public interface WorkflowRepository {

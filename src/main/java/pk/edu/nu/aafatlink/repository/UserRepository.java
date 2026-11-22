@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import pk.edu.nu.aafatlink.domain.account.AccessChanges;
+import pk.edu.nu.aafatlink.domain.account.AccessChangeLog;
 import pk.edu.nu.aafatlink.domain.account.ControlledReferenceValue;
 import pk.edu.nu.aafatlink.domain.account.ReferenceDataChange;
 import pk.edu.nu.aafatlink.domain.account.ReferenceDataType;
@@ -23,5 +23,5 @@ public interface UserRepository {
     Optional<UserAccount> findUser(AuthSession session, UUID accountId);
     int countActiveAdministrators(AuthSession session);
     UserAccount saveAccessWithAudit(AuthSession session, UUID operationId, UserAccount account,
-            AccessChanges changes, long expectedVersion);
+            AccessChangeLog log, long expectedVersion);
 }

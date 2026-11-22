@@ -31,6 +31,11 @@ public record ProgressUpdate(
         return Optional.ofNullable(completionPercent);
     }
 
+    public boolean isValid() {
+        return !progressNote.isBlank() && progressNote.length() <= 500
+                && (completionPercent == null || completionPercent >= 0 && completionPercent <= 99);
+    }
+
     private static String normalize(String value) {
         if (value == null || value.isBlank()) {
             throw new IllegalArgumentException("A progress note is required.");

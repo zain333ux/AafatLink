@@ -34,7 +34,7 @@ import pk.edu.nu.aafatlink.domain.volunteer.VolunteerApprovalStatus;
 import pk.edu.nu.aafatlink.domain.volunteer.VolunteerProfile;
 import pk.edu.nu.aafatlink.repository.VolunteerRepository;
 import pk.edu.nu.aafatlink.repository.WorkflowRepository;
-import pk.edu.nu.aafatlink.service.evidence.EvidenceAttachment;
+import pk.edu.nu.aafatlink.domain.evidence.EvidenceAttachment;
 
 class AssignmentControllerTest {
     private static final Instant NOW = Instant.parse("2026-11-21T09:00:00Z");

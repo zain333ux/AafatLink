@@ -2,6 +2,7 @@ package pk.edu.nu.aafatlink.service.evidence;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -9,6 +10,8 @@ import java.nio.file.Path;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+
+import pk.edu.nu.aafatlink.domain.evidence.EvidenceAttachment;
 
 class EvidenceFileValidatorTest {
     @TempDir
@@ -23,6 +26,7 @@ class EvidenceFileValidatorTest {
 
         assertEquals("image/jpeg", attachment.contentType());
         assertEquals(3, attachment.sizeBytes());
+        assertTrue(attachment.isValid());
     }
 
     @Test

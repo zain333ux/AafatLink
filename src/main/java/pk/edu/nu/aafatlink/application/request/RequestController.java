@@ -12,7 +12,7 @@ import pk.edu.nu.aafatlink.domain.request.DisasterType;
 import pk.edu.nu.aafatlink.domain.request.RequestSubmissionResult;
 import pk.edu.nu.aafatlink.domain.request.RequesterContact;
 import pk.edu.nu.aafatlink.repository.WorkflowRepository;
-import pk.edu.nu.aafatlink.service.evidence.EvidenceAttachment;
+import pk.edu.nu.aafatlink.domain.evidence.EvidenceAttachment;
 import pk.edu.nu.aafatlink.service.evidence.EvidenceStorage;
 
 /** GRASP application controller for UC01 and UC02. */

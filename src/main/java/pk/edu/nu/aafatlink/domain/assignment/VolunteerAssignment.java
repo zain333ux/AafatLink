@@ -90,7 +90,7 @@ public final class VolunteerAssignment {
         }
         ProgressUpdate update = new ProgressUpdate(UUID.randomUUID(), id, actorId, note, percent,
                 Objects.requireNonNull(recordedAt, "recordedAt"));
-        status = AssignmentStatus.IN_PROGRESS;
+        markInProgress();
         return update;
     }
 
@@ -101,15 +101,33 @@ public final class VolunteerAssignment {
         }
         TaskCompletion completion = new TaskCompletion(UUID.randomUUID(), id, actorId, remarks,
                 Objects.requireNonNull(completedAt, "completedAt"));
-        status = AssignmentStatus.AWAITING_CLOSURE_REVIEW;
+        submitForClosureReview();
         return completion;
     }
 
-    public void approveClosure() {
+    public void markInProgress() {
+        if (status != AssignmentStatus.ACCEPTED && status != AssignmentStatus.IN_PROGRESS) {
+            throw new IllegalStateException("Only accepted work can move to In Progress.");
+        }
+        status = AssignmentStatus.IN_PROGRESS;
+    }
+
+    public void submitForClosureReview() {
+        if (status != AssignmentStatus.ACCEPTED && status != AssignmentStatus.IN_PROGRESS) {
+            throw new IllegalStateException("Only active work can be submitted for closure review.");
+        }
+        status = AssignmentStatus.AWAITING_CLOSURE_REVIEW;
+    }
+
+    public void markCompleted() {
         if (!canBeClosed()) {
             throw new IllegalStateException("This assignment is not awaiting closure review.");
         }
         status = AssignmentStatus.COMPLETED;
+    }
+
+    public void approveClosure() {
+        markCompleted();
     }
 
     public void returnForRework(String reason) {

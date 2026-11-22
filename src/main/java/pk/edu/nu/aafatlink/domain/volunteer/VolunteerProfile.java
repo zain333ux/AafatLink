@@ -55,7 +55,7 @@ public final class VolunteerProfile {
                 && serviceAreas.stream().anyMatch(area -> area.id() == serviceAreaId);
     }
 
-    public VolunteerProfile withReadinessChanges(VolunteerReadinessChanges changes,
+    public VolunteerProfile applyReadinessChanges(VolunteerReadinessChanges changes,
             List<Skill> skillCatalog, List<ServiceArea> serviceAreaCatalog) {
         Objects.requireNonNull(changes, "changes");
         List<Skill> selectedSkills = select(changes.skillIds(), skillCatalog, Skill::id, "skill");
@@ -67,7 +67,7 @@ public final class VolunteerProfile {
     }
 
     /** Combines readiness data with the account-owned contact value required by UC07. */
-    public VolunteerProfile withContactNumber(String contactNumber) {
+    public VolunteerProfile updateContactNo(String contactNumber) {
         return new VolunteerProfile(accountId, approvalStatus, availability, contactNumber,
                 availabilityNotes, availableFrom, availableUntil, skills, serviceAreas, version);
     }

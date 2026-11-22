@@ -21,6 +21,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import pk.edu.nu.aafatlink.domain.account.AccessChanges;
+import pk.edu.nu.aafatlink.domain.account.AccessChangeLog;
 import pk.edu.nu.aafatlink.domain.account.AccountStatus;
 import pk.edu.nu.aafatlink.domain.account.ControlledReferenceValue;
 import pk.edu.nu.aafatlink.domain.account.Permission;
@@ -162,7 +163,8 @@ public final class SupabaseUserRepository implements UserRepository {
 
     @Override
     public UserAccount saveAccessWithAudit(AuthSession session, UUID operationId, UserAccount account,
-            AccessChanges changes, long expectedVersion) {
+            AccessChangeLog log, long expectedVersion) {
+        AccessChanges changes = Objects.requireNonNull(log, "log").after();
         ObjectNode body = JSON.createObjectNode();
         body.put("p_operation_id", operationId.toString());
         body.put("p_target_account_id", account.id().toString());
