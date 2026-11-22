@@ -52,6 +52,7 @@ public final class RequestFormViewController {
     @FXML private TextArea affectedPeopleField;
     @FXML private Label evidenceNameLabel;
     @FXML private Label evidenceMessageLabel;
+    @FXML private Button chooseEvidenceButton;
     @FXML private Button removeEvidenceButton;
     @FXML private Button submitButton;
     @FXML private Button viewRequestsButton;
@@ -186,25 +187,28 @@ public final class RequestFormViewController {
         }
 
         AuthSession session = sessions.authSession().orElseThrow();
+        EvidenceAttachment submittedEvidence = evidence;
+        String requesterName = requesterNameField.getText();
+        String requesterContact = requesterContactField.getText();
         setBusy(true);
         showMessage(resubmission == null ? "Submitting request…" : "Resubmitting request…", false);
         Task<RequestSubmissionResult> task = new Task<>() {
             @Override protected RequestSubmissionResult call() {
                 if (coordinatorEntry) {
-                    return evidence == null
-                            ? requests.recordCoordinatorRequest(session, requesterNameField.getText(),
-                                    requesterContactField.getText(), draft)
-                            : requests.recordCoordinatorRequest(session, requesterNameField.getText(),
-                                    requesterContactField.getText(), draft, evidence);
+                    return submittedEvidence == null
+                            ? requests.recordCoordinatorRequest(session, requesterName, requesterContact, draft)
+                            : requests.recordCoordinatorRequest(session, requesterName, requesterContact, draft,
+                                    submittedEvidence);
                 }
                 if (resubmission == null) {
-                    return evidence == null
+                    return submittedEvidence == null
                             ? requests.submitRequest(session, draft)
-                            : requests.submitRequest(session, draft, evidence);
+                            : requests.submitRequest(session, draft, submittedEvidence);
                 }
-                return evidence == null
+                return submittedEvidence == null
                         ? requests.resubmitRequest(session, resubmission.id(), resubmission.version(), draft)
-                        : requests.resubmitRequest(session, resubmission.id(), resubmission.version(), draft, evidence);
+                        : requests.resubmitRequest(session, resubmission.id(), resubmission.version(), draft,
+                                submittedEvidence);
             }
         };
         task.setOnSucceeded(event -> {
@@ -272,6 +276,8 @@ public final class RequestFormViewController {
         affectedPeopleField.setDisable(busy);
         requesterNameField.setDisable(busy);
         requesterContactField.setDisable(busy);
+        chooseEvidenceButton.setDisable(busy);
+        removeEvidenceButton.setDisable(busy || evidence == null);
     }
 
     private static String formatBytes(long bytes) {

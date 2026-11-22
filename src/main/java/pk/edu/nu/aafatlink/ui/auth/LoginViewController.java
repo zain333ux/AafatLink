@@ -98,10 +98,12 @@ public final class LoginViewController {
         setBusy(true);
         loginMessageLabel.setText("Signing in securely…");
         loginMessageLabel.getStyleClass().removeAll("form-error", "form-success");
+        String email = emailField.getText();
+        String password = passwordField.getText();
         Task<Void> task = new Task<>() {
             @Override
             protected Void call() {
-                authentication.signIn(emailField.getText(), passwordField.getText());
+                authentication.signIn(email, password);
                 return null;
             }
         };

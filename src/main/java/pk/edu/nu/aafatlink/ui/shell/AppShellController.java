@@ -152,7 +152,6 @@ public final class AppShellController {
             case REPORTS -> showReports();
             case ACCESS_MANAGEMENT -> showAccessManagement();
             case REFERENCE_DATA -> showReferenceData();
-            default -> showUnavailable(item);
         }
     }
 
@@ -287,15 +286,6 @@ public final class AppShellController {
             throw new IllegalArgumentException("Unsupported reference-data controller: " + type.getName());
         });
         setContent(load(loader));
-    }
-
-    private void showUnavailable(NavigationItem item) {
-        Label message = new Label(item.label() + " is not implemented yet. Its mandatory behavior remains tracked in the use-case traceability document.");
-        message.setWrapText(true);
-        message.getStyleClass().add("empty-state-copy");
-        VBox box = new VBox(10, new Label("Scheduled workflow"), message);
-        box.getStyleClass().addAll("content-area", "empty-state");
-        setContent(box);
     }
 
     private void setContent(Parent content) {

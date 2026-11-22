@@ -297,3 +297,16 @@ Implement and validate the PostgreSQL schema, RLS foundation and transactional w
 ### Next
 
 - Finish a method-by-method SSD/design trace matrix and correct any remaining behavior-bearing gaps before preparing live evaluation data.
+
+### Deliverables 4-5 event trace and JavaFX workflow reliability
+
+- Added `docs/DESIGN_TRACEABILITY.md`, mapping all reviewed domain classes, six GRASP application controllers and every UC01-UC12 SSD/design event to concrete Java and database operations.
+- Removed the obsolete unimplemented-screen fallback: every role-visible navigation destination now has a connected mandatory workflow screen.
+- Snapshotted authentication, request, assignment, progress, completion, closure and priority form inputs on the JavaFX Application Thread before starting background operations.
+- Captured selected evidence before request submission so a user action cannot change which file an in-flight operation commits or cleans up.
+- Added the documented stale/conflict recovery behavior for UC05, UC08, UC09 and UC10: refresh the current authorized list while retaining a useful failure message.
+- Visually verified the Requester dashboard and Submit Request screen at 1280 x 720. The updated evidence controls loaded through FXML, the form resized correctly and no FXML error occurred.
+
+### Next
+
+- Prepare a repeatable, owner-controlled live evaluation dataset and provisioning procedure without storing passwords or privileged keys.

@@ -58,7 +58,7 @@ Deliverable 3 is the functional authority. A use case is marked implemented only
 - **Screen:** Coordinator > Volunteer assignment.
 - **Database:** `volunteer_assignments`, `volunteer_profiles`, `volunteer_skills`, `volunteer_service_areas`, `skills` and `service_areas`; deployed `find_eligible_volunteers`, `assign_volunteer_matching` and `reassign_volunteer` RPCs.
 - **Success:** choose an approved, capable and available volunteer, create `PENDING_ACCEPTANCE`, and move the request to `ASSIGNED`.
-- **Alternatives:** overlapping active assignments are rejected; non-overlapping work is allowed; reassignment records a reason and supersedes the old assignment.
+- **Alternatives:** overlapping active assignments are rejected; non-overlapping work is allowed; reassignment records a reason and supersedes the old assignment; a failed/stale assignment reloads the latest request and candidate data before retry.
 - **Tests:** `AssignmentControllerTest`, `VolunteerProfileTest`, `VolunteerAssignmentTest` and `DatabaseMigrationContractTest` cover approval, skill/area matching, overlap, non-overlap, unscheduled conflicts, idempotency and stale versions.
 - **Demonstration:** compare candidate eligibility, create an assignment, then show a conflicting and a valid nonconflicting case.
 
@@ -94,7 +94,7 @@ Deliverable 3 is the functional authority. A use case is marked implemented only
 - **Screen:** Volunteer > Assignments > Assignment detail.
 - **Database:** `volunteer_assignments`, `assignment_decisions`, `assistance_requests` and `workflow_operations`; deployed hardened `respond_to_assignment` RPC.
 - **Success:** the assigned volunteer accepts a pending assignment, moving it to `ACCEPTED`.
-- **Alternatives:** decline requires a reason and returns the request for reassignment; expired or superseded assignments cannot be accepted.
+- **Alternatives:** decline requires a reason and returns the request for reassignment; expired or superseded assignments cannot be accepted, and a denied response refreshes the volunteer's latest assignment list while retaining the error.
 - **Tests:** `VolunteerControllerTest`, `VolunteerAssignmentTest` and `DatabaseMigrationContractTest` cover ownership delegation, mandatory decline reason, terminal states, idempotency and row locking.
 - **Demonstration:** accept one pending assignment and decline another with a reason.
 
@@ -106,7 +106,7 @@ Deliverable 3 is the functional authority. A use case is marked implemented only
 - **Screen:** Volunteer > Task progress (`task-progress-view.fxml`).
 - **Database:** `task_progress_updates`, `volunteer_assignments`, `assistance_requests`, `workflow_operations`; deployed `record_task_progress` RPC.
 - **Success:** append a required note and optional 0 to 99 percentage, then atomically move accepted request/assignment work to `IN_PROGRESS`.
-- **Alternatives:** reject a blank or over-500-character note, invalid percentage, wrong owner, stale/reassigned task, invalid state or concurrent version; recover an uncertain result by operation ID.
+- **Alternatives:** reject a blank or over-500-character note, invalid percentage, wrong owner, stale/reassigned task, invalid state or concurrent version; recover an uncertain result by operation ID and refresh the task list after a rejected write.
 - **Tests:** `ProgressUpdateTest`, `VolunteerAssignmentTest`, `VolunteerControllerTest`, `SupabaseWorkflowRepositoryTest` and `DatabaseMigrationContractTest` cover boundaries, state transitions, authenticated ownership delegation, adapter mapping and RPC hardening.
 - **Demonstration:** add progress without a percentage, then add a valid percentage and inspect history.
 
@@ -118,7 +118,7 @@ Deliverable 3 is the functional authority. A use case is marked implemented only
 - **Screen:** Volunteer > Task progress > Complete task (`task-progress-view.fxml`).
 - **Database:** `task_completions`, `request_evidence`, `workflow_operations`, `volunteer_assignments`, `assistance_requests`; deployed `begin_task_operation`, `complete_assistance_task`, `reconcile_workflow_operation` and `abandon_task_operation` functions.
 - **Success:** store required completion remarks and optional staged evidence, then atomically move assignment and request to `AWAITING_CLOSURE_REVIEW`.
-- **Alternatives:** multiple auditable attempts after rework; invalid remarks/evidence/owner/state/version; uncertain RPC recovery by operation ID; cleanup only after confirmed non-commit and with committed-reference protection.
+- **Alternatives:** multiple auditable attempts after rework; invalid remarks/evidence/owner/state/version; uncertain RPC recovery by operation ID; cleanup only after confirmed non-commit and with committed-reference protection; refresh the latest task list after a rejected completion.
 - **Tests:** `VolunteerAssignmentTest`, `VolunteerControllerTest`, `SupabaseWorkflowRepositoryTest`, `SupabaseEvidenceStorageTest` and `DatabaseMigrationContractTest` cover direct accepted completion, rework attempts, idempotency, evidence safety, ownership and atomic transition contracts.
 - **Demonstration:** stage evidence, complete the task and show its closure-review state.
 

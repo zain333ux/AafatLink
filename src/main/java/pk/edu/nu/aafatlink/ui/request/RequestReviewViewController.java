@@ -155,10 +155,10 @@ public final class RequestReviewViewController {
             showActionMessage("Select a priority level.", true);
             return;
         }
+        String justification = overrideJustificationArea.getText();
         runDecision(new Task<>() {
             @Override protected Object call() {
-                return reviews.setPriority(sessions.authSession().orElseThrow(), request, selected,
-                        overrideJustificationArea.getText());
+                return reviews.setPriority(sessions.authSession().orElseThrow(), request, selected, justification);
             }
         }, "Priority decision recorded.");
     }

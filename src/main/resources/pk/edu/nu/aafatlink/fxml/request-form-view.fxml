@@ -89,7 +89,7 @@
                         <Label text="Supporting evidence" styleClass="field-label" />
                         <Label fx:id="evidenceNameLabel" text="No file selected" styleClass="evidence-name" />
                     </VBox>
-                    <Button text="Choose file" onAction="#chooseEvidence" styleClass="outline-button" />
+                    <Button fx:id="chooseEvidenceButton" text="Choose file" onAction="#chooseEvidence" styleClass="outline-button" />
                     <Button fx:id="removeEvidenceButton" text="Remove" onAction="#removeEvidence"
                             visible="false" managed="false" styleClass="text-button" />
                 </HBox>

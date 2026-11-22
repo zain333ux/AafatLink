@@ -51,10 +51,11 @@ public final class PasswordRecoveryViewController {
 
         setBusy(true);
         showMessage("Sending the secure recovery email…", false);
+        String email = emailField.getText();
         Task<Void> task = new Task<>() {
             @Override
             protected Void call() {
-                try (PasswordRecoveryAttempt attempt = recovery.begin(emailField.getText())) {
+                try (PasswordRecoveryAttempt attempt = recovery.begin(email)) {
                     updateMessage("Email sent. Open Gmail on this computer and click the newest recovery link once within 10 minutes.");
                     recovery.complete(attempt, newPassword, COMPLETION_TIMEOUT);
                     return null;

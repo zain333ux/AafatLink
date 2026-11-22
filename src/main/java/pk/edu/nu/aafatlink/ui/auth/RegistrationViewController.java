@@ -69,10 +69,13 @@ public final class RegistrationViewController {
         registrationMessageLabel.setText("Creating your secure account…");
         registrationMessageLabel.getStyleClass().removeAll("form-error", "form-success");
         UserRole selectedType = accountTypeBox.getValue();
+        String displayName = displayNameField.getText();
+        String email = emailField.getText();
+        String password = passwordField.getText();
         Task<RegistrationResult> task = new Task<>() {
             @Override
             protected RegistrationResult call() {
-                return authentication.register(displayNameField.getText(), emailField.getText(), passwordField.getText());
+                return authentication.register(displayName, email, password);
             }
         };
         task.setOnSucceeded(event -> {

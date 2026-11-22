@@ -85,12 +85,18 @@ public final class VolunteerAssignmentViewController {
 
     @FXML
     private void loadData() {
+        loadData(null, false);
+    }
+
+    private void loadData(String notice, boolean noticeIsError) {
         if (sessions.authSession().isEmpty() || assignments == null) {
             setMainDisabled(true);
             showAssignmentMessage("Demonstration mode contains no operational assignment data.", false);
             return;
         }
         setMainDisabled(true);
+        candidateTable.getItems().clear();
+        assignButton.setDisable(true);
         Task<AssignmentData> task = new Task<>() {
             @Override protected AssignmentData call() {
                 var session = sessions.authSession().orElseThrow();
@@ -110,8 +116,10 @@ public final class VolunteerAssignmentViewController {
             setMainDisabled(false);
             assignButton.setDisable(candidateTable.getSelectionModel().getSelectedItem() == null);
             reassignButton.setDisable(activeTable.getSelectionModel().getSelectedItem() == null);
-            showAssignmentMessage(data.requests().isEmpty()
-                    ? "No verified prioritized request currently needs assignment." : "Select requirements to find eligible volunteers.", false);
+            String defaultMessage = data.requests().isEmpty()
+                    ? "No verified prioritized request currently needs assignment."
+                    : "Select requirements to find eligible volunteers.";
+            showAssignmentMessage(notice == null ? defaultMessage : notice, notice != null && noticeIsError);
         });
         task.setOnFailed(event -> {
             setMainDisabled(false);
@@ -155,10 +163,12 @@ public final class VolunteerAssignmentViewController {
         AssistanceRequest request = requestTable.getSelectionModel().getSelectedItem();
         VolunteerCandidate candidate = candidateTable.getSelectionModel().getSelectedItem();
         if (request == null || candidate == null || sessions.authSession().isEmpty()) return;
+        AssignmentFilter submittedFilter = filter();
         assignButton.setDisable(true);
         Task<Object> task = new Task<>() {
             @Override protected Object call() {
-                return assignments.assignVolunteer(sessions.authSession().orElseThrow(), request, candidate, filter());
+                return assignments.assignVolunteer(sessions.authSession().orElseThrow(), request, candidate,
+                        submittedFilter);
             }
         };
         task.setOnSucceeded(event -> {
@@ -167,8 +177,8 @@ public final class VolunteerAssignmentViewController {
             loadData();
         });
         task.setOnFailed(event -> {
-            assignButton.setDisable(false);
-            showAssignmentMessage(message(task.getException(), "Volunteer was not assigned. Refresh and retry."), true);
+            String failure = message(task.getException(), "Volunteer was not assigned.");
+            loadData(failure + " Candidate and request data were refreshed.", true);
         });
         start(task, "aafatlink-assign-volunteer");
     }
@@ -177,11 +187,12 @@ public final class VolunteerAssignmentViewController {
     private void reassignSelected() {
         AssignmentContext selected = activeTable.getSelectionModel().getSelectedItem();
         if (selected == null || sessions.authSession().isEmpty()) return;
+        String reason = reassignmentReasonArea.getText();
         reassignButton.setDisable(true);
         Task<Object> task = new Task<>() {
             @Override protected Object call() {
                 return assignments.reassignVolunteer(sessions.authSession().orElseThrow(),
-                        selected.assignment().id(), reassignmentReasonArea.getText());
+                        selected.assignment().id(), reason);
             }
         };
         task.setOnSucceeded(event -> {
@@ -190,8 +201,9 @@ public final class VolunteerAssignmentViewController {
             loadData();
         });
         task.setOnFailed(event -> {
-            reassignButton.setDisable(false);
-            showReassignmentMessage(message(task.getException(), "Assignment could not be released."), true);
+            String failure = message(task.getException(), "Assignment could not be released.");
+            showReassignmentMessage(failure + " Current assignment data was refreshed.", true);
+            loadData();
         });
         start(task, "aafatlink-reassign-volunteer");
     }

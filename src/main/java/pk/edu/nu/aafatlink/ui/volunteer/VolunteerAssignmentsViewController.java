@@ -87,6 +87,10 @@ public final class VolunteerAssignmentsViewController {
 
     @FXML
     private void loadAssignments() {
+        loadAssignments(null, false);
+    }
+
+    private void loadAssignments(String notice, boolean noticeIsError) {
         if (sessions.authSession().isEmpty() || volunteers == null) {
             refreshButton.setDisable(true);
             showEmpty("Demonstration mode contains no operational assignments.");
@@ -102,11 +106,12 @@ public final class VolunteerAssignmentsViewController {
         task.setOnSucceeded(event -> {
             refreshButton.setDisable(false);
             assignmentTable.getItems().setAll(task.getValue());
-            if (task.getValue().isEmpty()) showEmpty("No assignment currently needs your response.");
+            if (task.getValue().isEmpty()) showEmpty(notice == null
+                    ? "No assignment currently needs your response." : notice + " The latest assignment list is empty.");
             else {
                 showTable();
                 assignmentTable.getSelectionModel().selectFirst();
-                showMessage("", false);
+                showMessage(notice == null ? "" : notice, notice != null && noticeIsError);
             }
         });
         task.setOnFailed(event -> {
@@ -122,12 +127,13 @@ public final class VolunteerAssignmentsViewController {
     private void respond(boolean accept) {
         AssignmentContext selected = assignmentTable.getSelectionModel().getSelectedItem();
         if (selected == null || sessions.authSession().isEmpty()) return;
+        String declineReason = declineReasonArea.getText();
         setDecisionDisabled(true);
         showMessage(accept ? "Accepting assignment…" : "Declining assignment…", false);
         Task<Object> task = new Task<>() {
             @Override protected Object call() {
                 return volunteers.respondToAssignment(sessions.authSession().orElseThrow(),
-                        selected.assignment().id(), accept, declineReasonArea.getText());
+                        selected.assignment().id(), accept, declineReason);
             }
         };
         task.setOnSucceeded(event -> {
@@ -135,8 +141,8 @@ public final class VolunteerAssignmentsViewController {
             loadAssignments();
         });
         task.setOnFailed(event -> {
-            setDecisionDisabled(false);
-            showMessage(message(task.getException(), "Assignment response was not saved."), true);
+            String failure = message(task.getException(), "Assignment response was not saved.");
+            loadAssignments(failure + " The assignment list was refreshed.", true);
         });
         start(task, "aafatlink-assignment-response");
     }

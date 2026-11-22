@@ -108,14 +108,13 @@ public final class ClosureReviewViewController {
     private void submitDecision(boolean approve) {
         TaskContext selected = requestTable.getSelectionModel().getSelectedItem();
         if (selected == null || sessions.authSession().isEmpty()) return;
+        String remarks = remarksArea.getText();
         setBusy(true);
         showMessage(approve ? "Approving closure…" : "Returning task for rework…", false);
         Task<Void> task = new Task<>() {
             @Override protected Void call() {
-                if (approve) reviews.approveClosure(sessions.authSession().orElseThrow(), selected,
-                        remarksArea.getText());
-                else reviews.returnForRework(sessions.authSession().orElseThrow(), selected,
-                        remarksArea.getText());
+                if (approve) reviews.approveClosure(sessions.authSession().orElseThrow(), selected, remarks);
+                else reviews.returnForRework(sessions.authSession().orElseThrow(), selected, remarks);
                 return null;
             }
         };

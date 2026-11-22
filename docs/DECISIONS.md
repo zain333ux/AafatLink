@@ -163,3 +163,9 @@
 **Decision:** `AccessController` creates the reviewed `AccessChangeLog` from the fresh before state, requested after state, authenticated session and application clock. `UserRepository` receives that object, but PostgreSQL still derives the authoritative administrator identity and timestamp from `auth.uid()` and the transaction.
 
 **Reason:** The Java interaction remains traceable to the design sequence while untrusted desktop audit fields cannot become the security boundary.
+
+## D027: Presentation values are snapshotted before asynchronous work
+
+**Decision:** JavaFX controllers copy form values, selected records and filters on the JavaFX Application Thread before starting a background `Task`. Failure paths that can indicate a stale assignment or task reload the latest authorized state and keep the failure visible.
+
+**Reason:** JavaFX controls are not thread-safe, and a delayed background read could observe a changed value. Snapshotting produces one coherent command and the documented refresh behavior prevents users from acting on obsolete assignment state.

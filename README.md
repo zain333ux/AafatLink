@@ -46,6 +46,7 @@ The application intentionally uses the classpath instead of `module-info.java`. 
 - [Authentication](docs/AUTHENTICATION.md)
 - [Database](docs/DATABASE.md)
 - [Engineering decisions](docs/DECISIONS.md)
+- [Deliverables 4-5 design traceability](docs/DESIGN_TRACEABILITY.md)
 - [Use-case traceability](docs/USE_CASE_TRACEABILITY.md)
 - [Ten-minute demonstration guide](docs/DEMO_GUIDE.md)
 - [Rubric traceability](docs/RUBRIC_TRACEABILITY.md)

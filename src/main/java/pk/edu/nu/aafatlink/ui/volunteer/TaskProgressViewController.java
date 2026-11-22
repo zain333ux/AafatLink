@@ -79,6 +79,10 @@ public final class TaskProgressViewController {
 
     @FXML
     private void loadTasks() {
+        loadTasks(null, false);
+    }
+
+    private void loadTasks(String notice, boolean noticeIsError) {
         if (sessions.authSession().isEmpty() || volunteers == null) {
             taskTable.setItems(FXCollections.observableArrayList());
             showEmpty("Demonstration mode does not load operational tasks.");
@@ -95,12 +99,14 @@ public final class TaskProgressViewController {
         task.setOnSucceeded(event -> {
             taskTable.setItems(FXCollections.observableArrayList(task.getValue()));
             setBusy(false);
-            if (task.getValue().isEmpty()) showEmpty("No accepted or in-progress task needs an update.");
+            if (task.getValue().isEmpty()) showEmpty(notice == null
+                    ? "No accepted or in-progress task needs an update." : notice + " The latest task list is empty.");
             else {
                 emptyState.setVisible(false);
                 emptyState.setManaged(false);
                 taskTable.getSelectionModel().selectFirst();
-                showMessage("Select a task to record progress or submit completion.", false);
+                showMessage(notice == null ? "Select a task to record progress or submit completion." : notice,
+                        notice != null && noticeIsError);
             }
         });
         task.setOnFailed(event -> {
@@ -123,13 +129,14 @@ public final class TaskProgressViewController {
             showMessage("Estimated completion must be a whole number from 0 to 99.", true);
             return;
         }
+        String progressNote = progressNoteArea.getText();
         setBusy(true);
         showMessage("Recording progress…", false);
         Integer submittedPercentage = percentage;
         Task<Void> task = new Task<>() {
             @Override protected Void call() {
                 volunteers.recordProgress(sessions.authSession().orElseThrow(),
-                        selected.assignmentContext().assignment().id(), progressNoteArea.getText(),
+                        selected.assignmentContext().assignment().id(), progressNote,
                         submittedPercentage);
                 return null;
             }
@@ -141,8 +148,8 @@ public final class TaskProgressViewController {
             loadTasks();
         });
         task.setOnFailed(event -> {
-            setBusy(false);
-            showMessage(message(task.getException(), "Progress was not recorded."), true);
+            String failure = message(task.getException(), "Progress was not recorded.");
+            loadTasks(failure + " The task list was refreshed.", true);
         });
         start(task, "aafatlink-progress-save");
     }
@@ -175,6 +182,7 @@ public final class TaskProgressViewController {
     private void completeTask() {
         TaskContext selected = taskTable.getSelectionModel().getSelectedItem();
         if (selected == null || sessions.authSession().isEmpty()) return;
+        String completionRemarks = completionRemarksArea.getText();
         setBusy(true);
         showMessage("Submitting completion for coordinator review…", false);
         EvidenceAttachment submittedEvidence = evidence;
@@ -182,10 +190,10 @@ public final class TaskProgressViewController {
             @Override protected Void call() {
                 if (submittedEvidence == null) {
                     volunteers.completeTask(sessions.authSession().orElseThrow(),
-                            selected.assignmentContext().assignment().id(), completionRemarksArea.getText());
+                            selected.assignmentContext().assignment().id(), completionRemarks);
                 } else {
                     volunteers.completeTask(sessions.authSession().orElseThrow(),
-                            selected.assignmentContext().assignment().id(), completionRemarksArea.getText(),
+                            selected.assignmentContext().assignment().id(), completionRemarks,
                             submittedEvidence);
                 }
                 return null;
@@ -199,8 +207,8 @@ public final class TaskProgressViewController {
             loadTasks();
         });
         task.setOnFailed(event -> {
-            setBusy(false);
-            showMessage(message(task.getException(), "Completion was not submitted."), true);
+            String failure = message(task.getException(), "Completion was not submitted.");
+            loadTasks(failure + " The task list was refreshed.", true);
         });
         start(task, "aafatlink-task-complete");
     }
