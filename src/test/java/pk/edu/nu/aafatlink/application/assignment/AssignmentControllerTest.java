@@ -117,8 +117,8 @@ class AssignmentControllerTest {
         @Override public List<AssistanceRequest> findPendingVerificationRequests(AuthSession session) { return List.of(); }
         @Override public List<AssistanceRequest> findPrioritizableRequests(AuthSession session) { return List.of(); }
         @Override public Optional<AssistanceRequest> findRequestForReview(AuthSession session, UUID requestId) { return Optional.empty(); }
-        @Override public RequestReviewResult decideRequestVerification(AuthSession session, UUID operationId, UUID requestId, long expectedVersion, VerificationDecision decision, String reason) { throw new UnsupportedOperationException(); }
-        @Override public PriorityAssessmentResult recordPriorityAssessment(AuthSession session, UUID operationId, UUID requestId, long expectedVersion, RequestPriority suggested, RequestPriority selected, String justification) { throw new UnsupportedOperationException(); }
+        @Override public RequestReviewResult saveVerificationAndStatus(AuthSession session, UUID operationId, pk.edu.nu.aafatlink.domain.request.VerificationRecord record, long expectedVersion) { throw new UnsupportedOperationException(); }
+        @Override public PriorityAssessmentResult savePriorityAndRequest(AuthSession session, UUID operationId, pk.edu.nu.aafatlink.domain.request.PriorityAssessment assessment, long expectedVersion) { throw new UnsupportedOperationException(); }
         @Override public List<AssignmentContext> findPendingAssignments(AuthSession session, UUID volunteerId) { return List.of(); }
         @Override public Optional<AssignmentContext> findAssignmentContext(AuthSession session, UUID assignmentId) { return Optional.empty(); }
         @Override public AssignmentResponseResult respondToAssignment(AuthSession session, UUID operationId, UUID assignmentId, long expectedVersion, boolean accept, String declineReason) { throw new UnsupportedOperationException(); }

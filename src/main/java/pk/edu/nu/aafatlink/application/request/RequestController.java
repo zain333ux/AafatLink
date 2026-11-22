@@ -8,6 +8,7 @@ import java.util.UUID;
 import pk.edu.nu.aafatlink.domain.auth.AuthSession;
 import pk.edu.nu.aafatlink.domain.request.AssistanceRequest;
 import pk.edu.nu.aafatlink.domain.request.AssistanceRequestDraft;
+import pk.edu.nu.aafatlink.domain.request.DisasterType;
 import pk.edu.nu.aafatlink.domain.request.RequestSubmissionResult;
 import pk.edu.nu.aafatlink.domain.request.RequesterContact;
 import pk.edu.nu.aafatlink.repository.WorkflowRepository;
@@ -26,6 +27,10 @@ public final class RequestController {
     public RequestController(WorkflowRepository workflows, EvidenceStorage evidenceStorage) {
         this.workflows = Objects.requireNonNull(workflows, "workflows");
         this.evidenceStorage = evidenceStorage;
+    }
+
+    public List<DisasterType> getDisasterTypes(AuthSession session) {
+        return workflows.findActiveDisasterTypes(Objects.requireNonNull(session, "session"));
     }
 
     public RequestSubmissionResult submitRequest(AuthSession session, AssistanceRequestDraft details) {

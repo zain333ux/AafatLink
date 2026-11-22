@@ -19,6 +19,8 @@
 15. `align_coordinator_entry_and_review_details` permits coordinator-recorded phone requests without inventing a requester account, snapshots caller details separately from the recorder and returns the full UC03 review context.
 16. `minimize_request_review_privileges` moves requester contact snapshotting to an invoker trigger and makes review-detail retrieval `SECURITY INVOKER`.
 17. `support_coordinator_request_operations` extends operation begin/abandon handling to the authorized coordinator-recording operation without weakening requester ownership checks.
+18. `add_controlled_reference_management` adds versioned disaster types, skills, service areas and standard decline reasons, immutable administrator audit records and the authorized UC12 save operation.
+19. `optimize_reference_audit_and_request_policy` adds the hosted-advisor-recommended audit index and consolidates equivalent requester/coordinator/administrator/assigned-volunteer read rules into one request policy.
 
 All exposed `public` tables enable RLS. Broad `anon` and `authenticated` table privileges are revoked before minimal grants are added.
 
@@ -46,8 +48,8 @@ The private role lookup is the sole base helper requiring definer rights because
 
 ## Validation status
 
-All seventeen migrations through coordinator request/review alignment are applied to the designated `aafatlink-dev` project. Hosted checks confirmed the workflow functions and their invoker/definer modes. Request-review details and the request-status, outstanding-request and response-performance reports use `SECURITY INVOKER`. Coordinator phone recording, volunteer workload and atomic access changes use narrowly scoped definer boundaries because they cross deliberate RLS boundaries; each derives the actor from `auth.uid()`, repeats authorization checks, uses an empty search path and is executable only by authenticated users.
+All nineteen migrations through controlled-reference management and policy optimization are applied to the designated `aafatlink-dev` project. Hosted checks confirmed five disaster types, four standard decline reasons, versioned skill/service-area rows, the audit table and the hardened reference-data function. Request-review details and the request-status, outstanding-request and response-performance reports use `SECURITY INVOKER`. Coordinator phone recording, volunteer workload, atomic access changes and atomic reference changes use narrowly scoped definer boundaries because they cross deliberate RLS boundaries; each derives the actor from `auth.uid()`, repeats authorization checks, uses an empty search path and is executable only by authenticated users.
 
-Security and performance advisors were rerun after deployment. SECURITY DEFINER notices cover the reviewed atomic/privacy boundaries described above; leaked-password protection remains an owner-controlled hosted Auth setting.
+Security and performance advisors were rerun after deployment. The performance advisor reports only unused indexes in the empty development project; the new missing-index and duplicate-policy findings were resolved. SECURITY DEFINER notices cover the reviewed atomic/privacy boundaries described above; leaked-password protection remains an owner-controlled hosted Auth setting.
 
 Java contract tests check RLS coverage, request status vocabulary, assignment conflict constraints, definer hardening, hosted hardening and evidence cleanup protection. Docker is still unavailable, so `supabase db reset` and local pgTAP execution remain blocked.

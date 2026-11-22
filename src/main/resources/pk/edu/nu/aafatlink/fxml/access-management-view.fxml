@@ -23,7 +23,7 @@
                     <VBox spacing="3"><Label fx:id="nameLabel" styleClass="panel-title"/><Label fx:id="emailLabel" styleClass="helper-text"/></VBox>
                     <HBox spacing="12"><VBox spacing="5" HBox.hgrow="ALWAYS"><Label text="Role" styleClass="field-label"/><ComboBox fx:id="roleBox" maxWidth="Infinity"/></VBox><VBox spacing="5" HBox.hgrow="ALWAYS"><Label text="Account status" styleClass="field-label"/><ComboBox fx:id="statusBox" maxWidth="Infinity"/></VBox></HBox>
                     <VBox fx:id="approvalBox" spacing="5"><Label text="Volunteer approval" styleClass="field-label"/><ComboBox fx:id="approvalStatusBox" maxWidth="Infinity"/></VBox>
-                    <VBox spacing="6"><Label text="Current role permissions" styleClass="field-label"/><ListView fx:id="permissionList" prefHeight="120"/></VBox>
+                    <VBox spacing="6"><Label text="Permissions granted by selected role" styleClass="field-label"/><ListView fx:id="permissionList" prefHeight="120"/></VBox>
                     <VBox spacing="5"><Label text="Administrative reason" styleClass="field-label"/><TextArea fx:id="reasonArea" promptText="Required for volunteer rejection; recorded for every change" prefRowCount="3" wrapText="true"/></VBox>
                     <Label text="Security rules block self-role changes, last-Administrator removal and access restriction while assignments are active." wrapText="true" styleClass="helper-text"/>
                     <Button fx:id="saveButton" text="Validate and save access" onAction="#saveAccess" styleClass="primary-button"/>

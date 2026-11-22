@@ -14,6 +14,10 @@ import pk.edu.nu.aafatlink.domain.volunteer.VolunteerProfile;
 
 /** Protected Variation boundary for volunteer readiness and eligibility data. */
 public interface VolunteerRepository {
+    default List<String> findStandardDeclineReasons(AuthSession session) {
+        return List.of();
+    }
+
     List<Skill> findActiveSkills(AuthSession session);
 
     List<ServiceArea> findActiveServiceAreas(AuthSession session);

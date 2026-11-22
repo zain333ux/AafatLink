@@ -229,15 +229,14 @@ class RequestControllerTest {
         @Override public pk.edu.nu.aafatlink.domain.assignment.ReassignmentResult reassignVolunteer(AuthSession session, UUID operationId, UUID assignmentId, long expectedAssignmentVersion, String reason) { throw new UnsupportedOperationException(); }
 
         @Override
-        public RequestReviewResult decideRequestVerification(AuthSession session, UUID operationId, UUID requestId,
-                long expectedVersion, VerificationDecision decision, String reason) {
+        public RequestReviewResult saveVerificationAndStatus(AuthSession session, UUID operationId,
+                pk.edu.nu.aafatlink.domain.request.VerificationRecord record, long expectedVersion) {
             throw new UnsupportedOperationException();
         }
 
         @Override
-        public PriorityAssessmentResult recordPriorityAssessment(AuthSession session, UUID operationId,
-                UUID requestId, long expectedVersion, RequestPriority suggested, RequestPriority selected,
-                String justification) {
+        public PriorityAssessmentResult savePriorityAndRequest(AuthSession session, UUID operationId,
+                pk.edu.nu.aafatlink.domain.request.PriorityAssessment assessment, long expectedVersion) {
             throw new UnsupportedOperationException();
         }
     }

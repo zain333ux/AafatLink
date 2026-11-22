@@ -1,5 +1,8 @@
 package pk.edu.nu.aafatlink.ui.access;
 
+import java.util.EnumMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 import javafx.beans.property.SimpleStringProperty;
@@ -13,6 +16,7 @@ import pk.edu.nu.aafatlink.application.access.AccessController;
 import pk.edu.nu.aafatlink.application.access.AccessValidation;
 import pk.edu.nu.aafatlink.domain.account.AccessChanges;
 import pk.edu.nu.aafatlink.domain.account.AccountStatus;
+import pk.edu.nu.aafatlink.domain.account.Role;
 import pk.edu.nu.aafatlink.domain.account.UserAccount;
 import pk.edu.nu.aafatlink.domain.account.UserRole;
 import pk.edu.nu.aafatlink.domain.auth.AuthSession;
@@ -22,6 +26,7 @@ import pk.edu.nu.aafatlink.domain.volunteer.VolunteerApprovalStatus;
 public final class AccessManagementViewController {
     private final SessionManager sessions;
     private final AccessController access;
+    private final Map<UserRole, Role> roleConfigurations = new EnumMap<>(UserRole.class);
     private UserAccount selected;
 
     @FXML private TableView<UserAccount> userTable;
@@ -60,7 +65,10 @@ public final class AccessManagementViewController {
         roleBox.setItems(FXCollections.observableArrayList(UserRole.values()));
         statusBox.setItems(FXCollections.observableArrayList(AccountStatus.ACTIVE, AccountStatus.DISABLED));
         approvalStatusBox.setItems(FXCollections.observableArrayList(VolunteerApprovalStatus.values()));
-        roleBox.valueProperty().addListener((observable, oldValue, role) -> showApproval(role == UserRole.VOLUNTEER));
+        roleBox.valueProperty().addListener((observable, oldValue, role) -> {
+            showApproval(role == UserRole.VOLUNTEER);
+            showPermissions(role);
+        });
         userTable.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, user) -> showUser(user));
         loadUsers();
     }
@@ -71,13 +79,19 @@ public final class AccessManagementViewController {
             setBusy(true); showEmpty(true); return;
         }
         setBusy(true);
-        Task<java.util.List<UserAccount>> task = new Task<>() {
-            @Override protected java.util.List<UserAccount> call() { return access.listUsers(session()); }
+        Task<AccessAdministrationData> task = new Task<>() {
+            @Override protected AccessAdministrationData call() {
+                return new AccessAdministrationData(access.listUsers(session()), access.listRoles(session()));
+            }
         };
         task.setOnSucceeded(event -> {
-            setBusy(false); userTable.setItems(FXCollections.observableArrayList(task.getValue()));
-            showEmpty(task.getValue().isEmpty());
-            if (!task.getValue().isEmpty()) userTable.getSelectionModel().selectFirst();
+            setBusy(false);
+            AccessAdministrationData data = task.getValue();
+            roleConfigurations.clear();
+            data.roles().forEach(role -> roleConfigurations.put(role.roleId(), role));
+            userTable.setItems(FXCollections.observableArrayList(data.users()));
+            showEmpty(data.users().isEmpty());
+            if (!data.users().isEmpty()) userTable.getSelectionModel().selectFirst();
         });
         task.setOnFailed(event -> {
             setBusy(false); showEmpty(true); showMessage(message(task.getException(), "Users could not be loaded."), true);
@@ -96,7 +110,8 @@ public final class AccessManagementViewController {
         statusBox.setValue(user.status() == AccountStatus.ACTIVE ? AccountStatus.ACTIVE : AccountStatus.DISABLED);
         approvalStatusBox.setValue(user.volunteerApprovalStatus().orElse(VolunteerApprovalStatus.PENDING));
         showApproval(user.role() == UserRole.VOLUNTEER);
-        permissionList.setItems(FXCollections.observableArrayList(user.permissions().stream().sorted().toList()));
+        roleConfigurations.putIfAbsent(user.role(), user.accessRole());
+        showPermissions(user.role());
         reasonArea.clear(); showMessage("Changes take effect at the user's next login.", false);
     }
 
@@ -135,6 +150,14 @@ public final class AccessManagementViewController {
     }
 
     private void showApproval(boolean visible) { approvalBox.setVisible(visible); approvalBox.setManaged(visible); }
+    private void showPermissions(UserRole roleId) {
+        Role role = roleConfigurations.get(roleId);
+        List<String> labels = role == null ? List.of() : role.permissions().stream()
+                .sorted(java.util.Comparator.comparing(permission -> permission.permissionId()))
+                .map(permission -> permission.permissionId() + " — " + permission.permissionName())
+                .toList();
+        permissionList.setItems(FXCollections.observableArrayList(labels));
+    }
     private void showEmpty(boolean empty) { emptyState.setVisible(empty); emptyState.setManaged(empty); }
     private void setBusy(boolean busy) { refreshButton.setDisable(busy); saveButton.setDisable(busy || selected == null); }
     private AuthSession session() { return sessions.authSession().orElseThrow(); }
@@ -147,4 +170,6 @@ public final class AccessManagementViewController {
         return error == null || error.getMessage() == null || error.getMessage().isBlank() ? fallback : error.getMessage();
     }
     private static void run(Task<?> task, String name) { Thread thread = new Thread(task, name); thread.setDaemon(true); thread.start(); }
+
+    private record AccessAdministrationData(List<UserAccount> users, List<Role> roles) { }
 }

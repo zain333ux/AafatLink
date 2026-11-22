@@ -18,7 +18,7 @@ public final class NavigationPolicy {
                     NavigationItem.RECORD_REQUEST, NavigationItem.PRIORITY_QUEUE, NavigationItem.VOLUNTEER_ASSIGNMENT,
                     NavigationItem.CLOSURE_REVIEW, NavigationItem.REPORTS);
             case ADMINISTRATOR -> List.of(NavigationItem.DASHBOARD, NavigationItem.ACCESS_MANAGEMENT,
-                    NavigationItem.REPORTS);
+                    NavigationItem.REFERENCE_DATA, NavigationItem.REPORTS);
         };
     }
 }

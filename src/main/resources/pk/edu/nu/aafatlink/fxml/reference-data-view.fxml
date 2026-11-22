@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="pk.edu.nu.aafatlink.ui.access.ReferenceDataViewController"
+      spacing="18" styleClass="content-area request-list-page">
+    <padding><Insets top="26" right="30" bottom="30" left="30"/></padding>
+    <VBox spacing="12">
+        <VBox spacing="5"><Label text="Controlled reference data" styleClass="welcome-title"/><Label text="Maintain the values used by requests and volunteer coordination without deleting historical records." wrapText="true" styleClass="welcome-copy"/></VBox>
+        <HBox alignment="CENTER_LEFT" spacing="12">
+            <Label text="Reference catalog" styleClass="field-label"/>
+            <ComboBox fx:id="typeBox" prefWidth="250" styleClass="form-control"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Button fx:id="refreshButton" text="Refresh" onAction="#loadValues" styleClass="outline-button" minWidth="96"/>
+            <Button fx:id="newButton" text="Add value" onAction="#createValue" styleClass="primary-button" minWidth="110"/>
+        </HBox>
+    </VBox>
+    <SplitPane dividerPositions="0.48" VBox.vgrow="ALWAYS" styleClass="request-split-pane">
+        <items>
+            <StackPane styleClass="panel-card request-list-panel">
+                <TableView fx:id="valueTable" styleClass="request-table">
+                    <columns><TableColumn fx:id="nameColumn" text="Reference value" prefWidth="310"/><TableColumn fx:id="stateColumn" text="State" prefWidth="110"/></columns>
+                </TableView>
+                <VBox fx:id="emptyState" visible="false" managed="false" alignment="CENTER" spacing="10" styleClass="empty-state"><Label text="No values available" styleClass="empty-state-title"/><Label text="Demonstration mode does not load or change operational reference data." wrapText="true" textAlignment="CENTER" styleClass="empty-state-copy"/></VBox>
+            </StackPane>
+            <VBox fx:id="editor" visible="false" managed="false" spacing="14" styleClass="panel-card request-detail-panel">
+                <Label text="CONTROLLED VALUE · UC12" styleClass="card-kicker"/>
+                <Label fx:id="editorTitle" styleClass="panel-title"/>
+                <VBox spacing="5"><Label text="Display name" styleClass="field-label"/><TextField fx:id="nameField" promptText="Reference value name" styleClass="form-control"/></VBox>
+                <CheckBox fx:id="activeCheck" text="Active and available for new workflow selections"/>
+                <VBox spacing="5"><Label text="Administrative reason *" styleClass="field-label"/><TextArea fx:id="reasonArea" promptText="Explain why this controlled value is being changed" prefRowCount="4" wrapText="true" styleClass="form-text-area"/></VBox>
+                <Label text="Values are deactivated instead of deleted. Existing requests, assignments and audit history keep their original references." wrapText="true" styleClass="helper-text"/>
+                <Button fx:id="saveButton" text="Save and audit change" onAction="#saveValue" styleClass="primary-button"/>
+                <Label fx:id="messageLabel" wrapText="true" styleClass="form-message"/>
+            </VBox>
+        </items>
+    </SplitPane>
+</VBox>

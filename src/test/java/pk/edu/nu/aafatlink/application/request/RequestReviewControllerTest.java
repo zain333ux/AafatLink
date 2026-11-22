@@ -174,21 +174,20 @@ class RequestReviewControllerTest {
         private String reason;
         private RequestReviewDetails reviewDetails;
 
-        @Override public RequestReviewResult decideRequestVerification(AuthSession session, UUID operationId,
-                UUID requestId, long expectedVersion, VerificationDecision decision, String reason) {
+        @Override public RequestReviewResult saveVerificationAndStatus(AuthSession session, UUID operationId,
+                pk.edu.nu.aafatlink.domain.request.VerificationRecord record, long expectedVersion) {
             this.expectedVersion = expectedVersion;
-            this.decision = decision;
-            this.reason = reason;
-            return new RequestReviewResult(requestId, RequestStatus.valueOf(decision.name()), expectedVersion + 1);
+            this.decision = record.outcome();
+            this.reason = record.reason();
+            return new RequestReviewResult(record.requestId(), RequestStatus.valueOf(record.outcome().name()), expectedVersion + 1);
         }
 
-        @Override public PriorityAssessmentResult recordPriorityAssessment(AuthSession session, UUID operationId,
-                UUID requestId, long expectedVersion, RequestPriority suggested, RequestPriority selected,
-                String justification) {
-            this.suggested = suggested;
-            this.selected = selected;
-            this.reason = justification;
-            return new PriorityAssessmentResult(requestId, null, selected, RequestStatus.ASSIGNED,
+        @Override public PriorityAssessmentResult savePriorityAndRequest(AuthSession session, UUID operationId,
+                pk.edu.nu.aafatlink.domain.request.PriorityAssessment assessment, long expectedVersion) {
+            this.suggested = assessment.suggestedLevel();
+            this.selected = assessment.priorityLevel();
+            this.reason = assessment.justification();
+            return new PriorityAssessmentResult(assessment.requestId(), null, assessment.priorityLevel(), RequestStatus.ASSIGNED,
                     expectedVersion + 1);
         }
 

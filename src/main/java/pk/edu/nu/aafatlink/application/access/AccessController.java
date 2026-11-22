@@ -7,6 +7,10 @@ import java.util.UUID;
 
 import pk.edu.nu.aafatlink.domain.account.AccessChanges;
 import pk.edu.nu.aafatlink.domain.account.AccountStatus;
+import pk.edu.nu.aafatlink.domain.account.ControlledReferenceValue;
+import pk.edu.nu.aafatlink.domain.account.ReferenceDataChange;
+import pk.edu.nu.aafatlink.domain.account.ReferenceDataType;
+import pk.edu.nu.aafatlink.domain.account.Role;
 import pk.edu.nu.aafatlink.domain.account.UserAccount;
 import pk.edu.nu.aafatlink.domain.account.UserRole;
 import pk.edu.nu.aafatlink.domain.auth.AuthSession;
@@ -26,6 +30,20 @@ public final class AccessController {
 
     public List<UserAccount> listUsers(AuthSession session) {
         return users.findUsers(Objects.requireNonNull(session, "session"));
+    }
+
+    public List<Role> listRoles(AuthSession session) {
+        return users.findRoles(Objects.requireNonNull(session, "session"));
+    }
+
+    public List<ControlledReferenceValue> listReferenceValues(AuthSession session, ReferenceDataType type) {
+        return users.findReferenceValues(Objects.requireNonNull(session, "session"),
+                Objects.requireNonNull(type, "type"));
+    }
+
+    public ControlledReferenceValue saveReferenceValue(AuthSession session, ReferenceDataChange change) {
+        return users.saveReferenceValue(Objects.requireNonNull(session, "session"), UUID.randomUUID(),
+                Objects.requireNonNull(change, "change"));
     }
 
     public Optional<UserAccount> getAccessConfiguration(AuthSession session, UUID userId) {

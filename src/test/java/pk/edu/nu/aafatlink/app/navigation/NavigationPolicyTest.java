@@ -47,6 +47,7 @@ class NavigationPolicyTest {
         List<NavigationItem> items = policy.itemsFor(UserRole.ADMINISTRATOR);
 
         assertTrue(items.contains(NavigationItem.ACCESS_MANAGEMENT));
+        assertTrue(items.contains(NavigationItem.REFERENCE_DATA));
         assertTrue(items.contains(NavigationItem.REPORTS));
     }
 }

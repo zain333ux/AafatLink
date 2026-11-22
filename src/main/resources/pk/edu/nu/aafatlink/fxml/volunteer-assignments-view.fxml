@@ -37,7 +37,7 @@
                     <VBox spacing="4"><Label text="Location" styleClass="detail-label"/><Label fx:id="locationLabel" wrapText="true" styleClass="detail-value"/></VBox>
                     <HBox spacing="8" alignment="CENTER_LEFT"><Label text="Priority" styleClass="detail-label"/><Label fx:id="priorityLabel" styleClass="status-chip"/></HBox>
                     <Separator/>
-                    <VBox spacing="6"><Label text="Decline reason" styleClass="field-label"/><TextArea fx:id="declineReasonArea" promptText="Required only when declining" prefRowCount="3" wrapText="true" styleClass="form-text-area"/></VBox>
+                    <VBox spacing="6"><Label text="Decline reason" styleClass="field-label"/><ComboBox fx:id="standardReasonBox" promptText="Choose a standard reason (optional)" maxWidth="Infinity" styleClass="form-control"/><TextArea fx:id="declineReasonArea" promptText="Required only when declining; you may edit the selected reason" prefRowCount="3" wrapText="true" styleClass="form-text-area"/></VBox>
                     <HBox spacing="10"><Button fx:id="acceptButton" text="Accept assignment" onAction="#acceptSelected" styleClass="primary-button"/><Button fx:id="declineButton" text="Decline" onAction="#declineSelected" styleClass="danger-button"/></HBox>
                     <Label fx:id="messageLabel" wrapText="true"/>
                 </VBox>

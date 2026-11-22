@@ -46,6 +46,10 @@ class DatabaseMigrationContractTest {
             "20261121171500_minimize_request_review_privileges.sql");
     private static final Path COORDINATOR_OPERATIONS = Path.of("supabase", "migrations",
             "20261121173000_support_coordinator_request_operations.sql");
+    private static final Path CONTROLLED_REFERENCES = Path.of("supabase", "migrations",
+            "20261121200000_add_controlled_reference_management.sql");
+    private static final Path REFERENCE_POLICY_OPTIMIZATION = Path.of("supabase", "migrations",
+            "20261122083000_optimize_reference_audit_and_request_policy.sql");
 
     @Test
     void everyPublicTableEnablesRowLevelSecurity() throws IOException {
@@ -84,7 +88,8 @@ class DatabaseMigrationContractTest {
     void everyDefinerFunctionDerivesIdentityAndPinsSearchPath() throws IOException {
         String sql = normalized(DOMAIN) + "\n" + normalized(RPCS) + "\n" + normalized(ONBOARDING)
                 + "\n" + normalized(VOLUNTEER_COORDINATION) + "\n" + normalized(TASK_EXECUTION)
-                + "\n" + normalized(REPORTING_ACCESS) + "\n" + normalized(COORDINATOR_REVIEW);
+                + "\n" + normalized(REPORTING_ACCESS) + "\n" + normalized(COORDINATOR_REVIEW)
+                + "\n" + normalized(CONTROLLED_REFERENCES);
         String[] functions = sql.split("create or replace function ");
         int definerCount = 0;
         for (int index = 1; index < functions.length; index++) {
@@ -289,6 +294,39 @@ class DatabaseMigrationContractTest {
         assertTrue(sql.contains("private.current_app_role() <> 'coordinator'"));
         assertTrue(sql.contains("if operation.status <> 'pending' then return false"));
         assertTrue(sql.contains("state = 'orphan_candidate'"));
+    }
+
+    @Test
+    void controlledReferenceChangesAreVersionedAuditedAndNeverDeleteHistory() throws IOException {
+        String sql = normalized(CONTROLLED_REFERENCES);
+
+        assertTrue(sql.contains("create table if not exists public.disaster_types"));
+        assertTrue(sql.contains("create table if not exists public.standard_decline_reasons"));
+        assertTrue(sql.contains("create table if not exists public.reference_data_audit"));
+        assertTrue(sql.contains("alter table public.disaster_types enable row level security"));
+        assertTrue(sql.contains("create or replace function public.save_controlled_reference_value"));
+        assertTrue(sql.contains("private.current_app_role() <> 'administrator'"));
+        assertTrue(sql.contains("reference value changed; refresh and retry"));
+        assertTrue(sql.contains("insert into public.reference_data_audit"));
+        assertTrue(sql.contains("operation.status = 'committed' then return operation.result"));
+        assertTrue(sql.contains("set search_path = ''"));
+        assertTrue(sql.contains("revoke all on function public.save_controlled_reference_value"));
+        assertFalse(sql.contains("delete from public.skills"));
+        assertFalse(sql.contains("delete from public.service_areas"));
+        assertFalse(sql.contains("delete from public.disaster_types"));
+    }
+
+    @Test
+    void referenceAuditIsIndexedAndRequestReadRulesUseOnePolicy() throws IOException {
+        String sql = normalized(REFERENCE_POLICY_OPTIMIZATION);
+
+        assertTrue(sql.contains("reference_data_audit_actor_idx"));
+        assertTrue(sql.contains("drop policy if exists requests_select_authorized"));
+        assertTrue(sql.contains("drop policy if exists requests_select_assigned_volunteer"));
+        assertTrue(sql.contains("requester_account_id = (select auth.uid())"));
+        assertTrue(sql.contains("private.current_app_role()")
+                && sql.contains("'coordinator', 'administrator'"));
+        assertTrue(sql.contains("private.is_request_assigned_to_actor(id)"));
     }
 
     private static String normalized(Path path) throws IOException {

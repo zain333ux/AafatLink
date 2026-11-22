@@ -14,6 +14,8 @@ import org.junit.jupiter.api.Test;
 
 import pk.edu.nu.aafatlink.domain.account.AccessChanges;
 import pk.edu.nu.aafatlink.domain.account.AccountStatus;
+import pk.edu.nu.aafatlink.domain.account.Permission;
+import pk.edu.nu.aafatlink.domain.account.Role;
 import pk.edu.nu.aafatlink.domain.account.UserAccount;
 import pk.edu.nu.aafatlink.domain.account.UserRole;
 import pk.edu.nu.aafatlink.domain.auth.AuthSession;
@@ -80,9 +82,22 @@ class AccessControllerTest {
         assertEquals(volunteer.id(), users.savedTarget);
     }
 
+    @Test
+    void exposesTheDocumentedRolePermissionConfigurations() {
+        UserAccount administrator = account(UUID.randomUUID(), UserRole.ADMINISTRATOR, null);
+        AccessController controller = new AccessController(new FakeUsers(administrator, 2), new Workflows(false));
+
+        Role role = controller.listRoles(SESSION).get(0);
+
+        assertEquals(UserRole.ADMINISTRATOR, role.roleId());
+        assertEquals("access.manage", role.permissions().iterator().next().permissionId());
+    }
+
     private static UserAccount account(UUID id, UserRole role, VolunteerApprovalStatus approval) {
-        return new UserAccount(id, "User", "user@example.com", role, AccountStatus.ACTIVE,
-                approval, 0, Set.of("access.manage"));
+        Role accessRole = new Role(role, role.displayName(),
+                Set.of(new Permission("access.manage", "Manage access")));
+        return new UserAccount(id, "User", "user@example.com", accessRole, AccountStatus.ACTIVE,
+                approval, 0);
     }
 
     private static final class FakeUsers implements UserRepository {
@@ -96,6 +111,12 @@ class AccessControllerTest {
         }
 
         @Override public String findContactNumber(AuthSession session, UUID accountId) { return ""; }
+        @Override public List<Role> findRoles(AuthSession session) { return List.of(target.accessRole()); }
+        @Override public List<pk.edu.nu.aafatlink.domain.account.ControlledReferenceValue> findReferenceValues(
+                AuthSession session, pk.edu.nu.aafatlink.domain.account.ReferenceDataType type) { return List.of(); }
+        @Override public pk.edu.nu.aafatlink.domain.account.ControlledReferenceValue saveReferenceValue(
+                AuthSession session, UUID operationId,
+                pk.edu.nu.aafatlink.domain.account.ReferenceDataChange change) { throw new UnsupportedOperationException(); }
         @Override public List<UserAccount> findUsers(AuthSession session) { return List.of(target); }
         @Override public Optional<UserAccount> findUser(AuthSession session, UUID id) {
             return target.id().equals(id) ? Optional.of(target) : Optional.empty();

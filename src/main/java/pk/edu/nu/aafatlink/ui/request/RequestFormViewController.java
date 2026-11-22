@@ -1,6 +1,7 @@
 package pk.edu.nu.aafatlink.ui.request;
 
 import java.io.File;
+import java.util.List;
 import java.util.Objects;
 
 import javafx.collections.FXCollections;
@@ -80,6 +81,7 @@ public final class RequestFormViewController {
         disasterTypeBox.getSelectionModel().select(DisasterType.FLOOD);
         updateOtherTypeVisibility();
         updateEvidenceDisplay();
+        loadDisasterTypes();
 
         coordinatorEntry = sessions.currentUser().orElseThrow().role() == UserRole.COORDINATOR;
         coordinatorCallerBox.setVisible(coordinatorEntry);
@@ -95,6 +97,26 @@ public final class RequestFormViewController {
         submitButton.setDisable(!authenticated);
         accessNoticeLabel.setVisible(!authenticated);
         accessNoticeLabel.setManaged(!authenticated);
+    }
+
+    private void loadDisasterTypes() {
+        if (sessions.authSession().isEmpty() || requests == null) return;
+        Task<List<DisasterType>> task = new Task<>() {
+            @Override protected List<DisasterType> call() {
+                return requests.getDisasterTypes(sessions.authSession().orElseThrow());
+            }
+        };
+        task.setOnSucceeded(event -> {
+            List<DisasterType> types = task.getValue();
+            if (types.isEmpty()) return;
+            DisasterType selected = disasterTypeBox.getValue();
+            disasterTypeBox.setItems(FXCollections.observableArrayList(types));
+            if (types.contains(selected)) disasterTypeBox.setValue(selected);
+            else disasterTypeBox.getSelectionModel().selectFirst();
+        });
+        Thread worker = new Thread(task, "aafatlink-disaster-types");
+        worker.setDaemon(true);
+        worker.start();
     }
 
     public void prepareResubmission(AssistanceRequest request) {

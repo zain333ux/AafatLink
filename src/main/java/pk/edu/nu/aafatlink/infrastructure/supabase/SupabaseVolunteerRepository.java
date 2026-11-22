@@ -242,4 +242,15 @@ public final class SupabaseVolunteerRepository implements VolunteerRepository {
     private static void putInstant(ObjectNode body, String field, Instant value) {
         if (value == null) body.putNull(field); else body.put(field, value.toString());
     }
+
+    @Override
+    public List<String> findStandardDeclineReasons(AuthSession session) {
+        JsonNode rows = send(session,
+                "/rest/v1/standard_decline_reasons?active=eq.true&select=name&order=name", "GET", null);
+        requireArray(rows, "standard decline reasons");
+        List<String> reasons = new ArrayList<>();
+        rows.forEach(row -> reasons.add(required(row, "name")));
+        return List.copyOf(reasons);
+    }
+
 }

@@ -42,6 +42,7 @@ import pk.edu.nu.aafatlink.ui.volunteer.VolunteerReadinessViewController;
 import pk.edu.nu.aafatlink.ui.volunteer.TaskProgressViewController;
 import pk.edu.nu.aafatlink.ui.reporting.ReportViewController;
 import pk.edu.nu.aafatlink.ui.access.AccessManagementViewController;
+import pk.edu.nu.aafatlink.ui.access.ReferenceDataViewController;
 
 /** Presentation controller for the reusable role-aware application frame. */
 public final class AppShellController {
@@ -150,6 +151,7 @@ public final class AppShellController {
             case CLOSURE_REVIEW -> showClosureReview();
             case REPORTS -> showReports();
             case ACCESS_MANAGEMENT -> showAccessManagement();
+            case REFERENCE_DATA -> showReferenceData();
             default -> showUnavailable(item);
         }
     }
@@ -276,6 +278,17 @@ public final class AppShellController {
         setContent(load(loader));
     }
 
+    private void showReferenceData() {
+        FXMLLoader loader = loader("reference-data-view.fxml");
+        loader.setControllerFactory(type -> {
+            if (type == ReferenceDataViewController.class) {
+                return new ReferenceDataViewController(sessions, access);
+            }
+            throw new IllegalArgumentException("Unsupported reference-data controller: " + type.getName());
+        });
+        setContent(load(loader));
+    }
+
     private void showUnavailable(NavigationItem item) {
         Label message = new Label(item.label() + " is not implemented yet. Its mandatory behavior remains tracked in the use-case traceability document.");
         message.setWrapText(true);
@@ -353,6 +366,7 @@ public final class AppShellController {
         descriptions.put(NavigationItem.CLOSURE_REVIEW, "Approve UC06 closure or return incomplete assistance for rework.");
         descriptions.put(NavigationItem.REPORTS, "Generate and export the four committed-data reports required by UC11.");
         descriptions.put(NavigationItem.ACCESS_MANAGEMENT, "Apply audited UC12 role, status and volunteer-approval changes.");
+        descriptions.put(NavigationItem.REFERENCE_DATA, "Maintain the controlled UC12 values used by request and volunteer workflows.");
         return Map.copyOf(descriptions);
     }
 }

@@ -9,6 +9,7 @@ import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -40,6 +41,7 @@ public final class VolunteerAssignmentsViewController {
     @FXML private Label priorityLabel;
     @FXML private Label messageLabel;
     @FXML private TextArea declineReasonArea;
+    @FXML private ComboBox<String> standardReasonBox;
     @FXML private Button acceptButton;
     @FXML private Button declineButton;
     @FXML private Button refreshButton;
@@ -61,7 +63,26 @@ public final class VolunteerAssignmentsViewController {
                 DATE_TIME.format(cell.getValue().assignment().assignedAt())));
         assignmentTable.getSelectionModel().selectedItemProperty()
                 .addListener((observable, previous, selected) -> showDetail(selected));
+        standardReasonBox.valueProperty().addListener((observable, previous, reason) -> {
+            if (reason != null) declineReasonArea.setText(reason);
+        });
+        loadStandardReasons();
         loadAssignments();
+    }
+
+    private void loadStandardReasons() {
+        if (sessions.authSession().isEmpty() || volunteers == null) {
+            standardReasonBox.setDisable(true);
+            return;
+        }
+        Task<List<String>> task = new Task<>() {
+            @Override protected List<String> call() {
+                return volunteers.getStandardDeclineReasons(sessions.authSession().orElseThrow());
+            }
+        };
+        task.setOnSucceeded(event -> standardReasonBox.setItems(
+                javafx.collections.FXCollections.observableArrayList(task.getValue())));
+        start(task, "aafatlink-decline-reasons");
     }
 
     @FXML
@@ -130,6 +151,7 @@ public final class VolunteerAssignmentsViewController {
         locationLabel.setText(context.request().details().locationAddress());
         priorityLabel.setText(context.request().priority().name());
         declineReasonArea.clear();
+        standardReasonBox.getSelectionModel().clearSelection();
         setDecisionDisabled(false);
     }
 

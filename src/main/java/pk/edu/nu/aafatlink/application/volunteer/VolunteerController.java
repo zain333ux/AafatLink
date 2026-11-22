@@ -61,6 +61,10 @@ public final class VolunteerController {
         return volunteers.findActiveServiceAreas(Objects.requireNonNull(session, "session"));
     }
 
+    public List<String> getStandardDeclineReasons(AuthSession session) {
+        return volunteers.findStandardDeclineReasons(Objects.requireNonNull(session, "session"));
+    }
+
     public VolunteerProfile updateReadiness(AuthSession session, VolunteerReadinessChanges changes) {
         Objects.requireNonNull(session, "session");
         VolunteerProfile current = volunteers.findProfile(session, session.userId())

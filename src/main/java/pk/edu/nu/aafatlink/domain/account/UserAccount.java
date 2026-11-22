@@ -12,14 +12,13 @@ public final class UserAccount {
     private final UUID id;
     private final String displayName;
     private final String email;
-    private final UserRole role;
+    private final Role role;
     private final AccountStatus status;
     private final VolunteerApprovalStatus volunteerApprovalStatus;
     private final long version;
-    private final Set<String> permissions;
 
-    public UserAccount(UUID id, String displayName, String email, UserRole role, AccountStatus status,
-            VolunteerApprovalStatus volunteerApprovalStatus, long version, Set<String> permissions) {
+    public UserAccount(UUID id, String displayName, String email, Role role, AccountStatus status,
+            VolunteerApprovalStatus volunteerApprovalStatus, long version) {
         this.id = Objects.requireNonNull(id, "id");
         this.displayName = requireText(displayName, "displayName");
         this.email = requireText(email, "email");
@@ -28,20 +27,21 @@ public final class UserAccount {
         this.volunteerApprovalStatus = volunteerApprovalStatus;
         if (version < 0) throw new IllegalArgumentException("version must not be negative");
         this.version = version;
-        this.permissions = Set.copyOf(permissions);
     }
 
     public UUID id() { return id; }
     public String displayName() { return displayName; }
     public String email() { return email; }
-    public UserRole role() { return role; }
+    public UserRole role() { return role.roleId(); }
+    public Role accessRole() { return role; }
     public AccountStatus status() { return status; }
     public Optional<VolunteerApprovalStatus> volunteerApprovalStatus() {
         return Optional.ofNullable(volunteerApprovalStatus);
     }
     public long version() { return version; }
-    public Set<String> permissions() { return permissions; }
+    public Set<Permission> permissions() { return role.permissions(); }
     public boolean isActive() { return status == AccountStatus.ACTIVE; }
+    public boolean hasPermission(Permission permission) { return role.grants(permission); }
 
     public boolean canApplyAccessChanges(AccessChanges changes) {
         Objects.requireNonNull(changes, "changes");
@@ -54,8 +54,11 @@ public final class UserAccount {
         if (!canApplyAccessChanges(changes)) {
             throw new IllegalArgumentException("Volunteer approval is compatible only with the Volunteer role.");
         }
-        return new UserAccount(id, displayName, email, changes.role(), changes.status(),
-                changes.volunteerApprovalStatus(), newVersion, permissions);
+        Role updatedRole = changes.role() == role.roleId()
+                ? role
+                : new Role(changes.role(), changes.role().displayName(), Set.of());
+        return new UserAccount(id, displayName, email, updatedRole, changes.status(),
+                changes.volunteerApprovalStatus(), newVersion);
     }
 
     private static String requireText(String value, String field) {

@@ -39,6 +39,7 @@ import pk.edu.nu.aafatlink.domain.request.AssistanceRequestDraft;
 import pk.edu.nu.aafatlink.domain.request.DisasterType;
 import pk.edu.nu.aafatlink.domain.request.RequestPriority;
 import pk.edu.nu.aafatlink.domain.request.PriorityAssessmentResult;
+import pk.edu.nu.aafatlink.domain.request.PriorityAssessment;
 import pk.edu.nu.aafatlink.domain.request.RequestReviewResult;
 import pk.edu.nu.aafatlink.domain.request.RequestReviewDetails;
 import pk.edu.nu.aafatlink.domain.request.RequestStatus;
@@ -46,7 +47,7 @@ import pk.edu.nu.aafatlink.domain.request.RequestSubmissionResult;
 import pk.edu.nu.aafatlink.domain.request.RequesterContact;
 import pk.edu.nu.aafatlink.domain.request.ReviewEvidence;
 import pk.edu.nu.aafatlink.domain.request.PossibleDuplicateMatch;
-import pk.edu.nu.aafatlink.domain.request.VerificationDecision;
+import pk.edu.nu.aafatlink.domain.request.VerificationRecord;
 import pk.edu.nu.aafatlink.repository.RepositoryException;
 import pk.edu.nu.aafatlink.repository.WorkflowRepository;
 import pk.edu.nu.aafatlink.service.evidence.EvidenceAttachment;
@@ -270,14 +271,14 @@ public final class SupabaseWorkflowRepository implements WorkflowRepository {
     }
 
     @Override
-    public RequestReviewResult decideRequestVerification(AuthSession session, UUID operationId, UUID requestId,
-            long expectedVersion, VerificationDecision decision, String reason) {
+    public RequestReviewResult saveVerificationAndStatus(AuthSession session, UUID operationId,
+            VerificationRecord record, long expectedVersion) {
         ObjectNode body = JSON.createObjectNode();
         body.put("p_operation_id", operationId.toString());
-        body.put("p_request_id", requestId.toString());
+        body.put("p_request_id", record.requestId().toString());
         body.put("p_expected_version", expectedVersion);
-        body.put("p_decision", decision.name());
-        putNullable(body, "p_reason", reason);
+        body.put("p_decision", record.outcome().name());
+        putNullable(body, "p_reason", record.reason());
         JsonNode result = send(session, "/rest/v1/rpc/decide_request_verification", "POST", body.toString());
         try {
             return new RequestReviewResult(UUID.fromString(required(result, "request_id")),
@@ -288,15 +289,15 @@ public final class SupabaseWorkflowRepository implements WorkflowRepository {
     }
 
     @Override
-    public PriorityAssessmentResult recordPriorityAssessment(AuthSession session, UUID operationId, UUID requestId,
-            long expectedVersion, RequestPriority suggested, RequestPriority selected, String justification) {
+    public PriorityAssessmentResult savePriorityAndRequest(AuthSession session, UUID operationId,
+            PriorityAssessment assessment, long expectedVersion) {
         ObjectNode body = JSON.createObjectNode();
         body.put("p_operation_id", operationId.toString());
-        body.put("p_request_id", requestId.toString());
+        body.put("p_request_id", assessment.requestId().toString());
         body.put("p_expected_version", expectedVersion);
-        body.put("p_suggested_priority", suggested.name());
-        body.put("p_selected_priority", selected.name());
-        putNullable(body, "p_override_justification", justification);
+        body.put("p_suggested_priority", assessment.suggestedLevel().name());
+        body.put("p_selected_priority", assessment.priorityLevel().name());
+        putNullable(body, "p_override_justification", assessment.justification());
         JsonNode result = send(session, "/rest/v1/rpc/record_priority_assessment", "POST", body.toString());
         try {
             String previous = nullable(result, "previous_priority");
@@ -823,4 +824,19 @@ public final class SupabaseWorkflowRepository implements WorkflowRepository {
         JsonNode value = object.get(name);
         return value == null || value.isNull() || value.asText().isBlank() ? null : value.asText();
     }
+
+    @Override
+    public List<DisasterType> findActiveDisasterTypes(AuthSession session) {
+        JsonNode rows = send(session,
+                "/rest/v1/disaster_types?active=eq.true&select=code&order=name", "GET", null);
+        if (!rows.isArray()) throw new RepositoryException("AafatLink received invalid disaster-type data.");
+        List<DisasterType> types = new ArrayList<>();
+        try {
+            rows.forEach(row -> types.add(DisasterType.valueOf(required(row, "code").toUpperCase())));
+        } catch (IllegalArgumentException exception) {
+            throw new RepositoryException("AafatLink received an unsupported disaster-type code.", exception);
+        }
+        return List.copyOf(types);
+    }
+
 }

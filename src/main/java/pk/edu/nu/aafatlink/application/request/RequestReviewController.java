@@ -12,11 +12,13 @@ import pk.edu.nu.aafatlink.domain.assignment.ClosureReview;
 import pk.edu.nu.aafatlink.domain.assignment.ClosureReviewResult;
 import pk.edu.nu.aafatlink.domain.assignment.TaskContext;
 import pk.edu.nu.aafatlink.domain.request.AssistanceRequest;
+import pk.edu.nu.aafatlink.domain.request.PriorityAssessment;
 import pk.edu.nu.aafatlink.domain.request.PriorityAssessmentResult;
 import pk.edu.nu.aafatlink.domain.request.RequestPriority;
 import pk.edu.nu.aafatlink.domain.request.RequestReviewResult;
 import pk.edu.nu.aafatlink.domain.request.RequestReviewDetails;
 import pk.edu.nu.aafatlink.domain.request.VerificationDecision;
+import pk.edu.nu.aafatlink.domain.request.VerificationRecord;
 import pk.edu.nu.aafatlink.repository.WorkflowRepository;
 import pk.edu.nu.aafatlink.service.request.PriorityAssessmentService;
 
@@ -75,10 +77,9 @@ public final class RequestReviewController {
             throw new IllegalArgumentException("This request cannot be prioritized in its current status.");
         }
         RequestPriority suggested = suggestPriority(request);
-        String normalized = priorities.validateSelection(suggested,
-                Objects.requireNonNull(selected, "selected"), justification);
-        return workflows.recordPriorityAssessment(session, UUID.randomUUID(), request.id(), request.version(),
-                suggested, selected, normalized);
+        PriorityAssessment assessment = new PriorityAssessment(UUID.randomUUID(), request.id(), session.userId(),
+                Objects.requireNonNull(selected, "selected"), suggested, justification, clock.instant());
+        return workflows.savePriorityAndRequest(session, UUID.randomUUID(), assessment, request.version());
     }
 
     public List<TaskContext> loadClosureQueue(AuthSession session) {
@@ -136,8 +137,8 @@ public final class RequestReviewController {
         if (request.status() != pk.edu.nu.aafatlink.domain.request.RequestStatus.PENDING_VERIFICATION) {
             throw new IllegalArgumentException("This request is no longer pending verification.");
         }
-        String normalized = decision.validateReason(reason);
-        return workflows.decideRequestVerification(session, UUID.randomUUID(), request.id(), request.version(),
-                decision, normalized);
+        VerificationRecord record = new VerificationRecord(UUID.randomUUID(), request.id(), session.userId(),
+                decision, reason, clock.instant());
+        return workflows.saveVerificationAndStatus(session, UUID.randomUUID(), record, request.version());
     }
 }

@@ -133,3 +133,21 @@
 **Decision:** Snapshot requester contact onto the request through an invoker trigger and expose caller, committed evidence metadata and possible duplicate matches through `get_request_review_details` as `SECURITY INVOKER`.
 
 **Reason:** The review screen needs the documented facts, but it does not need account-table privileges, credentials, email disclosure or storage object paths. Removing that join eliminates an unnecessary privileged function.
+
+## D022: Roles and permissions are real domain objects
+
+**Decision:** `UserAccount` owns a `Role`, and `Role` owns the immutable set of `Permission` values loaded from the database. Access management selects a role as one reviewed bundle and previews its permissions instead of allowing arbitrary per-user permission edits.
+
+**Reason:** This matches the final class diagram, demonstrates composition and encapsulation, and preserves the database role/permission model without inventing undocumented privilege combinations.
+
+## D023: Controlled reference values are deactivated, not deleted
+
+**Decision:** UC12 administrators may add or change volunteer skills, service areas and standard decline reasons, and may rename or deactivate existing disaster-type codes. New disaster-type codes require a reviewed application release because Java workflow rules use the matching enum codes. Every change requires a reason, expected version and operation ID and creates an immutable audit record.
+
+**Reason:** Deactivation preserves historical relationships. Restricting new disaster codes prevents the database and compiled domain vocabulary from silently diverging while still implementing the documented reference-data administration workflow.
+
+## D024: Equivalent request read policies are consolidated
+
+**Decision:** Keep requester ownership, coordinator/administrator review and assigned-volunteer visibility in one permissive SELECT policy on `assistance_requests`.
+
+**Reason:** The combined expression preserves the same access union while avoiding duplicate policy evaluation reported by the hosted performance advisor.

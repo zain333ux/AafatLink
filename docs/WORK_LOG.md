@@ -263,3 +263,20 @@ Implement and validate the PostgreSQL schema, RLS foundation and transactional w
 ### Next
 
 - Run the full regression/package checks, commit this alignment slice, then continue the artifact audit with UC12 permissions/reference data and exact domain/design class responsibilities.
+
+### Deliverables 3-5 alignment audit: domain records and UC12 reference data
+
+- Added the reviewed `Role` and `Permission` domain objects; `UserAccount` now owns a role and immutable permission set loaded from the database.
+- Added the reviewed `VerificationRecord` and `PriorityAssessment` objects and aligned repository operations with the design-sequence names `saveVerificationAndStatus` and `savePriorityAndRequest`.
+- Implemented UC12 controlled disaster types, volunteer skills, service areas and standard decline reasons through a connected Administrator screen, plain-Java application controller, repository port and Supabase adapter.
+- Connected active disaster types to UC01 and standard decline reasons to UC08; UC07/UC05 already consume database-controlled skills and service areas.
+- Added version checks, idempotent operation IDs, mandatory audit reasons, immutable audit rows and deactivate-without-delete behavior.
+- Deployed `add_controlled_reference_management` and `optimize_reference_audit_and_request_policy` to `aafatlink-dev`. Hosted inspection confirmed all nineteen migrations, five disaster types, four decline reasons, hardened function configuration and versioned skill/service-area catalogs.
+- Reran hosted advisors. The audit foreign-key index and duplicate request-policy findings are resolved; only unused-index information remains in the empty development project. Security warnings are the reviewed privileged workflow boundaries plus owner-controlled leaked-password protection.
+- `mvnw.cmd clean test`: 121 tests passed with no failures, errors or skips.
+- `mvnw.cmd package`: reran all 121 tests and produced `target/aafatlink-0.1.0-SNAPSHOT.jar`.
+- `mvnw.cmd javafx:run`: the login, Volunteer workspace and Assignments screen launched without FXML errors; the process was then intentionally stopped after visual inspection.
+
+### Next
+
+- Continue the Deliverables 2-5 audit against the remaining exact domain-model classes, SSD events and design-sequence responsibilities before optional portfolio work.

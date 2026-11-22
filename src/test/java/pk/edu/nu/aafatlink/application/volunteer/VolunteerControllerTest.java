@@ -76,6 +76,15 @@ class VolunteerControllerTest {
     }
 
     @Test
+    void exposesAdministratorControlledDeclineReasons() {
+        VolunteerController controller = controller(new FakeVolunteerRepository(profile()),
+                new FakeWorkflowRepository(null));
+
+        assertEquals(List.of("Conflicting emergency assignment"),
+                controller.getStandardDeclineReasons(session));
+    }
+
+    @Test
     void acceptsOwnedPendingAssignmentUsingItsVersion() {
         AssignmentContext context = assignmentContext();
         FakeWorkflowRepository workflows = new FakeWorkflowRepository(context);
@@ -208,6 +217,9 @@ class VolunteerControllerTest {
             this.profile = profile;
         }
 
+        @Override public List<String> findStandardDeclineReasons(AuthSession session) {
+            return List.of("Conflicting emergency assignment");
+        }
         @Override public List<Skill> findActiveSkills(AuthSession session) { return List.of(FIRST_AID); }
         @Override public List<ServiceArea> findActiveServiceAreas(AuthSession session) { return List.of(ISLAMABAD); }
         @Override public Optional<VolunteerProfile> findProfile(AuthSession session, UUID volunteerId) {
@@ -227,6 +239,18 @@ class VolunteerControllerTest {
     private static final class FakeUserRepository implements UserRepository {
         @Override public String findContactNumber(AuthSession session, UUID accountId) {
             return "+92 311 7654321";
+        }
+        @Override public List<pk.edu.nu.aafatlink.domain.account.Role> findRoles(AuthSession session) {
+            throw new UnsupportedOperationException();
+        }
+        @Override public List<pk.edu.nu.aafatlink.domain.account.ControlledReferenceValue> findReferenceValues(
+                AuthSession session, pk.edu.nu.aafatlink.domain.account.ReferenceDataType type) {
+            throw new UnsupportedOperationException();
+        }
+        @Override public pk.edu.nu.aafatlink.domain.account.ControlledReferenceValue saveReferenceValue(
+                AuthSession session, UUID operationId,
+                pk.edu.nu.aafatlink.domain.account.ReferenceDataChange change) {
+            throw new UnsupportedOperationException();
         }
         @Override public List<pk.edu.nu.aafatlink.domain.account.UserAccount> findUsers(AuthSession session) {
             throw new UnsupportedOperationException();
@@ -282,8 +306,8 @@ class VolunteerControllerTest {
         @Override public List<AssistanceRequest> findPendingVerificationRequests(AuthSession session) { return List.of(); }
         @Override public List<AssistanceRequest> findPrioritizableRequests(AuthSession session) { return List.of(); }
         @Override public Optional<AssistanceRequest> findRequestForReview(AuthSession session, UUID requestId) { return Optional.empty(); }
-        @Override public RequestReviewResult decideRequestVerification(AuthSession session, UUID operationId, UUID requestId, long expectedVersion, VerificationDecision decision, String reason) { throw new UnsupportedOperationException(); }
-        @Override public PriorityAssessmentResult recordPriorityAssessment(AuthSession session, UUID operationId, UUID requestId, long expectedVersion, RequestPriority suggested, RequestPriority selected, String justification) { throw new UnsupportedOperationException(); }
+        @Override public RequestReviewResult saveVerificationAndStatus(AuthSession session, UUID operationId, pk.edu.nu.aafatlink.domain.request.VerificationRecord record, long expectedVersion) { throw new UnsupportedOperationException(); }
+        @Override public PriorityAssessmentResult savePriorityAndRequest(AuthSession session, UUID operationId, pk.edu.nu.aafatlink.domain.request.PriorityAssessment assessment, long expectedVersion) { throw new UnsupportedOperationException(); }
         @Override public List<AssistanceRequest> findAssignableRequests(AuthSession session) { return List.of(); }
         @Override public List<AssignmentContext> findActiveAssignmentsForCoordinator(AuthSession session) { return List.of(); }
         @Override public pk.edu.nu.aafatlink.domain.assignment.AssignmentCreationResult assignVolunteer(AuthSession session, UUID operationId, AssistanceRequest request, UUID volunteerId, pk.edu.nu.aafatlink.domain.assignment.AssignmentFilter filter) { throw new UnsupportedOperationException(); }

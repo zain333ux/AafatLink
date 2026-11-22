@@ -14,7 +14,8 @@ public enum NavigationItem {
     VOLUNTEER_ASSIGNMENT("Volunteer assignment", "mdi2a-account-switch-outline"),
     CLOSURE_REVIEW("Closure review", "mdi2c-clipboard-check-outline"),
     REPORTS("Reports", "mdi2c-chart-box-outline"),
-    ACCESS_MANAGEMENT("Access management", "mdi2a-account-cog-outline");
+    ACCESS_MANAGEMENT("Access management", "mdi2a-account-cog-outline"),
+    REFERENCE_DATA("Reference data", "mdi2d-database-cog-outline");
 
     private final String label;
     private final String iconLiteral;

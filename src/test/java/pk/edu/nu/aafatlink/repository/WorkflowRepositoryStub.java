@@ -26,8 +26,8 @@ public abstract class WorkflowRepositoryStub implements WorkflowRepository {
     @Override public List<AssistanceRequest> findPrioritizableRequests(AuthSession s) { throw unsupported(); }
     @Override public Optional<AssistanceRequest> findRequestForReview(AuthSession s, UUID r) { throw unsupported(); }
     @Override public Optional<RequestReviewDetails> findRequestReviewDetails(AuthSession s, UUID r) { throw unsupported(); }
-    @Override public RequestReviewResult decideRequestVerification(AuthSession s, UUID o, UUID r, long v, VerificationDecision d, String n) { throw unsupported(); }
-    @Override public PriorityAssessmentResult recordPriorityAssessment(AuthSession s, UUID o, UUID r, long v, RequestPriority a, RequestPriority b, String j) { throw unsupported(); }
+    @Override public RequestReviewResult saveVerificationAndStatus(AuthSession s, UUID o, VerificationRecord r, long v) { throw unsupported(); }
+    @Override public PriorityAssessmentResult savePriorityAndRequest(AuthSession s, UUID o, PriorityAssessment a, long v) { throw unsupported(); }
     @Override public List<AssignmentContext> findPendingAssignments(AuthSession s, UUID v) { throw unsupported(); }
     @Override public Optional<AssignmentContext> findAssignmentContext(AuthSession s, UUID a) { throw unsupported(); }
     @Override public AssignmentResponseResult respondToAssignment(AuthSession s, UUID o, UUID a, long v, boolean x, String r) { throw unsupported(); }

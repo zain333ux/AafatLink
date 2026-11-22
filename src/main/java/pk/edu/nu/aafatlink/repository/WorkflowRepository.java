@@ -19,17 +19,22 @@ import pk.edu.nu.aafatlink.domain.assignment.TaskCompletionResult;
 import pk.edu.nu.aafatlink.domain.assignment.TaskContext;
 import pk.edu.nu.aafatlink.domain.request.AssistanceRequest;
 import pk.edu.nu.aafatlink.domain.request.AssistanceRequestDraft;
+import pk.edu.nu.aafatlink.domain.request.DisasterType;
+import pk.edu.nu.aafatlink.domain.request.PriorityAssessment;
 import pk.edu.nu.aafatlink.domain.request.RequestSubmissionResult;
 import pk.edu.nu.aafatlink.domain.request.PriorityAssessmentResult;
-import pk.edu.nu.aafatlink.domain.request.RequestPriority;
 import pk.edu.nu.aafatlink.domain.request.RequestReviewResult;
 import pk.edu.nu.aafatlink.domain.request.RequestReviewDetails;
 import pk.edu.nu.aafatlink.domain.request.RequesterContact;
-import pk.edu.nu.aafatlink.domain.request.VerificationDecision;
+import pk.edu.nu.aafatlink.domain.request.VerificationRecord;
 import pk.edu.nu.aafatlink.service.evidence.EvidenceAttachment;
 
 /** Persistence boundary shared by the GRASP workflow controllers. */
 public interface WorkflowRepository {
+    default List<DisasterType> findActiveDisasterTypes(AuthSession session) {
+        return List.of(DisasterType.values());
+    }
+
     boolean hasActiveAssignment(AuthSession session, UUID accountId);
     void beginRequestOperation(AuthSession session, UUID operationId, String operationType);
 
@@ -61,11 +66,11 @@ public interface WorkflowRepository {
 
     Optional<RequestReviewDetails> findRequestReviewDetails(AuthSession session, UUID requestId);
 
-    RequestReviewResult decideRequestVerification(AuthSession session, UUID operationId, UUID requestId,
-            long expectedVersion, VerificationDecision decision, String reason);
+    RequestReviewResult saveVerificationAndStatus(AuthSession session, UUID operationId,
+            VerificationRecord record, long expectedVersion);
 
-    PriorityAssessmentResult recordPriorityAssessment(AuthSession session, UUID operationId, UUID requestId,
-            long expectedVersion, RequestPriority suggested, RequestPriority selected, String justification);
+    PriorityAssessmentResult savePriorityAndRequest(AuthSession session, UUID operationId,
+            PriorityAssessment assessment, long expectedVersion);
 
     List<AssignmentContext> findPendingAssignments(AuthSession session, UUID volunteerId);
 

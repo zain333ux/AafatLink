@@ -46,6 +46,8 @@ class SupabaseWorkflowRepositoryTest {
         server.createContext("/rest/v1/assistance_requests", this::handleRequestDetail);
         server.createContext("/rest/v1/volunteer_assignments", this::handleAssignment);
         server.createContext("/rest/v1/task_progress_updates", this::handleProgress);
+        server.createContext("/rest/v1/disaster_types", exchange -> respond(exchange,
+                "[{\"code\":\"flood\"},{\"code\":\"fire\"}]"));
         server.createContext("/rest/v1/rpc/record_task_progress", this::handleRecordProgress);
         server.createContext("/rest/v1/rpc/record_coordinator_assistance_request", this::handleSubmit);
         server.createContext("/rest/v1/rpc/get_request_review_details", exchange -> respond(exchange,
@@ -62,6 +64,16 @@ class SupabaseWorkflowRepositoryTest {
     @AfterEach
     void stopServer() {
         server.stop(0);
+    }
+
+    @Test
+    void loadsOnlyDatabaseControlledDisasterTypes() {
+        AuthSession session = new AuthSession(USER_ID, "requester@example.com", "user-access", "refresh",
+                Instant.parse("2026-11-15T02:00:00Z"));
+
+        var types = repository.findActiveDisasterTypes(session);
+
+        assertEquals(java.util.List.of(DisasterType.FLOOD, DisasterType.FIRE), types);
     }
 
     @Test

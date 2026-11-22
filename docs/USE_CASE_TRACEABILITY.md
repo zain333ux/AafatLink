@@ -29,25 +29,25 @@ Deliverable 3 is the functional authority. A use case is marked implemented only
 ## UC03: Verify Assistance Request
 
 - **Status:** Implemented and deployed for queue, full review context and decision paths; a seeded live demonstration transaction remains.
-- **Java:** `application.request.RequestReviewController`, `ui.request.RequestReviewViewController`, `RequestReviewDetails`, `ReviewEvidence`, `PossibleDuplicateMatch`, `VerificationDecision`, `RequestReviewResult`, `WorkflowRepository` and `SupabaseWorkflowRepository`.
-- **Methods:** `loadVerificationQueue`, `getRequestReviewDetails`, `verify`, `reject`, `requestAdditionalInformation`, `findPendingVerificationRequests`, `findRequestReviewDetails` and `decideRequestVerification`.
+- **Java:** `application.request.RequestReviewController`, `ui.request.RequestReviewViewController`, `RequestReviewDetails`, `ReviewEvidence`, `PossibleDuplicateMatch`, `VerificationRecord`, `VerificationDecision`, `RequestReviewResult`, `WorkflowRepository` and `SupabaseWorkflowRepository`.
+- **Methods:** `loadVerificationQueue`, `getRequestReviewDetails`, `verify`, `reject`, `requestAdditionalInformation`, `findPendingVerificationRequests`, `findRequestReviewDetails` and `saveVerificationAndStatus`.
 - **Screen:** Coordinator > Verification queue > Review request.
 - **Database:** `request_verifications`, `assistance_requests`, `request_evidence`; authorized `decide_request_verification` RPC with row locking and expected-version validation plus SECURITY INVOKER `get_request_review_details` for caller, committed evidence and possible duplicate context.
 - **Success:** an authorized coordinator records verification and moves a pending request to `VERIFIED`.
 - **Alternatives:** reject with reason, return for information with reason, duplicate evidence review and stale-version conflict.
-- **Tests:** `RequestReviewControllerTest`, `SupabaseWorkflowRepositoryTest` and `DatabaseMigrationContractTest`; hosted authorization/concurrency proof remains.
+- **Tests:** `VerificationRecordTest`, `RequestReviewControllerTest`, `SupabaseWorkflowRepositoryTest` and `DatabaseMigrationContractTest`; hosted authorization/concurrency proof remains.
 - **Demonstration:** review a pending request and exercise verify and return-for-information paths.
 
 ## UC04: Prioritize Emergency Request
 
 - **Status:** Implemented and deployed; a seeded live demonstration transaction remains.
-- **Java:** `application.request.RequestReviewController`, `ui.request.RequestReviewViewController`, `PriorityAssessmentService`, `PriorityAssessmentResult`, `WorkflowRepository` and `SupabaseWorkflowRepository`.
-- **Methods:** `loadPriorityQueue`, `suggestPriority`, `setPriority`, `findPrioritizableRequests` and `recordPriorityAssessment`.
+- **Java:** `application.request.RequestReviewController`, `ui.request.RequestReviewViewController`, `PriorityAssessment`, `PriorityAssessmentService`, `PriorityAssessmentResult`, `WorkflowRepository` and `SupabaseWorkflowRepository`.
+- **Methods:** `loadPriorityQueue`, `suggestPriority`, `setPriority`, `PriorityAssessment.validateSelection`, `findPrioritizableRequests` and `savePriorityAndRequest`.
 - **Screen:** Coordinator > Priority queue > Priority assessment.
 - **Database:** `priority_assessments`, `assistance_requests`; deployed `record_priority_assessment` RPC and `align_priority_with_uc04` migration provide previous-level audit and documented reprioritization statuses.
 - **Success:** calculate a suggestion and record Critical, High, Medium or Low separately from request status.
 - **Alternatives:** a manual override requires justification; stale-version conflict.
-- **Tests:** `PriorityAssessmentServiceTest`, `RequestReviewControllerTest`, `RequestStatusTest` and `DatabaseMigrationContractTest` cover scoring, justification, eligibility and priority-not-status behavior.
+- **Tests:** `PriorityAssessmentTest`, `PriorityAssessmentServiceTest`, `RequestReviewControllerTest`, `RequestStatusTest` and `DatabaseMigrationContractTest` cover scoring, justification, eligibility and priority-not-status behavior.
 - **Demonstration:** assess a verified request, show the suggestion, then justify an override.
 
 ## UC05: Assign Volunteer to Assistance Request
@@ -136,15 +136,15 @@ Deliverable 3 is the functional authority. A use case is marked implemented only
 
 ## UC12: Configure User Access Permissions
 
-- **Status:** Implemented and deployed; administrator-only role, account-status and volunteer-approval changes are versioned, atomic and audited.
-- **Java:** `application.access.AccessController`, `AccessValidation`, `domain.account.UserAccount`, `AccessChanges`, `AccessChangeLog`, `repository.UserRepository`, the required `WorkflowRepository` dependency and `SupabaseUserRepository`.
-- **Methods:** `listUsers`, `getAccessConfiguration`, `validateAccessChange`, `applyAccessChanges`, `hasActiveAssignment` and `saveAccessWithAudit`.
-- **Screen:** Administrator > Access management (`access-management-view.fxml`) with list/selection, current access, editable changes, reason and confirmation.
-- **Database:** `accounts`, `account_roles`, `role_permissions`, `volunteer_approval_reviews`, `access_change_audit`, `workflow_operations`; deployed restricted `update_user_access` RPC.
-- **Success:** an administrator performs an allowed access change and creates an immutable audit record.
-- **Alternatives:** reject stale/deleted accounts, incompatible role/approval combinations, own-role changes, last-active-administrator removal, active-assignment deactivation/role change/approval withdrawal and unauthorized calls without modifying access.
-- **Tests:** `AccessControllerTest`, `SupabaseUserRepositoryTest` and `DatabaseMigrationContractTest` cover self-role protection, last-admin protection, active-assignment restrictions, approved changes, versioning, audit fields, database-derived actor identity and restricted execution.
-- **Demonstration:** approve a volunteer or make one safe role/status change, inspect the resulting audit data, then show a blocked own-role or active-assignment operation.
+- **Status:** Implemented and deployed; administrator-only role, account status, volunteer approval, permission preview and controlled reference-data changes are versioned, atomic and audited.
+- **Java:** `application.access.AccessController`, `AccessValidation`, `domain.account.UserAccount`, `Role`, `Permission`, `AccessChanges`, `AccessChangeLog`, `ControlledReferenceValue`, `ReferenceDataChange`, `ReferenceDataType`, `repository.UserRepository`, the required `WorkflowRepository` dependency, `SupabaseUserRepository`, `ui.access.AccessManagementViewController` and `ReferenceDataViewController`.
+- **Methods:** `listUsers`, `listRoles`, `getAccessConfiguration`, `validateAccessChange`, `applyAccessChanges`, `listReferenceValues`, `saveReferenceValue`, `hasActiveAssignment`, `saveAccessWithAudit` and `Role.grants`.
+- **Screens:** Administrator > Access management (`access-management-view.fxml`) and Administrator > Reference data (`reference-data-view.fxml`).
+- **Database:** `accounts`, `account_roles`, `role_permissions`, `permissions`, `volunteer_approval_reviews`, `access_change_audit`, `workflow_operations`, `disaster_types`, `skills`, `service_areas`, `standard_decline_reasons` and `reference_data_audit`; deployed restricted `update_user_access` and `save_controlled_reference_value` RPCs.
+- **Success:** an administrator performs an allowed access or reference-data change and creates an immutable audit record. Request, readiness and assignment-response screens consume the controlled values.
+- **Alternatives:** reject stale/deleted accounts, incompatible role/approval combinations, own-role changes, last-active-administrator removal, active-assignment restrictions, stale reference versions, invalid reference values and unauthorized calls without modifying state. Reference values are deactivated rather than deleted.
+- **Tests:** `RoleTest`, `ReferenceDataChangeTest`, `AccessControllerTest`, `SupabaseUserRepositoryTest`, `SupabaseWorkflowRepositoryTest`, `VolunteerControllerTest`, `NavigationPolicyTest` and `DatabaseMigrationContractTest` cover role permissions, reference validation/auditing, self-role protection, last-admin protection, active-assignment restrictions, approved changes, versioning, database-derived actor identity and restricted execution.
+- **Demonstration:** approve a volunteer or make one safe role/status change, inspect its audit data, then edit/deactivate one controlled value and show it in the relevant workflow. Finish by showing a blocked own-role, active-assignment or stale-version operation.
 
 ## Additional portfolio features
 
