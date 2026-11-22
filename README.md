@@ -52,6 +52,7 @@ The application intentionally uses the classpath instead of `module-info.java`. 
 - [Rubric traceability](docs/RUBRIC_TRACEABILITY.md)
 - [Work log](docs/WORK_LOG.md)
 - [Known blockers](docs/BLOCKERS.md)
+- [Project handoff and minimum-first continuation plan](docs/PROJECT_HANDOFF.md)
 
 ## Security
 

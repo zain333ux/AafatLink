@@ -310,3 +310,13 @@ Implement and validate the PostgreSQL schema, RLS foundation and transactional w
 ### Next
 
 - Prepare a repeatable, owner-controlled live evaluation dataset and provisioning procedure without storing passwords or privileged keys.
+
+### Project handoff checkpoint
+
+- Created `docs/PROJECT_HANDOFF.md` with the verified repository baseline, mandatory reading order, exact first defect, minimum completion gate, maximum-quality backlog and acceptance criteria.
+- Recorded the public Volunteer registration gap as the first continuation task: the UI selection currently does not reach Supabase, so new public accounts become Requesters.
+- Kept the handoff working tree buildable by discarding an incomplete test-first experiment before documenting the task.
+
+### Next
+
+- The receiving developer must complete secure public Volunteer registration before preparing live accounts or optional portfolio improvements.
