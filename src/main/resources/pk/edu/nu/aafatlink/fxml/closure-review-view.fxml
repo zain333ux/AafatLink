@@ -39,7 +39,7 @@
                             <Separator/>
                             <VBox spacing="6"><Label text="Volunteer completion remarks" styleClass="field-label"/><Label fx:id="completionRemarksLabel" wrapText="true" styleClass="detail-value"/></VBox>
                             <VBox spacing="7"><Label text="Progress history" styleClass="field-label"/><ListView fx:id="progressList" prefHeight="105"/></VBox>
-                            <VBox spacing="7"><Label text="Completion evidence" styleClass="field-label"/><ListView fx:id="evidenceList" prefHeight="82"/></VBox>
+                            <VBox spacing="7"><Label text="Completion evidence" styleClass="field-label"/><ListView fx:id="evidenceList" prefHeight="82"/><Button text="Open selected attachment" onAction="#openEvidence" styleClass="outline-button"/></VBox>
                             <VBox spacing="10" styleClass="decision-panel">
                                 <Label text="COORDINATOR DECISION" styleClass="card-kicker"/>
                                 <TextArea fx:id="remarksArea" promptText="Closing remarks are optional; a rework reason is mandatory" prefRowCount="3" wrapText="true" styleClass="form-text-area"/>

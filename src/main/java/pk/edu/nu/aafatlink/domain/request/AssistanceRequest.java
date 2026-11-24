@@ -65,7 +65,7 @@ public record AssistanceRequest(
             throw new IllegalStateException("Request cannot move from " + status.displayName()
                     + " to " + target.displayName() + ".");
         }
-        return copy(target, priority);
+        return copy(target, target == RequestStatus.ADDITIONAL_INFORMATION_REQUIRED ? null : priority);
     }
 
     /** Consistent UC04 suggestion derived from the facts owned by this request. */

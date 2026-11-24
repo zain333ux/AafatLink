@@ -2,6 +2,7 @@ package pk.edu.nu.aafatlink.application.auth;
 
 import java.util.Objects;
 
+import pk.edu.nu.aafatlink.domain.account.UserRole;
 import pk.edu.nu.aafatlink.app.SessionManager;
 import pk.edu.nu.aafatlink.app.SessionUser;
 import pk.edu.nu.aafatlink.domain.account.AccountProfile;
@@ -39,8 +40,8 @@ public final class AuthenticationController {
         return sessions.currentUser().orElseThrow();
     }
 
-    public RegistrationResult register(String displayName, String email, String password) {
-        return authService.register(displayName, email, password);
+    public RegistrationResult register(String displayName, String email, String password, UserRole accountType) {
+        return authService.register(displayName, email, password, accountType);
     }
 
     public void logout() {

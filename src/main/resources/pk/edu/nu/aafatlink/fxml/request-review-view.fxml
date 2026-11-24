@@ -62,7 +62,7 @@
                                 <VBox spacing="4" HBox.hgrow="ALWAYS"><Label text="Contact" styleClass="detail-label"/><Label fx:id="requesterContactLabel" wrapText="true" styleClass="detail-value"/></VBox>
                             </HBox>
                             <Label text="Committed evidence" styleClass="detail-label"/>
-                            <ListView fx:id="evidenceList" prefHeight="82"/>
+                            <ListView fx:id="evidenceList" prefHeight="82"/><Button text="Open selected attachment" onAction="#openEvidence" styleClass="outline-button"/>
                             <Label text="Related open requests" styleClass="detail-label"/>
                             <ListView fx:id="duplicateList" prefHeight="82"/>
                         </VBox>
@@ -90,6 +90,8 @@
                                 <VBox spacing="4" HBox.hgrow="ALWAYS"><Label text="Selected priority" styleClass="detail-label"/><ComboBox fx:id="selectedPriorityBox" maxWidth="Infinity"/></VBox>
                             </HBox>
                             <TextArea fx:id="overrideJustificationArea" promptText="Required when overriding the suggestion" prefRowCount="3" wrapText="true"/>
+                            <TextArea fx:id="priorityReturnReason" promptText="Missing information needed to assess priority" prefRowCount="2"/>
+                            <Button fx:id="priorityReturnButton" text="Return for information" onAction="#returnSelected"/>
                             <Button text="Record priority" onAction="#setPriority" maxWidth="Infinity" styleClass="primary-button"/>
                         </VBox>
                         <Label fx:id="actionMessageLabel" wrapText="true"/>

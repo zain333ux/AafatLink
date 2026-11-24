@@ -12,6 +12,7 @@
         <Region HBox.hgrow="ALWAYS"/>
         <Button fx:id="refreshButton" text="Refresh" onAction="#loadAssignments" styleClass="outline-button"/>
     </HBox>
+    <ListView fx:id="noticeList" prefHeight="85" managed="false" visible="false"/>
     <SplitPane dividerPositions="0.53" VBox.vgrow="ALWAYS" styleClass="request-split-pane">
         <items>
             <StackPane styleClass="panel-card request-list-panel">

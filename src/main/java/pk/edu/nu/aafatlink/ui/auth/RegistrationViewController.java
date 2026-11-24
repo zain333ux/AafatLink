@@ -75,7 +75,7 @@ public final class RegistrationViewController {
         Task<RegistrationResult> task = new Task<>() {
             @Override
             protected RegistrationResult call() {
-                return authentication.register(displayName, email, password);
+                return authentication.register(displayName, email, password, selectedType);
             }
         };
         task.setOnSucceeded(event -> {
@@ -86,7 +86,7 @@ public final class RegistrationViewController {
                     ? "Check your email to verify the account, then return to sign in."
                     : "Your account is ready. Return to sign in.";
             if (selectedType == UserRole.VOLUNTEER) {
-                next += " After sign-in, complete the readiness profile to request volunteer approval.";
+                next += " After sign-in, complete your readiness profile. An administrator will review your Volunteer approval.";
             }
             registrationMessageLabel.setText(next);
             registrationMessageLabel.getStyleClass().add("form-success");

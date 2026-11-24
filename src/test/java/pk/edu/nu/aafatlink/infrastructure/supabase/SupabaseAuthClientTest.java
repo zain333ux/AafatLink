@@ -65,12 +65,27 @@ class SupabaseAuthClientTest {
 
     @Test
     void registersWithoutTrustingAFrontendRoleClaim() {
-        RegistrationResult result = client.register("Ayesha Khan", "ayesha@example.com", "StrongPass123!");
+        var role = pk.edu.nu.aafatlink.domain.account.UserRole.VOLUNTEER;
+        RegistrationResult result = client.register("Ayesha Khan", "ayesha@example.com", "StrongPass123!", role);
+        assertTrue(captured.get().body().contains("VOLUNTEER"));
+        for (var privileged : java.util.List.of(pk.edu.nu.aafatlink.domain.account.UserRole.ADMINISTRATOR,
+                pk.edu.nu.aafatlink.domain.account.UserRole.COORDINATOR)) {
+            assertThrows(IllegalArgumentException.class, () -> client.register("Test User", "test@example.com", "StrongPass123!", privileged));
+        }
 
         assertEquals(USER_ID, result.userId());
         assertTrue(result.emailConfirmationRequired());
         assertFalse(captured.get().body().contains("role"));
         assertTrue(captured.get().body().contains("display_name"));
+    }
+
+    @Test
+    void readsConfirmationRequiredUserFromRawSignupResponse() {
+        var result = client.register("Demo User", "requester@example.com", "StrongPass123!",
+                pk.edu.nu.aafatlink.domain.account.UserRole.REQUESTER);
+        assertTrue(result.emailConfirmationRequired());
+        assertEquals(USER_ID, result.userId());
+        assertTrue(captured.get().body().contains("REQUESTER"));
     }
 
     @Test
@@ -129,6 +144,10 @@ class SupabaseAuthClientTest {
         }
 
         if (exchange.getRequestURI().getPath().endsWith("/signup")) {
+            if (body.contains("REQUESTER")) {
+                send(exchange, 200, "{\"id\":\"" + USER_ID + "\",\"email\":\"requester@example.com\"}");
+                return;
+            }
             send(exchange, 200, "{\"user\":{\"id\":\"" + USER_ID
                     + "\",\"email\":\"ayesha@example.com\"},\"session\":null}");
             return;

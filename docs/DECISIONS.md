@@ -169,3 +169,13 @@
 **Decision:** JavaFX controllers copy form values, selected records and filters on the JavaFX Application Thread before starting a background `Task`. Failure paths that can indicate a stale assignment or task reload the latest authorized state and keep the failure visible.
 
 **Reason:** JavaFX controls are not thread-safe, and a delayed background read could observe a changed value. Snapshotting produces one coherent command and the documented refresh behavior prevents users from acting on obsolete assignment state.
+
+## D028. Public signup and private contacts
+
+The onboarding trigger accepts an exact Volunteer selection, creates a pending profile, and defaults other metadata to Requester. Coordinator and Administrator provisioning stays outside public registration. A private contact table holds the contact snapshot for each request, including a phone or email. A role-checked review function exposes the snapshot to coordinators while assignment-visible rows contain no contact values. Existing snapshots are copied during migration.
+
+## D029. Evidence review and priority returns
+
+Review screens request a 60-second Storage link for a committed attachment. The authenticated user's permissions govern signing, and the system browser displays the file. Returning a verified request for missing priority inputs records the reason and clears its current priority so the coordinator can reassess the amended request. The original assessment history remains available.
+
+Reconciliation locks only the authenticated actor’s operation in a restricted database function. The request-specific entry point delegates to this function. This permits reliable commit checks while keeping direct workflow table updates restricted.

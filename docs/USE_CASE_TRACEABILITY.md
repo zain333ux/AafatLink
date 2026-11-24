@@ -1,5 +1,17 @@
 # Mandatory use-case traceability
 
+## November 24 local verification
+
+The deployment labels below refer to the original nineteen migrations. Hosted verification of the following updates is pending.
+
+| Use cases | Local implementation and coverage |
+|---|---|
+| UC01–UC02 | Email-only contact snapshots, private contact storage, typed request source, submission retries and same-ID resubmission. Database regression in `supabase/tests/completion_workflows.sql`. |
+| UC03–UC04 | Coordinator-only contact details, committed evidence links, Critical-first queue ordering, recorded reasons for returns during priority assessment and refreshed decision queues. Java controller and HTTP tests plus PostgreSQL verification and resubmission. |
+| UC05–UC10 | Approved volunteer matching, reassignment reason in the previous volunteer's inbox and private evidence opening during closure review. Local PostgreSQL exercise covered decline, reassignment, acceptance, progress, completion, rework and closure. |
+| UC11–UC12 | All four report queries exercised on seeded history. Access and reference changes commit audited results, including retry of the reference change. |
+| Onboarding | Only Requester and Volunteer are public signup choices. PostgreSQL creates a pending Volunteer profile and safely defaults privileged metadata to Requester. |
+
 Deliverable 3 is the functional authority. A use case is marked implemented only when its required main flow, important alternatives and automated tests exist. Hosted demonstration data is tracked separately so implementation status never implies that a live evaluation record has already been prepared.
 
 ## UC01: Submit Disaster Assistance Request

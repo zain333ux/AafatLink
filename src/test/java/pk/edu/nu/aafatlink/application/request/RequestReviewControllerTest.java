@@ -81,6 +81,17 @@ class RequestReviewControllerTest {
     }
 
     @Test
+    void returnsVerifiedRequestDuringPriorityAssessment() {
+        StubRepository repository = new StubRepository();
+        var controller = controller(repository);
+        var verified = request(RequestStatus.VERIFIED, 2);
+        controller.requestAdditionalInformation(session, verified, "Please specify the affected area.");
+        assertEquals(2, repository.expectedVersion);
+        assertEquals(VerificationDecision.ADDITIONAL_INFORMATION_REQUIRED, repository.decision);
+        assertThrows(IllegalArgumentException.class, () -> controller.reject(session, verified, "Duplicate report"));
+    }
+
+    @Test
     void priorityOverridePassesSuggestionAndJustificationWithoutChangingStatus() {
         StubRepository repository = new StubRepository();
         RequestReviewController controller = controller(repository);

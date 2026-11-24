@@ -13,6 +13,7 @@ import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
 
+import pk.edu.nu.aafatlink.domain.account.UserRole;
 import pk.edu.nu.aafatlink.domain.auth.AuthSession;
 import pk.edu.nu.aafatlink.domain.auth.RegistrationResult;
 import pk.edu.nu.aafatlink.service.auth.AuthService;
@@ -45,7 +46,7 @@ class PasswordRecoveryCoordinatorTest {
         private String newPassword;
 
         @Override
-        public RegistrationResult register(String displayName, String email, String password) {
+        public RegistrationResult register(String displayName, String email, String password, UserRole accountType) {
             throw new UnsupportedOperationException();
         }
 

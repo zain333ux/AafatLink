@@ -22,6 +22,7 @@ import pk.edu.nu.aafatlink.application.request.RequestReviewController;
 import pk.edu.nu.aafatlink.domain.auth.AuthSession;
 import pk.edu.nu.aafatlink.domain.request.AssistanceRequest;
 import pk.edu.nu.aafatlink.domain.request.RequestPriority;
+import pk.edu.nu.aafatlink.domain.request.RequestStatus;
 import pk.edu.nu.aafatlink.domain.request.RequestReviewDetails;
 
 /** Coordinator presentation controller for UC03 and UC04. */
@@ -33,6 +34,18 @@ public final class RequestReviewViewController {
     private final SessionManager sessions;
     private final RequestReviewController reviews;
     private final Mode mode;
+
+    private List<java.util.UUID> evidenceIds = List.of();
+
+    @FXML private void openEvidence() {
+        int index = evidenceList.getSelectionModel().getSelectedIndex();
+        if (index < 0 || index >= evidenceIds.size()) {
+            showActionMessage("Select an attachment first.", true);
+            return;
+        }
+        ReviewEvidenceOpener.open(reviews, sessions.authSession().orElseThrow(), evidenceIds.get(index),
+                message -> showActionMessage(message, true));
+    }
 
     @FXML private Label headingLabel;
     @FXML private Label introLabel;
@@ -60,6 +73,8 @@ public final class RequestReviewViewController {
     @FXML private Label requesterContactLabel;
     @FXML private javafx.scene.control.ListView<String> evidenceList;
     @FXML private javafx.scene.control.ListView<String> duplicateList;
+    @FXML private TextArea priorityReturnReason;
+    @FXML private Button priorityReturnButton;
     @FXML private VBox verificationActions;
     @FXML private TextArea decisionReasonArea;
     @FXML private VBox priorityActions;
@@ -101,6 +116,10 @@ public final class RequestReviewViewController {
 
     @FXML
     private void loadRequests() {
+        refreshQueue(null, false);
+    }
+
+    private void refreshQueue(String notice, boolean error) {
         if (sessions.authSession().isEmpty() || reviews == null) {
             refreshButton.setDisable(true);
             showEmpty("Demonstration mode contains no operational coordinator queue.");
@@ -117,8 +136,14 @@ public final class RequestReviewViewController {
         task.setOnSucceeded(event -> {
             setLoading(false);
             requestTable.getItems().setAll(task.getValue());
-            if (task.getValue().isEmpty()) showEmpty("No requests currently require this decision.");
-            else { showOnly(requestTable); requestTable.getSelectionModel().selectFirst(); }
+            if (task.getValue().isEmpty()) {
+                showDetail(null);
+                showEmpty(notice == null ? "No requests currently require this decision." : notice);
+            } else {
+                showOnly(requestTable);
+                requestTable.getSelectionModel().selectFirst();
+                if (notice != null) showActionMessage(notice, error);
+            }
         });
         task.setOnFailed(event -> {
             setLoading(false);
@@ -135,7 +160,7 @@ public final class RequestReviewViewController {
     private void runVerification(Action action) {
         AssistanceRequest request = selected();
         if (request == null || sessions.authSession().isEmpty()) return;
-        String reason = decisionReasonArea.getText();
+        String reason = mode == Mode.PRIORITY ? priorityReturnReason.getText() : decisionReasonArea.getText();
         runDecision(new Task<>() {
             @Override protected Object call() {
                 return switch (action) {
@@ -167,11 +192,11 @@ public final class RequestReviewViewController {
         verificationActions.setDisable(true);
         priorityActions.setDisable(true);
         showActionMessage("Saving decision…", false);
-        task.setOnSucceeded(event -> { showActionMessage(successMessage, false); loadRequests(); });
+        task.setOnSucceeded(event -> refreshQueue(successMessage, false));
         task.setOnFailed(event -> {
             verificationActions.setDisable(false);
             priorityActions.setDisable(false);
-            showActionMessage(message(task.getException(), "The decision was not saved. Refresh and retry."), true);
+            refreshQueue(message(task.getException(), "The decision was not saved."), true);
         });
         start(task, "aafatlink-review-decision");
     }
@@ -182,6 +207,8 @@ public final class RequestReviewViewController {
         detailContent.setVisible(available); detailContent.setManaged(available);
         if (!available) return;
         detailIdLabel.setText(request.id().toString());
+        priorityReturnReason.clear();
+        priorityReturnButton.setDisable(request.status() != RequestStatus.VERIFIED);
         detailStatusLabel.setText(request.status().displayName());
         detailLocationLabel.setText(request.details().locationAddress());
         detailDescriptionLabel.setText(request.details().description());
@@ -202,6 +229,7 @@ public final class RequestReviewViewController {
     private void loadVerificationContext(AssistanceRequest request) {
         requesterNameLabel.setText("Loading…");
         requesterContactLabel.setText("Loading…");
+        evidenceIds = List.of();
         evidenceList.setItems(FXCollections.observableArrayList("Loading committed evidence…"));
         duplicateList.setItems(FXCollections.observableArrayList("Loading related requests…"));
         if (sessions.authSession().isEmpty() || reviews == null) {
@@ -225,7 +253,8 @@ public final class RequestReviewViewController {
             }
             requesterNameLabel.setText(details.requesterName());
             requesterContactLabel.setText(details.requesterContact());
-            var evidenceRows = details.evidence().stream()
+            evidenceIds = details.evidence().stream().map(item -> item.id()).toList();
+        var evidenceRows = details.evidence().stream()
                     .map(item -> item.fileName() + " · " + item.contentType() + " · " + formatBytes(item.sizeBytes()))
                     .toList();
             evidenceList.setItems(FXCollections.observableArrayList(evidenceRows.isEmpty()

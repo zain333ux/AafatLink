@@ -1,5 +1,11 @@
 # AafatLink project handoff
 
+## November 24 implementation update
+
+Public Volunteer signup and the repeatable demo scripts are implemented locally. Six forward migrations follow the 19-migration hosted baseline. Run the new migrations on the designated development project when access is available. The historical milestones below describe the original handoff.
+
+The remaining evaluation steps are hosted account confirmation, demo setup, the four-role JavaFX workflow, same-computer password recovery, response-time checks and the timed demonstration. Release tagging follows those checks. See BLOCKERS.md and WORK_LOG.md for verification status.
+
 This handoff is for the developer continuing the current repository. The mandatory academic implementation comes first. Do not spend time on optional portfolio polish until the minimum completion gate below passes.
 
 ## 1. Current verified state

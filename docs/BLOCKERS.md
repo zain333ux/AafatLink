@@ -1,24 +1,9 @@
 # External blockers
 
-No build or launch blocker remains. The `aafatlink-dev` hosted project is configured and all nineteen current migrations are applied.
+## Hosted evaluation awaits project access
 
-## Local Supabase runtime unavailable
+The November 24 implementation adds six migrations to the previously deployed nineteen. The owner is waiting for their partner to provide access. Local PostgreSQL validation used synthetic auth identities and a minimal Storage schema. Hosted Auth, PostgREST and Storage still need connected checks.
 
-- **Blocked:** Parsing and executing migrations with `supabase db reset`, pgTAP policy tests and database advisors.
-- **Why:** Docker is not installed or available on this machine.
-- **Needed from owner:** Install and start Docker Desktop, or provide a disposable development Supabase project.
-- **Work that can continue:** Static migration contract tests, Java domain/application work and HTTP adapter tests with local fakes.
+Once access is available, apply the six pending migrations to the development project. Configure the JavaFX launch with the project URL and publishable key, verify four separate role accounts and approve the demo Volunteer. Set availability, skills and service areas through the readiness screen. Use local copies of the demo scripts with verified test-account addresses. Keep passwords and real account addresses out of Git.
 
-## Live password-recovery link pending
-
-- **Blocked:** Final end-to-end proof of the password update and subsequent sign-in.
-- **Why:** Email confirmation and the restricted redirect allowlist are complete. The first valid recovery token was consumed on a phone, but PKCE requires the link to return to the computer that initiated the flow.
-- **Needed from owner:** Choose the new password only inside AafatLink, open Gmail on the same computer, and click the newest recovery link once within ten minutes. Do not send the password in chat or open the link on a phone.
-- **Work that can continue:** All local tests, database work and unrelated JavaFX implementation.
-
-## Live end-to-end demonstration data not prepared
-
-- **Blocked:** Proving UC01 through UC12 end to end with real Requester, Volunteer, Coordinator and Administrator sessions and retained demonstration records.
-- **Why:** The hosted schema and policies are deployed, but the owner-selected password recovery and administrator-provisioned demo roles have not been completed.
-- **Needed from owner:** When available, finish the same-computer password recovery once. Coordinator and Administrator accounts must be provisioned through the secured database workflow, never public registration.
-- **Work that can continue:** Demo seeding scripts, source-to-artifact review, automated regression coverage and evaluation preparation that do not require owner credentials.
+Run the connected UC01–UC12 rehearsal, including signed evidence opening, evidence retry, authorization checks, priority queue order and LAN response times. Finish password recovery by opening the one-use link on the computer that initiated recovery and signing in with the new password. Record the results before freezing the evaluation build.

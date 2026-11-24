@@ -67,6 +67,51 @@ class SupabaseWorkflowRepositoryTest {
     }
 
     @Test
+    void ordersTheCoordinatorQueueByUrgencyThenSubmissionTime() {
+        server.removeContext("/rest/v1/assistance_requests");
+        AtomicReference<String> query = new AtomicReference<>();
+        server.createContext("/rest/v1/assistance_requests", exchange -> {
+            query.set(exchange.getRequestURI().getQuery());
+            respond(exchange, "[]");
+        });
+        var session = new AuthSession(USER_ID, "coordinator@example.com", "access", "refresh", Instant.MAX);
+        repository.findPrioritizableRequests(session);
+        assertTrue(query.get().contains("order=priority.asc.nullslast,submitted_at.asc"));
+    }
+
+    @Test
+    void displaysPreviousVolunteersReassignmentReason() {
+        server.removeContext("/rest/v1/volunteer_assignments");
+        AtomicReference<String> query = new AtomicReference<>();
+        server.createContext("/rest/v1/volunteer_assignments", exchange -> {
+            query.set(exchange.getRequestURI().getQuery());
+            respond(exchange, "[{\"request_id\":\"" + REQUEST_ID + "\",\"reassignment_reason\":\"Schedule changed\"}]");
+        });
+        var session = new AuthSession(USER_ID, "volunteer@example.com", "access", "refresh", Instant.MAX);
+        assertEquals(java.util.List.of("Request " + REQUEST_ID + " reassigned: Schedule changed"),
+                repository.reassignmentNotices(session));
+        assertTrue(query.get().contains("volunteer_account_id=eq." + USER_ID));
+        assertTrue(query.get().contains("status=eq.REASSIGNED"));
+    }
+
+    @Test
+    void opensCommittedEvidenceUsingShortLivedPrivateStorageLink() {
+        server.createContext("/rest/v1/request_evidence", exchange -> {
+            assertTrue(exchange.getRequestURI().getQuery().contains("state=eq.COMMITTED"));
+            respond(exchange, "[{\"object_path\":\"actor/operation/photo.jpg\"}]");
+        });
+        server.createContext("/storage/v1/object/sign/request-evidence/", exchange -> {
+            assertEquals("Bearer user-access", exchange.getRequestHeaders().getFirst("Authorization"));
+            assertTrue(new String(exchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8).contains("60"));
+            respond(exchange, "{\"signedURL\":\"/object/sign/request-evidence/actor/operation/photo.jpg?token=test\"}");
+        });
+        AuthSession session = new AuthSession(USER_ID, "reviewer@example.com", "user-access", "refresh", Instant.MAX);
+        URI link = repository.evidenceLink(session, UUID.randomUUID());
+        assertEquals("127.0.0.1", link.getHost());
+        assertEquals("/storage/v1/object/sign/request-evidence/actor/operation/photo.jpg", link.getPath());
+    }
+
+    @Test
     void loadsOnlyDatabaseControlledDisasterTypes() {
         AuthSession session = new AuthSession(USER_ID, "requester@example.com", "user-access", "refresh",
                 Instant.parse("2026-11-15T02:00:00Z"));

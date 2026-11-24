@@ -5,7 +5,7 @@
 - Supabase Auth signup, password sign-in, refresh-token rotation, logout and safe error mapping over Java HTTP Client.
 - Database-authoritative role and account-status loading through PostgREST under the user's access token.
 - Public registration UI for Requester and Volunteer applicants. Volunteer eligibility still requires the readiness/approval workflow.
-- Auth-created accounts default to Requester through a database trigger. A restricted `register_as_volunteer` RPC can create a pending Volunteer profile but can never grant Coordinator or Administrator.
+- After the November 24 migration, the signup trigger creates a pending profile for the exact Volunteer choice and defaults other public metadata to Requester. A restricted `register_as_volunteer` RPC can create a pending Volunteer profile but can never grant Coordinator or Administrator.
 - JavaFX performs network calls on daemon worker threads and does not report success before the complete operation returns.
 
 ## Password recovery design

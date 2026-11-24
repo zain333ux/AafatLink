@@ -11,6 +11,8 @@ import pk.edu.nu.aafatlink.domain.evidence.EvidenceAttachment;
 
 /** Test adapter whose subclasses override only the collaboration points under test. */
 public abstract class WorkflowRepositoryStub implements WorkflowRepository {
+    @Override public java.net.URI evidenceLink(AuthSession s, UUID id) { throw unsupported(); }
+    @Override public List<String> reassignmentNotices(AuthSession s) { throw unsupported(); }
     protected UnsupportedOperationException unsupported() { return new UnsupportedOperationException(); }
     @Override public boolean hasActiveAssignment(AuthSession s, UUID a) { throw unsupported(); }
     @Override public void beginRequestOperation(AuthSession s, UUID o, String t) { throw unsupported(); }

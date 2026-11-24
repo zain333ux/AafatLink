@@ -74,6 +74,10 @@ public final class VolunteerController {
         return volunteers.saveReadinessAndContact(session, updated, current.version());
     }
 
+    public List<String> reassignmentNotices(AuthSession session) {
+        return workflows.reassignmentNotices(session);
+    }
+
     public List<AssignmentContext> getPendingAssignments(AuthSession session) {
         Objects.requireNonNull(session, "session");
         return workflows.findPendingAssignments(session, session.userId());

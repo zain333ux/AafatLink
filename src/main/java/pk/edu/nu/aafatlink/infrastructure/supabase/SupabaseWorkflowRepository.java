@@ -218,7 +218,7 @@ public final class SupabaseWorkflowRepository implements WorkflowRepository {
     @Override
     public List<AssistanceRequest> findPrioritizableRequests(AuthSession session) {
         return findReviewQueue(session,
-                "status=in.(VERIFIED,ASSIGNED,IN_PROGRESS)&order=priority.desc.nullslast,submitted_at.asc");
+                "status=in.(VERIFIED,ASSIGNED,IN_PROGRESS)&order=priority.asc.nullslast,submitted_at.asc");
     }
 
     private List<AssistanceRequest> findReviewQueue(AuthSession session, String filters) {
@@ -729,6 +729,35 @@ public final class SupabaseWorkflowRepository implements WorkflowRepository {
         } catch (IllegalArgumentException exception) {
             throw new RepositoryException("AafatLink received invalid assignment data.", exception);
         }
+    }
+
+    @Override
+    public URI evidenceLink(AuthSession session, UUID evidenceId) {
+        JsonNode rows = send(session, "/rest/v1/request_evidence?id=eq." + evidenceId
+                + "&state=eq.COMMITTED&select=object_path", "GET", null);
+        if (rows.size() != 1) throw new RepositoryException("This attachment is unavailable.");
+        String path = required(rows.get(0), "object_path");
+        String prefix = "/object/sign/request-evidence/";
+        String encoded = java.util.Arrays.stream(path.split("/"))
+                .map(segment -> java.net.URLEncoder.encode(segment, java.nio.charset.StandardCharsets.UTF_8)
+                        .replace("+", "%20"))
+                .collect(java.util.stream.Collectors.joining("/"));
+        JsonNode result = send(session, "/storage/v1" + prefix + encoded, "POST", "{\"expiresIn\":60}");
+        String signed = required(result, "signedURL");
+        if (!signed.startsWith(prefix)) throw new RepositoryException("Invalid attachment link.");
+        return projectUri.resolve("/storage/v1" + signed);
+    }
+
+    @Override
+    public List<String> reassignmentNotices(AuthSession session) {
+        JsonNode rows = send(session, "/rest/v1/volunteer_assignments?volunteer_account_id=eq."
+                + session.userId() + "&status=eq.REASSIGNED&select=request_id,reassignment_reason&order=updated_at.desc",
+                "GET", null);
+        List<String> notices = new java.util.ArrayList<>();
+        for (JsonNode row : rows) {
+            notices.add("Request " + required(row, "request_id") + " reassigned: " + required(row, "reassignment_reason"));
+        }
+        return List.copyOf(notices);
     }
 
     private JsonNode send(AuthSession session, String path, String method, String body) {

@@ -320,3 +320,9 @@ Implement and validate the PostgreSQL schema, RLS foundation and transactional w
 ### Next
 
 - The receiving developer must complete secure public Volunteer registration before preparing live accounts or optional portfolio improvements.
+
+## 2026-11-24 completion work
+
+Implemented public Volunteer signup, private requester contacts, priority queue ordering and information returns, evidence opening, and in-app reassignment notices. Implemented owner-run demo preparation and verification scripts. Local PostgreSQL execution exposed a request-source enum mismatch and ambiguous result variables in access and reference-data writes. Authenticated evidence reconciliation also required a narrowly scoped row lock. Forward migrations correct these transaction failures.
+
+Verified 25 migrations on isolated PostgreSQL 16 with synthetic Auth and Storage schemas. Ran the demo preparation twice and verified seven distinct requests, including three closed cases. Exercised submission and retry, same-ID resubmission, approval and readiness, assignment, decline, reassignment, progress, rework, closure, all four report queries and audited administrative changes. The SQL regression tests cover committed evidence reconciliation and retention, denial of cross-actor reconciliation, approval and reference-data retries. They roll back their synthetic records. Maven clean test and package passed with 129 tests, zero failures, errors or skips. JavaFX login and the four demo shells were rendered at 1280 × 720 and 1600 × 900. Hosted release verification awaits project access.

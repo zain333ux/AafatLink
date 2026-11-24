@@ -31,6 +31,9 @@ import pk.edu.nu.aafatlink.domain.evidence.EvidenceAttachment;
 
 /** Persistence boundary shared by the GRASP workflow controllers. */
 public interface WorkflowRepository {
+    java.net.URI evidenceLink(AuthSession session, UUID evidenceId);
+    List<String> reassignmentNotices(AuthSession session);
+
     default List<DisasterType> findActiveDisasterTypes(AuthSession session) {
         return List.of(DisasterType.values());
     }

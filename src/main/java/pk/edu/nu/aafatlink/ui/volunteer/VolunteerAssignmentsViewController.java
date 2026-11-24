@@ -26,6 +26,7 @@ public final class VolunteerAssignmentsViewController {
     private final SessionManager sessions;
     private final VolunteerController volunteers;
 
+    @FXML private javafx.scene.control.ListView<String> noticeList;
     @FXML private TableView<AssignmentContext> assignmentTable;
     @FXML private TableColumn<AssignmentContext, String> assistanceColumn;
     @FXML private TableColumn<AssignmentContext, String> locationColumn;
@@ -98,15 +99,20 @@ public final class VolunteerAssignmentsViewController {
         }
         refreshButton.setDisable(true);
         showMessage("Loading assignments…", false);
-        Task<List<AssignmentContext>> task = new Task<>() {
-            @Override protected List<AssignmentContext> call() {
-                return volunteers.getPendingAssignments(sessions.authSession().orElseThrow());
+        record Inbox(List<AssignmentContext> pending, List<String> notices) {}
+        var session = sessions.authSession().orElseThrow();
+        Task<Inbox> task = new Task<>() {
+            @Override protected Inbox call() {
+                return new Inbox(volunteers.getPendingAssignments(session), volunteers.reassignmentNotices(session));
             }
         };
         task.setOnSucceeded(event -> {
             refreshButton.setDisable(false);
-            assignmentTable.getItems().setAll(task.getValue());
-            if (task.getValue().isEmpty()) showEmpty(notice == null
+            noticeList.getItems().setAll(task.getValue().notices());
+            noticeList.setManaged(!noticeList.getItems().isEmpty());
+            noticeList.setVisible(noticeList.isManaged());
+            assignmentTable.getItems().setAll(task.getValue().pending());
+            if (task.getValue().pending().isEmpty()) showEmpty(notice == null
                     ? "No assignment currently needs your response." : notice + " The latest assignment list is empty.");
             else {
                 showTable();

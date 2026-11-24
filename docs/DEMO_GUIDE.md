@@ -1,5 +1,9 @@
 # Ten-minute evaluation demonstration
 
+## Preparing the evaluation data
+
+Apply the repository migrations to the development project. Create four verified evaluation accounts and set the Volunteer to approved and available with a matching skill and service area. In a local copy of `supabase/demo/prepare_demo_data.sql`, replace the four example addresses and run the script as the development database owner. Then run `supabase/demo/verify_demo_data.sql`. A fresh setup has one pending verification, one verified awaiting priority, one verified with High priority, one awaiting closure review and three closed requests. Rerunning preparation preserves work already performed on those fixtures.
+
 Prepare the live accounts and seeded records before evaluation. Demonstration mode is a read-only UI fallback and must never be presented as a successful database transaction.
 
 1. **Architecture and login (45 seconds):** sign in, show the role-aware shell, then identify one FXML controller, its plain-Java application controller, domain object, repository interface and Supabase adapter.

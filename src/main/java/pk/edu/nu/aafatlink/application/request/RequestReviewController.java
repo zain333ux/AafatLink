@@ -15,6 +15,7 @@ import pk.edu.nu.aafatlink.domain.request.AssistanceRequest;
 import pk.edu.nu.aafatlink.domain.request.PriorityAssessment;
 import pk.edu.nu.aafatlink.domain.request.PriorityAssessmentResult;
 import pk.edu.nu.aafatlink.domain.request.RequestPriority;
+import pk.edu.nu.aafatlink.domain.request.RequestStatus;
 import pk.edu.nu.aafatlink.domain.request.RequestReviewResult;
 import pk.edu.nu.aafatlink.domain.request.RequestReviewDetails;
 import pk.edu.nu.aafatlink.domain.request.VerificationDecision;
@@ -32,6 +33,10 @@ public final class RequestReviewController {
         this.workflows = Objects.requireNonNull(workflows, "workflows");
         this.priorities = Objects.requireNonNull(priorities, "priorities");
         this.clock = Objects.requireNonNull(clock, "clock");
+    }
+
+    public java.net.URI evidenceLink(AuthSession session, UUID evidenceId) {
+        return workflows.evidenceLink(session, evidenceId);
     }
 
     public List<AssistanceRequest> loadVerificationQueue(AuthSession session) {
@@ -134,7 +139,8 @@ public final class RequestReviewController {
             VerificationDecision decision, String reason) {
         Objects.requireNonNull(session, "session");
         Objects.requireNonNull(request, "request");
-        if (!request.canBeVerified()) {
+        if (!request.canBeVerified() && !(decision == VerificationDecision.ADDITIONAL_INFORMATION_REQUIRED
+                && request.status() == RequestStatus.VERIFIED)) {
             throw new IllegalArgumentException("This request is no longer pending verification.");
         }
         VerificationRecord record = new VerificationRecord(UUID.randomUUID(), request.id(), session.userId(),

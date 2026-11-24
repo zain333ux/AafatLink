@@ -73,7 +73,7 @@ class AuthenticationControllerTest {
         private boolean failLogout;
 
         @Override
-        public RegistrationResult register(String displayName, String email, String password) {
+        public RegistrationResult register(String displayName, String email, String password, UserRole accountType) {
             throw new UnsupportedOperationException();
         }
 

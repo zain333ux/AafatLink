@@ -21,6 +21,7 @@ class RequestStatusTest {
     @Test
     void supportsInformationResubmissionAndReworkWithoutInventingPriorityStatus() {
         assertTrue(RequestStatus.PENDING_VERIFICATION.canTransitionTo(RequestStatus.ADDITIONAL_INFORMATION_REQUIRED));
+        assertTrue(RequestStatus.VERIFIED.canTransitionTo(RequestStatus.ADDITIONAL_INFORMATION_REQUIRED));
         assertTrue(RequestStatus.ADDITIONAL_INFORMATION_REQUIRED.canTransitionTo(RequestStatus.PENDING_VERIFICATION));
         assertTrue(RequestStatus.AWAITING_CLOSURE_REVIEW.canTransitionTo(RequestStatus.IN_PROGRESS));
         assertFalse(RequestStatus.VERIFIED.canTransitionTo(RequestStatus.CLOSED));

@@ -25,6 +25,18 @@ public final class ClosureReviewViewController {
     private final SessionManager sessions;
     private final RequestReviewController reviews;
 
+    private List<java.util.UUID> evidenceIds = List.of();
+
+    @FXML private void openEvidence() {
+        int index = evidenceList.getSelectionModel().getSelectedIndex();
+        if (index < 0 || index >= evidenceIds.size()) {
+            showMessage("Select an attachment first.", true);
+            return;
+        }
+        ReviewEvidenceOpener.open(reviews, sessions.authSession().orElseThrow(), evidenceIds.get(index),
+                message -> showMessage(message, true));
+    }
+
     @FXML private TableView<TaskContext> requestTable;
     @FXML private TableColumn<TaskContext, String> assistanceColumn;
     @FXML private TableColumn<TaskContext, String> locationColumn;
@@ -67,6 +79,10 @@ public final class ClosureReviewViewController {
 
     @FXML
     private void loadRequests() {
+        refreshQueue(null, false);
+    }
+
+    private void refreshQueue(String notice, boolean error) {
         if (sessions.authSession().isEmpty() || reviews == null) {
             requestTable.setItems(FXCollections.observableArrayList());
             showEmpty("Demonstration mode does not load operational closure records.");
@@ -83,12 +99,12 @@ public final class ClosureReviewViewController {
         task.setOnSucceeded(event -> {
             requestTable.setItems(FXCollections.observableArrayList(task.getValue()));
             setBusy(false);
-            if (task.getValue().isEmpty()) showEmpty("No request is awaiting closure review.");
+            if (task.getValue().isEmpty()) showEmpty(notice == null ? "No request is awaiting closure review." : notice);
             else {
                 emptyState.setVisible(false);
                 emptyState.setManaged(false);
                 requestTable.getSelectionModel().selectFirst();
-                showMessage("Review completion details before recording a decision.", false);
+                showMessage(notice == null ? "Review completion details before recording a decision." : notice, error);
             }
         });
         task.setOnFailed(event -> {
@@ -120,13 +136,12 @@ public final class ClosureReviewViewController {
         };
         task.setOnSucceeded(event -> {
             remarksArea.clear();
-            showMessage(approve ? "Request closed and assignment completed."
+            refreshQueue(approve ? "Request closed and assignment completed."
                     : "Task returned to In Progress. The reason is visible to the volunteer.", false);
-            loadRequests();
         });
         task.setOnFailed(event -> {
             setBusy(false);
-            showMessage(message(task.getException(), "The closure decision was not saved."), true);
+            refreshQueue(message(task.getException(), "The closure decision was not saved."), true);
         });
         start(task, "aafatlink-closure-save");
     }
@@ -144,6 +159,7 @@ public final class ClosureReviewViewController {
         progressList.setItems(FXCollections.observableArrayList(context.progressHistory().stream()
                 .map(this::progressLabel).toList()));
         progressList.setPlaceholder(new Label("No progress history was recorded."));
+        evidenceIds = context.completionEvidence().stream().map(CompletionEvidence::evidenceId).toList();
         evidenceList.setItems(FXCollections.observableArrayList(context.completionEvidence().stream()
                 .map(this::evidenceLabel).toList()));
         evidenceList.setPlaceholder(new Label("No completion evidence was attached."));

@@ -19,6 +19,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import pk.edu.nu.aafatlink.domain.account.UserRole;
 import pk.edu.nu.aafatlink.domain.auth.AuthSession;
 import pk.edu.nu.aafatlink.domain.auth.RegistrationResult;
 import pk.edu.nu.aafatlink.service.auth.AuthService;
@@ -52,8 +53,11 @@ public final class SupabaseAuthClient implements AuthService {
     }
 
     @Override
-    public RegistrationResult register(String displayName, String email, String password) {
+    public RegistrationResult register(String displayName, String email, String password, UserRole accountType) {
         validateCredentials(email, password);
+        if (accountType != UserRole.REQUESTER && accountType != UserRole.VOLUNTEER) {
+            throw new IllegalArgumentException("Choose Requester or Volunteer.");
+        }
         String safeName = requireText(displayName, "displayName").trim();
         if (safeName.length() < 2 || safeName.length() > 120) {
             throw new IllegalArgumentException("Display name must contain 2 to 120 characters.");
@@ -61,12 +65,12 @@ public final class SupabaseAuthClient implements AuthService {
         JsonNode response = post("/auth/v1/signup", Map.of(
                 "email", email.trim(),
                 "password", password,
-                "data", Map.of("display_name", safeName)), null);
-        JsonNode user = requiredObject(response, "user");
+                "data", Map.of("display_name", safeName, "account_type", accountType.name())), null);
+        JsonNode user = response.has("user") ? requiredObject(response, "user") : response;
         return new RegistrationResult(
                 UUID.fromString(requiredText(user, "id")),
                 requiredText(user, "email"),
-                response.path("session").isMissingNode() || response.path("session").isNull());
+                !response.hasNonNull("access_token") && !response.hasNonNull("session"));
     }
 
     @Override
