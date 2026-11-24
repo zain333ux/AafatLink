@@ -26,7 +26,7 @@
                 <VBox fx:id="emptyState" visible="false" managed="false" alignment="CENTER" spacing="10" styleClass="empty-state"><Label text="No values available" styleClass="empty-state-title"/><Label text="Demonstration mode does not load or change operational reference data." wrapText="true" textAlignment="CENTER" styleClass="empty-state-copy"/></VBox>
             </StackPane>
             <VBox fx:id="editor" visible="false" managed="false" spacing="14" styleClass="panel-card request-detail-panel">
-                <Label text="CONTROLLED VALUE · UC12" styleClass="card-kicker"/>
+                <Label text="CONTROLLED VALUE" styleClass="card-kicker"/>
                 <Label fx:id="editorTitle" styleClass="panel-title"/>
                 <VBox spacing="5"><Label text="Display name" styleClass="field-label"/><TextField fx:id="nameField" promptText="Reference value name" styleClass="form-control"/></VBox>
                 <CheckBox fx:id="activeCheck" text="Active and available for new workflow selections"/>

@@ -67,6 +67,17 @@ class SupabaseWorkflowRepositoryTest {
     }
 
     @Test
+    void readsDashboardCountAndLinkedRecordInOneCall() {
+        server.createContext("/rest/v1/rpc/dashboard_summary", exchange -> respond(exchange,
+                "[{\"queue\":\"verify\",\"total\":1201,\"record_id\":\"" + USER_ID + "\",\"caption\":\"River Road\"}]"));
+        var session = new AuthSession(USER_ID, "coordinator@example.com", "access", "refresh", Instant.MAX);
+        var entry = repository.dashboard(session, pk.edu.nu.aafatlink.domain.account.UserRole.COORDINATOR).get(0);
+        assertEquals(1201L, entry.total());
+        assertEquals(USER_ID, entry.recordId());
+        assertEquals("River Road", entry.caption());
+    }
+
+    @Test
     void ordersTheCoordinatorQueueByUrgencyThenSubmissionTime() {
         server.removeContext("/rest/v1/assistance_requests");
         AtomicReference<String> query = new AtomicReference<>();

@@ -1,5 +1,6 @@
 package pk.edu.nu.aafatlink.ui.request;
 
+import pk.edu.nu.aafatlink.ui.shell.DashboardSelection;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -19,7 +20,12 @@ import pk.edu.nu.aafatlink.domain.assignment.ProgressUpdate;
 import pk.edu.nu.aafatlink.domain.assignment.TaskContext;
 
 /** JavaFX presentation controller for UC06 closure approval and rework. */
-public final class ClosureReviewViewController {
+public final class ClosureReviewViewController implements DashboardSelection.Destination {
+    private final DashboardSelection selection = new DashboardSelection();
+
+    @Override
+    public DashboardSelection initialSelection() { return selection; }
+
     private static final DateTimeFormatter TIME = DateTimeFormatter.ofPattern("dd MMM, HH:mm")
             .withZone(ZoneId.systemDefault());
     private final SessionManager sessions;
@@ -103,7 +109,7 @@ public final class ClosureReviewViewController {
             else {
                 emptyState.setVisible(false);
                 emptyState.setManaged(false);
-                requestTable.getSelectionModel().selectFirst();
+                selection.select(requestTable, item -> item.assignmentContext().assignment().id());
                 showMessage(notice == null ? "Review completion details before recording a decision." : notice, error);
             }
         });

@@ -1,5 +1,6 @@
 package pk.edu.nu.aafatlink.ui.volunteer;
 
+import pk.edu.nu.aafatlink.ui.shell.DashboardSelection;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -20,7 +21,12 @@ import pk.edu.nu.aafatlink.application.volunteer.VolunteerController;
 import pk.edu.nu.aafatlink.domain.assignment.AssignmentContext;
 
 /** JavaFX presentation controller for UC08. */
-public final class VolunteerAssignmentsViewController {
+public final class VolunteerAssignmentsViewController implements DashboardSelection.Destination {
+    private final DashboardSelection selection = new DashboardSelection();
+
+    @Override
+    public DashboardSelection initialSelection() { return selection; }
+
     private static final DateTimeFormatter DATE_TIME = DateTimeFormatter.ofPattern("dd MMM, HH:mm")
             .withZone(ZoneId.systemDefault());
     private final SessionManager sessions;
@@ -116,7 +122,7 @@ public final class VolunteerAssignmentsViewController {
                     ? "No assignment currently needs your response." : notice + " The latest assignment list is empty.");
             else {
                 showTable();
-                assignmentTable.getSelectionModel().selectFirst();
+                selection.select(assignmentTable, item -> item.assignment().id());
                 showMessage(notice == null ? "" : notice, notice != null && noticeIsError);
             }
         });

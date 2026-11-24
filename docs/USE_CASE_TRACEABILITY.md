@@ -1,5 +1,11 @@
 # Mandatory use-case traceability
 
+## Operational dashboards, November 24
+
+Dashboard links provide entry points to existing workflows. Requesters can submit and track requests (UC01–02). Coordinators can verify, prioritize, assign and close requests (UC03–06). Volunteers can manage readiness, offers and active tasks (UC07–10). Reports and administrative access remain available to their authorized roles (UC11–12).
+
+The linked aafatlink-dev database is current through migration 20261124180000 (26 migrations). A read-only account check found two active verified Requesters and one active verified Volunteer. The four-role hosted rehearsal still needs designated Coordinator and Administrator test accounts.
+
 ## November 24 local verification
 
 The deployment labels below refer to the original nineteen migrations. Hosted verification of the following updates is pending.

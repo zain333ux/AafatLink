@@ -34,7 +34,7 @@
             </Button>
             <VBox spacing="10.0" styleClass="demo-notice-dark">
                 <Label fx:id="sessionNoticeTitle" text="DEMONSTRATION" styleClass="demo-notice-title" />
-                <Label fx:id="demoNoticeLabel" text="Read-only preview. No operational data is loaded or changed."
+                <Label fx:id="demoNoticeLabel" text="Read-only workspace."
                        wrapText="true" styleClass="demo-notice-copy" />
             </VBox>
         </VBox>
@@ -52,7 +52,7 @@
                 <Label fx:id="roleLabel" text="Requester" styleClass="role-pill" />
             </VBox>
             <StackPane minWidth="42.0" minHeight="42.0" styleClass="avatar">
-                <Label text="DA" styleClass="avatar-text" />
+                <Label fx:id="avatarLabel" styleClass="avatar-text" />
             </StackPane>
         </HBox>
     </top>

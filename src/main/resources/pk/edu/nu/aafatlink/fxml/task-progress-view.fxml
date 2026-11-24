@@ -40,13 +40,13 @@
                             <Separator/>
                             <VBox spacing="7"><Label text="Progress history" styleClass="field-label"/><ListView fx:id="progressList" prefHeight="115"/></VBox>
                             <VBox spacing="10" styleClass="decision-panel">
-                                <Label text="RECORD PROGRESS · UC09" styleClass="card-kicker"/>
+                                <Label text="RECORD PROGRESS" styleClass="card-kicker"/>
                                 <TextArea fx:id="progressNoteArea" promptText="Progress note (required, up to 500 characters)" prefRowCount="3" wrapText="true" styleClass="form-text-area"/>
                                 <TextField fx:id="percentageField" promptText="Estimated completion 0–99 (optional)" styleClass="form-control"/>
                                 <Button fx:id="recordButton" text="Record progress" onAction="#recordProgress" styleClass="secondary-button"/>
                             </VBox>
                             <VBox spacing="10" styleClass="decision-panel">
-                                <Label text="COMPLETE TASK · UC10" styleClass="card-kicker"/>
+                                <Label text="COMPLETE TASK" styleClass="card-kicker"/>
                                 <TextArea fx:id="completionRemarksArea" promptText="Completion remarks (required)" prefRowCount="3" wrapText="true" styleClass="form-text-area"/>
                                 <HBox spacing="10" alignment="CENTER_LEFT"><Button text="Choose evidence" onAction="#chooseEvidence" styleClass="outline-button"/><Button text="Remove" onAction="#removeEvidence" styleClass="text-button"/><Label fx:id="evidenceNameLabel" wrapText="true" styleClass="helper-text" HBox.hgrow="ALWAYS"/></HBox>
                                 <Button fx:id="completeButton" text="Submit for closure review" onAction="#completeTask" styleClass="primary-button"/>

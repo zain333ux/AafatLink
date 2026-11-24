@@ -15,41 +15,41 @@ import org.junit.jupiter.api.Test;
 
 class DatabaseMigrationContractTest {
     private static final Path DOMAIN = Path.of("supabase", "migrations",
-            "20261114231131_create_aafatlink_domain.sql");
+            "20261115093122_create_aafatlink_domain.sql");
     private static final Path RPCS = Path.of("supabase", "migrations",
-            "20261114231516_add_authorized_workflow_rpcs.sql");
+            "20261115093125_add_authorized_workflow_rpcs.sql");
     private static final Path STORAGE = Path.of("supabase", "migrations",
-            "20261114231716_configure_evidence_storage.sql");
+            "20261115093127_configure_evidence_storage.sql");
     private static final Path ONBOARDING = Path.of("supabase", "migrations",
-            "20261114232825_add_account_onboarding.sql");
+            "20261115093129_add_account_onboarding.sql");
     private static final Path HARDENING = Path.of("supabase", "migrations",
-            "20261115093254_harden_database_baseline.sql");
+            "20261115093320_harden_database_baseline.sql");
     private static final Path UC01_ALIGNMENT = Path.of("supabase", "migrations",
-            "20261115093854_align_request_submission_with_uc01.sql");
+            "20261115094050_align_request_submission_with_uc01.sql");
     private static final Path REQUESTER_TRACKING = Path.of("supabase", "migrations",
-            "20261119235500_allow_requester_progress_tracking.sql");
+            "20261120221719_allow_requester_progress_tracking.sql");
     private static final Path EVIDENCE_RECOVERY = Path.of("supabase", "migrations",
-            "20261120090000_add_reliable_evidence_staging.sql");
+            "20261120221726_add_reliable_evidence_staging.sql");
     private static final Path UC04_ALIGNMENT = Path.of("supabase", "migrations",
-            "20261120103000_align_priority_with_uc04.sql");
+            "20261120221733_align_priority_with_uc04.sql");
     private static final Path VOLUNTEER_COORDINATION = Path.of("supabase", "migrations",
-            "20261121090000_add_volunteer_coordination_workflows.sql");
+            "20261120221740_add_volunteer_coordination_workflows.sql");
     private static final Path TASK_EXECUTION = Path.of("supabase", "migrations",
-            "20261121133000_add_task_execution_and_closure_workflows.sql");
+            "20261120232255_add_task_execution_and_closure_workflows.sql");
     private static final Path REWORK_VISIBILITY = Path.of("supabase", "migrations",
-            "20261121141500_allow_volunteer_rework_visibility.sql");
+            "20261121070241_allow_volunteer_rework_visibility.sql");
     private static final Path REPORTING_ACCESS = Path.of("supabase", "migrations",
-            "20261121153000_add_reporting_and_access_management.sql");
+            "20261121075908_add_reporting_and_access_management.sql");
     private static final Path COORDINATOR_REVIEW = Path.of("supabase", "migrations",
-            "20261121170000_align_coordinator_entry_and_review_details.sql");
+            "20261121172140_align_coordinator_entry_and_review_details.sql");
     private static final Path REVIEW_PRIVILEGES = Path.of("supabase", "migrations",
-            "20261121171500_minimize_request_review_privileges.sql");
+            "20261121172313_minimize_request_review_privileges.sql");
     private static final Path COORDINATOR_OPERATIONS = Path.of("supabase", "migrations",
-            "20261121173000_support_coordinator_request_operations.sql");
+            "20261121173242_support_coordinator_request_operations.sql");
     private static final Path CONTROLLED_REFERENCES = Path.of("supabase", "migrations",
-            "20261121200000_add_controlled_reference_management.sql");
+            "20261122072007_add_controlled_reference_management.sql");
     private static final Path REFERENCE_POLICY_OPTIMIZATION = Path.of("supabase", "migrations",
-            "20261122083000_optimize_reference_audit_and_request_policy.sql");
+            "20261122072322_optimize_reference_audit_and_request_policy.sql");
 
     @Test
     void everyPublicTableEnablesRowLevelSecurity() throws IOException {

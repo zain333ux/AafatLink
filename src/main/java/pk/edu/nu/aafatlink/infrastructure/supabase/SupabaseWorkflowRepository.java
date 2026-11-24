@@ -1,5 +1,7 @@
 package pk.edu.nu.aafatlink.infrastructure.supabase;
 
+import pk.edu.nu.aafatlink.application.dashboard.DashboardEntry;
+import pk.edu.nu.aafatlink.domain.account.UserRole;
 import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -746,6 +748,19 @@ public final class SupabaseWorkflowRepository implements WorkflowRepository {
         String signed = required(result, "signedURL");
         if (!signed.startsWith(prefix)) throw new RepositoryException("Invalid attachment link.");
         return projectUri.resolve("/storage/v1" + signed);
+    }
+
+    @Override
+    public List<DashboardEntry> dashboard(AuthSession session, UserRole role) {
+        JsonNode rows = send(session, "/rest/v1/rpc/dashboard_summary", "POST",
+                "{\"expected_role\":\"" + role.name() + "\"}");
+        if (!rows.isArray()) throw new RepositoryException("Invalid dashboard response.");
+        List<DashboardEntry> entries = new ArrayList<>();
+        for (JsonNode row : rows) {
+            entries.add(new DashboardEntry(required(row, "queue"), row.required("total").longValue(),
+                    UUID.fromString(required(row, "record_id")), required(row, "caption")));
+        }
+        return List.copyOf(entries);
     }
 
     @Override

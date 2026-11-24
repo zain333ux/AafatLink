@@ -71,7 +71,7 @@ public final class LoginViewController {
         signInButton.setDisable(!connected);
         registrationButton.setDisable(!connected);
         recoveryButton.setDisable(!connected);
-        signInButton.setText(connected ? "Sign in securely" : "Sign in requires Supabase configuration");
+        signInButton.setText(connected ? "Sign in securely" : "Sign-in unavailable");
     }
 
     @FXML

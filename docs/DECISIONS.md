@@ -1,5 +1,9 @@
 # Engineering decisions
 
+## Operational dashboards
+
+Show the work available to each role on sign-in. Load counts and a single linked record per nonempty queue in one read-only Supabase call. The database checks the active role and applies the session’s row policies. Keep implementation coverage in the traceability document. Demo sessions show navigation without requesting or inventing operational records.
+
 ## Mandatory artifacts before portfolio extras
 
 **Decision:** Complete the behavior documented by Deliverable 3 and the reviewed UML artifacts before spending implementation time on optional portfolio features or additional visual polish. Security, database integrity, testing and UI required by a mandatory use case remain part of that use case.

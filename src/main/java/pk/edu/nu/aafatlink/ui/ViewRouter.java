@@ -10,6 +10,7 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 import pk.edu.nu.aafatlink.application.auth.AuthenticationController;
 import pk.edu.nu.aafatlink.application.auth.PasswordRecoveryCoordinator;
+import pk.edu.nu.aafatlink.application.dashboard.DashboardController;
 import pk.edu.nu.aafatlink.application.request.RequestController;
 import pk.edu.nu.aafatlink.application.request.RequestReviewController;
 import pk.edu.nu.aafatlink.application.assignment.AssignmentController;
@@ -33,6 +34,7 @@ public final class ViewRouter {
     private final NavigationPolicy navigationPolicy;
     private final AuthenticationController authentication;
     private final PasswordRecoveryCoordinator passwordRecovery;
+    private final DashboardController dashboard;
     private final RequestController requests;
     private final RequestReviewController reviews;
     private final VolunteerController volunteers;
@@ -44,7 +46,7 @@ public final class ViewRouter {
             NavigationPolicy navigationPolicy, AuthenticationController authentication,
             PasswordRecoveryCoordinator passwordRecovery, RequestController requests,
             RequestReviewController reviews, VolunteerController volunteers,
-            AssignmentController assignments, ReportController reports, AccessController access) {
+            AssignmentController assignments, ReportController reports, AccessController access, DashboardController dashboard) {
         this.stage = Objects.requireNonNull(stage, "stage");
         this.configuration = Objects.requireNonNull(configuration, "configuration");
         this.sessions = Objects.requireNonNull(sessions, "sessions");
@@ -57,6 +59,7 @@ public final class ViewRouter {
         this.assignments = assignments;
         this.reports = reports;
         this.access = access;
+        this.dashboard = dashboard;
     }
 
     public void showLogin() {
@@ -117,7 +120,7 @@ public final class ViewRouter {
         }
         if (type == AppShellController.class) {
             return new AppShellController(this, sessions, navigationPolicy, authentication, requests, reviews,
-                    volunteers, assignments, reports, access);
+                    volunteers, assignments, reports, access, dashboard);
         }
         if (type == RegistrationViewController.class) {
             return new RegistrationViewController(this, authentication);

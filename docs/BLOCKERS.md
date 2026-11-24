@@ -1,9 +1,7 @@
 # External blockers
 
-## Hosted evaluation awaits project access
+## Hosted evaluation, November 24
 
-The November 24 implementation adds six migrations to the previously deployed nineteen. The owner is waiting for their partner to provide access. Local PostgreSQL validation used synthetic auth identities and a minimal Storage schema. Hosted Auth, PostgREST and Storage still need connected checks.
+The linked aafatlink-dev database is current through migration 20261124180000 (26 migrations). A read-only account check found two active verified Requesters and one active verified Volunteer. The four-role hosted rehearsal still needs designated Coordinator and Administrator test accounts.
 
-Once access is available, apply the six pending migrations to the development project. Configure the JavaFX launch with the project URL and publishable key, verify four separate role accounts and approve the demo Volunteer. Set availability, skills and service areas through the readiness screen. Use local copies of the demo scripts with verified test-account addresses. Keep passwords and real account addresses out of Git.
-
-Run the connected UC01–UC12 rehearsal, including signed evidence opening, evidence retry, authorization checks, priority queue order and LAN response times. Finish password recovery by opening the one-use link on the computer that initiated recovery and signing in with the new password. Record the results before freezing the evaluation build.
+Once the privileged test accounts are designated, prepare the evaluation data and confirm volunteer approval, availability, skills and service areas. Rehearse the four roles in JavaFX against hosted Auth, PostgREST and Storage. Check dashboard counts and record links alongside submission, signed evidence, retries, queue order, LAN response times and the timed scenario. Complete password recovery using the mailbox and computer that initiated it. Record the results before tagging the release.

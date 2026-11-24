@@ -1,5 +1,6 @@
 package pk.edu.nu.aafatlink.ui.volunteer;
 
+import pk.edu.nu.aafatlink.ui.shell.DashboardSelection;
 import java.io.File;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -23,7 +24,12 @@ import pk.edu.nu.aafatlink.domain.evidence.EvidenceAttachment;
 import pk.edu.nu.aafatlink.service.evidence.EvidenceFileValidator;
 
 /** JavaFX presentation controller for UC09 progress and UC10 completion. */
-public final class TaskProgressViewController {
+public final class TaskProgressViewController implements DashboardSelection.Destination {
+    private final DashboardSelection selection = new DashboardSelection();
+
+    @Override
+    public DashboardSelection initialSelection() { return selection; }
+
     private static final DateTimeFormatter TIME = DateTimeFormatter.ofPattern("dd MMM, HH:mm")
             .withZone(ZoneId.systemDefault());
     private final SessionManager sessions;
@@ -104,7 +110,7 @@ public final class TaskProgressViewController {
             else {
                 emptyState.setVisible(false);
                 emptyState.setManaged(false);
-                taskTable.getSelectionModel().selectFirst();
+                selection.select(taskTable, item -> item.assignmentContext().assignment().id());
                 showMessage(notice == null ? "Select a task to record progress or submit completion." : notice,
                         notice != null && noticeIsError);
             }

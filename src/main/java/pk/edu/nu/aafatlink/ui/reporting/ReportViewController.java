@@ -67,10 +67,10 @@ public final class ReportViewController {
         generateButton.setDisable(unavailable);
         exportButton.setDisable(true);
         if (unavailable) {
-            showEmpty("Demonstration report preview", "Connected reporting uses committed authorized data only.");
+            showEmpty("Demonstration report preview", "Sign in to generate reports.");
         } else {
             loadServiceAreas();
-            showEmpty("Choose a report", "Select filters, then generate one of the four documented UC11 reports.");
+            showEmpty("Choose a report", "Select your filters, then generate a report.");
         }
     }
 
@@ -139,7 +139,7 @@ public final class ReportViewController {
         } else {
             emptyState.setVisible(false); emptyState.setManaged(false);
             exportButton.setDisable(false);
-            showMessage(report.rows().size() + " report row(s) generated from committed data.", false);
+            showMessage(report.rows().size() + " rows in this report.", false);
         }
     }
 

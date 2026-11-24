@@ -8,6 +8,7 @@ import javafx.scene.control.Alert;
 import javafx.stage.Stage;
 import pk.edu.nu.aafatlink.application.auth.AuthenticationController;
 import pk.edu.nu.aafatlink.application.auth.PasswordRecoveryCoordinator;
+import pk.edu.nu.aafatlink.application.dashboard.DashboardController;
 import pk.edu.nu.aafatlink.application.request.RequestController;
 import pk.edu.nu.aafatlink.application.request.RequestReviewController;
 import pk.edu.nu.aafatlink.application.assignment.AssignmentController;
@@ -82,7 +83,7 @@ public final class AafatLinkApplication extends Application {
                     : new AccessController(userRepository, workflows);
             ViewRouter router = new ViewRouter(primaryStage, configuration, sessions,
                     new NavigationPolicy(), authentication, passwordRecovery, requests, reviews,
-                    volunteers, assignments, reports, access);
+                    volunteers, assignments, reports, access, workflows == null ? null : new DashboardController(workflows));
             primaryStage.setTitle("AafatLink");
             primaryStage.setMinWidth(1_020);
             primaryStage.setMinHeight(680);

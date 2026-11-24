@@ -34,6 +34,13 @@ begin
  result := public.submit_assistance_request(op,requester,'flood',null,'[TEST] River Road',
    '[TEST] Flooded road','Water supplies','Four residents');
  request_id := (result->>'request_id')::uuid;
+ if not exists(select from public.dashboard_summary('REQUESTER') where queue='requests'
+    and total=1 and record_id=request_id) then raise exception 'Requester dashboard mismatch'; end if;
+ begin
+   perform public.dashboard_summary('ADMINISTRATOR');
+   raise exception 'Dashboard accepted incorrect role';
+ exception when insufficient_privilege then null;
+ end;
  if public.reconcile_request_operation(op)->>'status' is distinct from 'COMMITTED'
     or public.abandon_request_operation(op) or (result->>'evidence_count')::integer <> 1 then
    raise exception 'Committed evidence must survive uncertain submission and cleanup';
@@ -49,6 +56,8 @@ begin
  perform public.decide_request_verification(gen_random_uuid(),request_id,0,'VERIFIED',null);
  perform public.decide_request_verification(gen_random_uuid(),request_id,1,'ADDITIONAL_INFORMATION_REQUIRED','Confirm affected count');
  perform set_config('request.jwt.claim.sub',requester::text,true);
+ if not exists(select from public.dashboard_summary('REQUESTER') where queue='returned' and record_id=request_id)
+   then raise exception 'Returned request missing from dashboard'; end if;
  result := public.resubmit_assistance_request(gen_random_uuid(),request_id,2,'flood',null,'[TEST] River Road',
     '[TEST] Flooded road','Water supplies','Six residents');
  if (result->>'request_id')::uuid is distinct from request_id or result->>'status' <> 'PENDING_VERIFICATION' then
@@ -67,6 +76,9 @@ begin
  exception when insufficient_privilege then null;
  end;
  perform set_config('request.jwt.claim.sub',administrator::text,true);
+ if not exists(select from public.dashboard_summary('ADMINISTRATOR') where queue='approvals') then
+   raise exception 'Pending volunteer approval missing from dashboard';
+ end if;
  perform public.update_user_access(gen_random_uuid(),volunteer,0,'VOLUNTEER','ACTIVE','APPROVED','[TEST] Approved');
  op := gen_random_uuid();
  result := public.save_controlled_reference_value(op,'VOLUNTEER_SKILL',null,'[TEST] ' || op,true,0,'[TEST] Add skill');

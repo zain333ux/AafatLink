@@ -1,14 +1,12 @@
 # AafatLink project handoff
 
-## November 24 implementation update
+## Operational dashboards, November 24
 
-Public Volunteer signup and the repeatable demo scripts are implemented locally. Six forward migrations follow the 19-migration hosted baseline. Run the new migrations on the designated development project when access is available. The historical milestones below describe the original handoff.
+The shell opens a live dashboard for the signed-in role. Selecting a preview opens the underlying workflow with that record selected. Demo sessions can explore the same destinations without loading live records. See BLOCKERS.md for the remaining release checks.
 
-The remaining evaluation steps are hosted account confirmation, demo setup, the four-role JavaFX workflow, same-computer password recovery, response-time checks and the timed demonstration. Release tagging follows those checks. See BLOCKERS.md and WORK_LOG.md for verification status.
+The linked aafatlink-dev database is current through migration 20261124180000 (26 migrations). A read-only account check found two active verified Requesters and one active verified Volunteer. The four-role hosted rehearsal still needs designated Coordinator and Administrator test accounts.
 
-This handoff is for the developer continuing the current repository. The mandatory academic implementation comes first. Do not spend time on optional portfolio polish until the minimum completion gate below passes.
-
-## 1. Current verified state
+## 1. Original handoff baseline
 
 - Repository: `https://github.com/zain333ux/AafatLink`
 - Baseline commit: `afc5979` (`fix: harden JavaFX workflow interactions`)

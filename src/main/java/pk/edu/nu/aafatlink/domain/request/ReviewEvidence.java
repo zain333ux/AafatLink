@@ -11,7 +11,7 @@ public record ReviewEvidence(UUID id, String fileName, String contentType, long 
         fileName = requireText(fileName, "fileName");
         contentType = requireText(contentType, "contentType");
         if (sizeBytes < 1 || sizeBytes > 5L * 1024 * 1024) {
-            throw new IllegalArgumentException("Evidence size is outside the documented limit.");
+            throw new IllegalArgumentException("Evidence size is outside the allowed limit.");
         }
         Objects.requireNonNull(uploadedAt, "uploadedAt");
     }

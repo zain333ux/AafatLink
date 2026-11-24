@@ -1,5 +1,11 @@
 # Work log
 
+## Operational dashboards, November 24
+
+Replaced the static dashboard with role-specific queue counts, record previews and workflow navigation. Removed course and implementation references from visible screens. The 130 Java tests and Maven package passed. The PostgreSQL regression ran under authenticated role policies. A JavaFX fixture verified retry, empty and populated queues, and selection of a linked request in the second row. The login screen and all four demo shells rendered at two window sizes. The hosted migration was applied and a subsequent remote dry run found no pending migrations.
+
+The linked aafatlink-dev database is current through migration 20261124180000 (26 migrations). A read-only account check found two active verified Requesters and one active verified Volunteer. The four-role hosted rehearsal still needs designated Coordinator and Administrator test accounts.
+
 ## 2026-11-15
 
 ### Completed

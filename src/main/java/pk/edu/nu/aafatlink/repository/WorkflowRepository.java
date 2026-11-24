@@ -1,5 +1,7 @@
 package pk.edu.nu.aafatlink.repository;
 
+import pk.edu.nu.aafatlink.application.dashboard.DashboardEntry;
+import pk.edu.nu.aafatlink.domain.account.UserRole;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -31,6 +33,7 @@ import pk.edu.nu.aafatlink.domain.evidence.EvidenceAttachment;
 
 /** Persistence boundary shared by the GRASP workflow controllers. */
 public interface WorkflowRepository {
+    List<DashboardEntry> dashboard(AuthSession session, UserRole role);
     java.net.URI evidenceLink(AuthSession session, UUID evidenceId);
     List<String> reassignmentNotices(AuthSession session);
 

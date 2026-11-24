@@ -55,7 +55,7 @@ public record AppConfiguration(Optional<URI> supabaseUrl, Optional<String> publi
     }
 
     public String modeLabel() {
-        return isRemoteConfigured() ? "Connected configuration" : "Demonstration mode";
+        return isRemoteConfigured() ? "Online sign-in" : "Demonstration mode";
     }
 
     private static boolean hasText(String value) {

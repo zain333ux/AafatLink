@@ -11,7 +11,7 @@ public record AccessChanges(UserRole role, AccountStatus status,
         Objects.requireNonNull(role, "role");
         Objects.requireNonNull(status, "status");
         if (status == AccountStatus.SUSPENDED) {
-            throw new IllegalArgumentException("UC12 uses Active or Deactivated account status.");
+            throw new IllegalArgumentException("Choose Active or Deactivated for this account.");
         }
         reason = reason == null || reason.isBlank() ? null : reason.trim();
         if (volunteerApprovalStatus == VolunteerApprovalStatus.REJECTED && reason == null) {

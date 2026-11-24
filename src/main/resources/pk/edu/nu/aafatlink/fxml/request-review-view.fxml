@@ -44,7 +44,7 @@
                 <StackPane minWidth="430">
                     <VBox fx:id="detailPlaceholder" alignment="CENTER" spacing="10" styleClass="empty-state">
                         <Label text="Select a request" styleClass="empty-state-title"/>
-                        <Label text="The documented facts and decision controls will appear here." wrapText="true" styleClass="empty-state-copy"/>
+                        <Label text="Select a request to review its details." wrapText="true" styleClass="empty-state-copy"/>
                     </VBox>
                     <VBox fx:id="detailContent" visible="false" managed="false" spacing="16" styleClass="panel-card request-detail-panel">
                         <HBox alignment="CENTER_LEFT" spacing="12">
@@ -61,7 +61,7 @@
                                 <VBox spacing="4" HBox.hgrow="ALWAYS"><Label text="Requester" styleClass="detail-label"/><Label fx:id="requesterNameLabel" wrapText="true" styleClass="detail-value"/></VBox>
                                 <VBox spacing="4" HBox.hgrow="ALWAYS"><Label text="Contact" styleClass="detail-label"/><Label fx:id="requesterContactLabel" wrapText="true" styleClass="detail-value"/></VBox>
                             </HBox>
-                            <Label text="Committed evidence" styleClass="detail-label"/>
+                            <Label text="Submitted evidence" styleClass="detail-label"/>
                             <ListView fx:id="evidenceList" prefHeight="82"/><Button text="Open selected attachment" onAction="#openEvidence" styleClass="outline-button"/>
                             <Label text="Related open requests" styleClass="detail-label"/>
                             <ListView fx:id="duplicateList" prefHeight="82"/>

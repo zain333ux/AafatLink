@@ -23,7 +23,7 @@
     <HBox alignment="CENTER_LEFT" spacing="14.0">
         <VBox spacing="5.0">
             <Label text="My assistance requests" styleClass="welcome-title" />
-            <Label text="Select a request to review its latest committed status and authorized details."
+            <Label text="Select a request to review its status and latest updates."
                    styleClass="welcome-copy" />
         </VBox>
         <Region HBox.hgrow="ALWAYS" />

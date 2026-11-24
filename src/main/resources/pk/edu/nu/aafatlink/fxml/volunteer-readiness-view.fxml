@@ -29,7 +29,7 @@
                     <VBox spacing="6" GridPane.columnIndex="1"><Label text="Availability" styleClass="field-label"/><ComboBox fx:id="availabilityBox" maxWidth="Infinity" styleClass="form-control"/></VBox>
                 </GridPane>
                 <VBox spacing="6"><Label text="Availability notes" styleClass="field-label"/><TextArea fx:id="notesArea" promptText="Optional shift or travel notes" prefRowCount="3" wrapText="true" styleClass="form-text-area"/></VBox>
-                <Label text="Administrator approval is independent of these updates. An approved volunteer must also be Available to appear in UC05 matching." wrapText="true" styleClass="helper-text"/>
+                <Label text="Administrator approval is independent of these updates. An approved volunteer must also be Available to appear in volunteer searches." wrapText="true" styleClass="helper-text"/>
             </VBox>
             <VBox spacing="14" styleClass="panel-card" minWidth="360" HBox.hgrow="ALWAYS">
                 <Label text="ASSIGNMENT MATCHING" styleClass="card-kicker"/>

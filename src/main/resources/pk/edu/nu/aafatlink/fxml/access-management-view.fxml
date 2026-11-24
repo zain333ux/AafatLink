@@ -19,7 +19,7 @@
             <StackPane minWidth="480">
                 <VBox fx:id="detailPlaceholder" alignment="CENTER" spacing="10" styleClass="empty-state"><Label text="Select a user" styleClass="empty-state-title"/><Label text="Current access, permissions and change controls will appear here." wrapText="true" styleClass="empty-state-copy"/></VBox>
                 <VBox fx:id="detailContent" visible="false" managed="false" spacing="14" styleClass="panel-card request-detail-panel">
-                    <Label text="ACCESS CONFIGURATION · UC12" styleClass="card-kicker"/>
+                    <Label text="ACCESS CONFIGURATION" styleClass="card-kicker"/>
                     <VBox spacing="3"><Label fx:id="nameLabel" styleClass="panel-title"/><Label fx:id="emailLabel" styleClass="helper-text"/></VBox>
                     <HBox spacing="12"><VBox spacing="5" HBox.hgrow="ALWAYS"><Label text="Role" styleClass="field-label"/><ComboBox fx:id="roleBox" maxWidth="Infinity"/></VBox><VBox spacing="5" HBox.hgrow="ALWAYS"><Label text="Account status" styleClass="field-label"/><ComboBox fx:id="statusBox" maxWidth="Infinity"/></VBox></HBox>
                     <VBox fx:id="approvalBox" spacing="5"><Label text="Volunteer approval" styleClass="field-label"/><ComboBox fx:id="approvalStatusBox" maxWidth="Infinity"/></VBox>

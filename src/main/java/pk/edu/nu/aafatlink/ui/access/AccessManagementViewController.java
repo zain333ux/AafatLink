@@ -1,5 +1,6 @@
 package pk.edu.nu.aafatlink.ui.access;
 
+import pk.edu.nu.aafatlink.ui.shell.DashboardSelection;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
@@ -23,7 +24,12 @@ import pk.edu.nu.aafatlink.domain.auth.AuthSession;
 import pk.edu.nu.aafatlink.domain.volunteer.VolunteerApprovalStatus;
 
 /** JavaFX presentation controller for UC12. */
-public final class AccessManagementViewController {
+public final class AccessManagementViewController implements DashboardSelection.Destination {
+    private final DashboardSelection selection = new DashboardSelection();
+
+    @Override
+    public DashboardSelection initialSelection() { return selection; }
+
     private final SessionManager sessions;
     private final AccessController access;
     private final Map<UserRole, Role> roleConfigurations = new EnumMap<>(UserRole.class);
@@ -91,7 +97,7 @@ public final class AccessManagementViewController {
             data.roles().forEach(role -> roleConfigurations.put(role.roleId(), role));
             userTable.setItems(FXCollections.observableArrayList(data.users()));
             showEmpty(data.users().isEmpty());
-            if (!data.users().isEmpty()) userTable.getSelectionModel().selectFirst();
+            if (!data.users().isEmpty()) selection.select(userTable, UserAccount::id);
         });
         task.setOnFailed(event -> {
             setBusy(false); showEmpty(true); showMessage(message(task.getException(), "Users could not be loaded."), true);

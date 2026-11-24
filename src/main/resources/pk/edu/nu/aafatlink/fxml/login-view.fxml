@@ -38,11 +38,9 @@
             <VBox spacing="13.0">
                 <Label text="✓  Traceable request decisions" styleClass="feature-line" />
                 <Label text="✓  Role-based coordination" styleClass="feature-line" />
-                <Label text="✓  Secure workflow foundation" styleClass="feature-line" />
+                <Label text="✓  Volunteer assignments and progress" styleClass="feature-line" />
             </VBox>
             <Region VBox.vgrow="ALWAYS" />
-            <Label text="FAST NUCES Islamabad · Software Design and Analysis" wrapText="true"
-                   styleClass="auth-footer-text" />
         </VBox>
     </left>
     <center>
@@ -55,7 +53,7 @@
                         <Label fx:id="configurationModeLabel" text="Demonstration mode" styleClass="status-chip" />
                     </HBox>
                     <Label text="Welcome to AafatLink" styleClass="auth-title" />
-                    <Label text="Sign in to manage your authorized work, or open a clearly labelled read-only demonstration workspace."
+                    <Label text="Sign in to your workspace or explore a read-only demo."
                            wrapText="true" styleClass="auth-subtitle" />
                 </VBox>
 
@@ -68,7 +66,7 @@
                     <PasswordField fx:id="passwordField" promptText="••••••••" disable="true"
                                    onAction="#signIn" styleClass="text-input" />
                 </VBox>
-                <Button fx:id="signInButton" text="Sign in requires Supabase configuration" disable="true"
+                <Button fx:id="signInButton" text="Sign-in unavailable" disable="true"
                         onAction="#signIn" maxWidth="Infinity" styleClass="primary-button" />
                 <Label fx:id="loginMessageLabel" text="" wrapText="true" styleClass="form-message" />
                 <Button fx:id="registrationButton" text="Create a Requester or Volunteer account" onAction="#openRegistration"

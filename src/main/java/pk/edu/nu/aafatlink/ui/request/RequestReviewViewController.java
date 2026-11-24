@@ -1,5 +1,6 @@
 package pk.edu.nu.aafatlink.ui.request;
 
+import pk.edu.nu.aafatlink.ui.shell.DashboardSelection;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -26,7 +27,12 @@ import pk.edu.nu.aafatlink.domain.request.RequestStatus;
 import pk.edu.nu.aafatlink.domain.request.RequestReviewDetails;
 
 /** Coordinator presentation controller for UC03 and UC04. */
-public final class RequestReviewViewController {
+public final class RequestReviewViewController implements DashboardSelection.Destination {
+    private final DashboardSelection selection = new DashboardSelection();
+
+    @Override
+    public DashboardSelection initialSelection() { return selection; }
+
     public enum Mode { VERIFICATION, PRIORITY }
 
     private static final DateTimeFormatter DATE_TIME = DateTimeFormatter.ofPattern("dd MMM yyyy, HH:mm")
@@ -95,7 +101,7 @@ public final class RequestReviewViewController {
         boolean verification = mode == Mode.VERIFICATION;
         headingLabel.setText(verification ? "Pending verification" : "Priority assessment");
         introLabel.setText(verification
-                ? "Review request facts, duplicate indicators and the documented decision alternatives."
+                ? "Review the request details and possible duplicates before deciding."
                 : "Apply the consistent suggestion rules, then record the coordinator's final priority.");
         verificationActions.setVisible(verification);
         verificationActions.setManaged(verification);
@@ -141,7 +147,7 @@ public final class RequestReviewViewController {
                 showEmpty(notice == null ? "No requests currently require this decision." : notice);
             } else {
                 showOnly(requestTable);
-                requestTable.getSelectionModel().selectFirst();
+                selection.select(requestTable, AssistanceRequest::id);
                 if (notice != null) showActionMessage(notice, error);
             }
         });

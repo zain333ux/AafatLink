@@ -32,7 +32,7 @@
                 <ScrollPane fx:id="detailScroll" visible="false" managed="false" fitToWidth="true" styleClass="detail-scroll">
                     <content>
                         <VBox fx:id="detailContent" spacing="16" styleClass="panel-card request-detail-panel">
-                            <Label text="CLOSURE CONTEXT · UC06" styleClass="card-kicker"/>
+                            <Label text="CLOSURE CONTEXT" styleClass="card-kicker"/>
                             <VBox spacing="4"><Label text="Request ID" styleClass="detail-label"/><Label fx:id="requestIdLabel" styleClass="request-id"/></VBox>
                             <VBox spacing="4"><Label text="Required assistance" styleClass="detail-label"/><Label fx:id="assistanceLabel" wrapText="true" styleClass="detail-value"/></VBox>
                             <VBox spacing="4"><Label text="Location" styleClass="detail-label"/><Label fx:id="locationLabel" wrapText="true" styleClass="detail-value"/></VBox>

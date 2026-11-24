@@ -138,7 +138,7 @@ public final class ReferenceDataViewController {
             showMessage(exception.getMessage(), true); return;
         }
         Alert confirmation = new Alert(Alert.AlertType.CONFIRMATION,
-                "Save this controlled reference value? The change is recorded in the UC12 audit trail.",
+                "Save this controlled reference value? The change is recorded in the audit trail.",
                 ButtonType.CANCEL, ButtonType.OK);
         confirmation.setHeaderText(selected == null ? "Confirm new reference value" : "Confirm reference-data change");
         if (confirmation.showAndWait().orElse(ButtonType.CANCEL) != ButtonType.OK) return;

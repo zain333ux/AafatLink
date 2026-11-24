@@ -1,5 +1,7 @@
 package pk.edu.nu.aafatlink.repository;
 
+import pk.edu.nu.aafatlink.application.dashboard.DashboardEntry;
+import pk.edu.nu.aafatlink.domain.account.UserRole;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -11,6 +13,7 @@ import pk.edu.nu.aafatlink.domain.evidence.EvidenceAttachment;
 
 /** Test adapter whose subclasses override only the collaboration points under test. */
 public abstract class WorkflowRepositoryStub implements WorkflowRepository {
+    @Override public List<DashboardEntry> dashboard(AuthSession session, UserRole role) { throw unsupported(); }
     @Override public java.net.URI evidenceLink(AuthSession s, UUID id) { throw unsupported(); }
     @Override public List<String> reassignmentNotices(AuthSession s) { throw unsupported(); }
     protected UnsupportedOperationException unsupported() { return new UnsupportedOperationException(); }

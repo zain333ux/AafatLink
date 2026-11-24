@@ -7,9 +7,9 @@
       fx:controller="pk.edu.nu.aafatlink.ui.reporting.ReportViewController"
       spacing="18" styleClass="content-area request-list-page">
     <padding><Insets top="26" right="30" bottom="30" left="30"/></padding>
-    <VBox spacing="5"><Label text="Disaster response reports" styleClass="welcome-title"/><Label text="Generate committed-data summaries without exposing requester contact or affected-person details." wrapText="true" styleClass="welcome-copy"/></VBox>
+    <VBox spacing="5"><Label text="Disaster response reports" styleClass="welcome-title"/><Label text="Choose a report to review request, assignment and response activity." wrapText="true" styleClass="welcome-copy"/></VBox>
     <VBox spacing="14" styleClass="panel-card">
-        <Label text="REPORT PARAMETERS · UC11" styleClass="card-kicker"/>
+        <Label text="REPORT PARAMETERS" styleClass="card-kicker"/>
         <FlowPane hgap="12" vgap="12">
             <VBox spacing="5" prefWidth="220"><Label text="Report type" styleClass="field-label"/><ComboBox fx:id="reportTypeBox" maxWidth="Infinity" styleClass="form-control"/></VBox>
             <VBox spacing="5" prefWidth="150"><Label text="Start date" styleClass="field-label"/><DatePicker fx:id="startDatePicker" maxWidth="Infinity"/></VBox>

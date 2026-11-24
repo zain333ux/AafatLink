@@ -1,5 +1,6 @@
 package pk.edu.nu.aafatlink.ui.request;
 
+import pk.edu.nu.aafatlink.ui.shell.DashboardSelection;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -24,7 +25,12 @@ import pk.edu.nu.aafatlink.domain.request.RequestPriority;
 import pk.edu.nu.aafatlink.domain.request.RequestStatus;
 
 /** JavaFX presentation controller for the owner-scoped UC02 list and detail view. */
-public final class RequestListViewController {
+public final class RequestListViewController implements DashboardSelection.Destination {
+    private final DashboardSelection selection = new DashboardSelection();
+
+    @Override
+    public DashboardSelection initialSelection() { return selection; }
+
     private static final DateTimeFormatter DATE_TIME = DateTimeFormatter.ofPattern("dd MMM yyyy, HH:mm")
             .withZone(ZoneId.systemDefault());
     private static final List<RequestStatus> MAIN_LIFECYCLE = List.of(
@@ -103,7 +109,7 @@ public final class RequestListViewController {
                 showEmpty("No assistance requests found. Use Submit request to create your first request.");
             } else {
                 showTable();
-                requestTable.getSelectionModel().selectFirst();
+                selection.select(requestTable, AssistanceRequest::id);
             }
         });
         task.setOnFailed(event -> {

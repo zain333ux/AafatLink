@@ -23,6 +23,7 @@ import pk.edu.nu.aafatlink.app.SessionUser;
 import pk.edu.nu.aafatlink.app.navigation.NavigationItem;
 import pk.edu.nu.aafatlink.app.navigation.NavigationPolicy;
 import pk.edu.nu.aafatlink.application.auth.AuthenticationController;
+import pk.edu.nu.aafatlink.application.dashboard.DashboardController;
 import pk.edu.nu.aafatlink.application.request.RequestController;
 import pk.edu.nu.aafatlink.application.request.RequestReviewController;
 import pk.edu.nu.aafatlink.application.assignment.AssignmentController;
@@ -51,6 +52,7 @@ public final class AppShellController {
     private final SessionManager sessions;
     private final NavigationPolicy navigationPolicy;
     private final AuthenticationController authentication;
+    private final DashboardController dashboard;
     private final RequestController requests;
     private final RequestReviewController reviews;
     private final VolunteerController volunteers;
@@ -63,6 +65,8 @@ public final class AppShellController {
     private VBox navigationBox;
     @FXML
     private Label userNameLabel;
+    @FXML
+    private Label avatarLabel;
     @FXML
     private Label roleLabel;
     @FXML
@@ -81,7 +85,7 @@ public final class AppShellController {
     public AppShellController(ViewRouter router, SessionManager sessions, NavigationPolicy navigationPolicy,
             AuthenticationController authentication, RequestController requests, RequestReviewController reviews,
             VolunteerController volunteers, AssignmentController assignments, ReportController reports,
-            AccessController access) {
+            AccessController access, DashboardController dashboard) {
         this.router = Objects.requireNonNull(router, "router");
         this.sessions = Objects.requireNonNull(sessions, "sessions");
         this.navigationPolicy = Objects.requireNonNull(navigationPolicy, "navigationPolicy");
@@ -92,6 +96,7 @@ public final class AppShellController {
         this.assignments = assignments;
         this.reports = reports;
         this.access = access;
+        this.dashboard = dashboard;
     }
 
     @FXML
@@ -99,11 +104,15 @@ public final class AppShellController {
         SessionUser user = sessions.currentUser()
                 .orElseThrow(() -> new IllegalStateException("The application shell requires an active session."));
         userNameLabel.setText(user.displayName());
+        avatarLabel.setText(java.util.Arrays.stream(user.displayName().strip().split("\\s+"))
+                .filter(part -> !part.isEmpty()).limit(2)
+                .map(part -> part.substring(0, part.offsetByCodePoints(0, 1)))
+                .collect(java.util.stream.Collectors.joining()).toUpperCase(java.util.Locale.ROOT));
         roleLabel.setText(user.role().displayName());
         sessionNoticeTitle.setText(user.demonstrationAccount() ? "DEMONSTRATION" : "SECURE SESSION");
         demoNoticeLabel.setText(user.demonstrationAccount()
-                ? "Read-only preview. No operational data is loaded or changed."
-                : "Connected session. Access remains enforced by database policies.");
+                ? "Read-only workspace."
+                : "Signed in as " + user.displayName() + ".");
 
         for (NavigationItem item : navigationPolicy.itemsFor(user.role())) {
             Button button = createNavigationButton(item);
@@ -127,6 +136,17 @@ public final class AppShellController {
         return button;
     }
 
+    private java.util.UUID dashboardRecord;
+
+    private void navigate(NavigationItem item, java.util.UUID record) {
+        dashboardRecord = record;
+        try {
+            navigate(item);
+        } finally {
+            dashboardRecord = null;
+        }
+    }
+
     private void navigate(NavigationItem item) {
         Button selectedButton = navigationButtons.get(item);
         if (selectedButton == null) {
@@ -135,10 +155,10 @@ public final class AppShellController {
         navigationBox.getChildren().forEach(node -> node.getStyleClass().remove("navigation-button-selected"));
         selectedButton.getStyleClass().add("navigation-button-selected");
         pageTitleLabel.setText(item.label());
-        pageDescriptionLabel.setText(DESCRIPTIONS.getOrDefault(item,
-                "This workflow will be connected during its scheduled implementation phase."));
+        pageDescriptionLabel.setText(DESCRIPTIONS.get(item));
         switch (item) {
-            case DASHBOARD -> showStaticView("dashboard-view.fxml");
+            case DASHBOARD -> setContent(load("dashboard-view.fxml", type ->
+                    new DashboardViewController(sessions, dashboard, this::navigate)));
             case SUBMIT_REQUEST -> showRequestForm(null);
             case RECORD_REQUEST -> showRequestForm(null);
             case MY_REQUESTS -> showRequestList();
@@ -153,10 +173,6 @@ public final class AppShellController {
             case ACCESS_MANAGEMENT -> showAccessManagement();
             case REFERENCE_DATA -> showReferenceData();
         }
-    }
-
-    private void showStaticView(String fileName) {
-        setContent(load(fileName, null));
     }
 
     private void showRequestForm(AssistanceRequest existingRequest) {
@@ -311,7 +327,11 @@ public final class AppShellController {
 
     private Parent load(FXMLLoader loader) {
         try {
-            return loader.load();
+            Parent content = loader.load();
+            if (dashboardRecord != null && loader.getController() instanceof DashboardSelection.Destination destination) {
+                destination.initialSelection().request(dashboardRecord);
+            }
+            return content;
         } catch (IOException exception) {
             throw new IllegalStateException("Could not load shell content.", exception);
         }
@@ -343,20 +363,20 @@ public final class AppShellController {
     private static Map<NavigationItem, String> descriptions() {
         Map<NavigationItem, String> descriptions = new EnumMap<>(NavigationItem.class);
         descriptions.put(NavigationItem.DASHBOARD,
-                "Your role-aware command centre for the documented response workflow.");
+                "See what needs your attention.");
         descriptions.put(NavigationItem.SUBMIT_REQUEST, "Create a validated assistance request or resubmit one returned for more information.");
-        descriptions.put(NavigationItem.RECORD_REQUEST, "Record a caller's UC01 request while preserving the Coordinator as the recorder.");
+        descriptions.put(NavigationItem.RECORD_REQUEST, "Record a request on behalf of someone calling for assistance.");
         descriptions.put(NavigationItem.MY_REQUESTS, "Review your requests, current status, priority and latest available progress.");
-        descriptions.put(NavigationItem.READINESS_PROFILE, "Maintain UC07 availability, skills, service areas and contact details.");
-        descriptions.put(NavigationItem.ASSIGNMENTS, "Review and respond to UC08 assignments awaiting your decision.");
-        descriptions.put(NavigationItem.TASK_PROGRESS, "Record UC09 progress or submit UC10 completion evidence for review.");
-        descriptions.put(NavigationItem.VERIFICATION_QUEUE, "Review pending requests and record an auditable UC03 decision.");
-        descriptions.put(NavigationItem.PRIORITY_QUEUE, "Apply UC04 priority rules and record the coordinator's final decision.");
-        descriptions.put(NavigationItem.VOLUNTEER_ASSIGNMENT, "Match and reassign volunteers using UC05 eligibility and conflict rules.");
-        descriptions.put(NavigationItem.CLOSURE_REVIEW, "Approve UC06 closure or return incomplete assistance for rework.");
-        descriptions.put(NavigationItem.REPORTS, "Generate and export the four committed-data reports required by UC11.");
-        descriptions.put(NavigationItem.ACCESS_MANAGEMENT, "Apply audited UC12 role, status and volunteer-approval changes.");
-        descriptions.put(NavigationItem.REFERENCE_DATA, "Maintain the controlled UC12 values used by request and volunteer workflows.");
+        descriptions.put(NavigationItem.READINESS_PROFILE, "Maintain availability, skills, service areas and contact details.");
+        descriptions.put(NavigationItem.ASSIGNMENTS, "Review and respond to assignments awaiting your decision.");
+        descriptions.put(NavigationItem.TASK_PROGRESS, "Record progress or submit completion evidence for review.");
+        descriptions.put(NavigationItem.VERIFICATION_QUEUE, "Review pending requests and record an auditable decision.");
+        descriptions.put(NavigationItem.PRIORITY_QUEUE, "Apply priority rules and record the coordinator's final decision.");
+        descriptions.put(NavigationItem.VOLUNTEER_ASSIGNMENT, "Match and reassign volunteers using eligibility and conflict rules.");
+        descriptions.put(NavigationItem.CLOSURE_REVIEW, "Approve closure or return incomplete assistance for rework.");
+        descriptions.put(NavigationItem.REPORTS, "Review response activity and export reports.");
+        descriptions.put(NavigationItem.ACCESS_MANAGEMENT, "Apply audited role, status and volunteer-approval changes.");
+        descriptions.put(NavigationItem.REFERENCE_DATA, "Maintain the controlled values used by request and volunteer workflows.");
         return Map.copyOf(descriptions);
     }
 }

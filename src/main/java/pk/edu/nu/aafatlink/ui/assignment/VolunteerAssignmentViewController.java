@@ -1,5 +1,6 @@
 package pk.edu.nu.aafatlink.ui.assignment;
 
+import pk.edu.nu.aafatlink.ui.shell.DashboardSelection;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -24,7 +25,12 @@ import pk.edu.nu.aafatlink.domain.volunteer.ServiceArea;
 import pk.edu.nu.aafatlink.domain.volunteer.Skill;
 
 /** Coordinator JavaFX presentation controller for UC05. */
-public final class VolunteerAssignmentViewController {
+public final class VolunteerAssignmentViewController implements DashboardSelection.Destination {
+    private final DashboardSelection selection = new DashboardSelection();
+
+    @Override
+    public DashboardSelection initialSelection() { return selection; }
+
     private final SessionManager sessions;
     private final AssignmentController assignments;
 
@@ -110,7 +116,7 @@ public final class VolunteerAssignmentViewController {
             skillBox.setItems(FXCollections.observableArrayList(data.skills()));
             serviceAreaBox.setItems(FXCollections.observableArrayList(data.areas()));
             activeTable.getItems().setAll(data.activeAssignments());
-            if (!data.requests().isEmpty()) requestTable.getSelectionModel().selectFirst();
+            if (!data.requests().isEmpty()) selection.select(requestTable, AssistanceRequest::id);
             if (!data.skills().isEmpty()) skillBox.getSelectionModel().selectFirst();
             if (!data.areas().isEmpty()) serviceAreaBox.getSelectionModel().selectFirst();
             setMainDisabled(false);
