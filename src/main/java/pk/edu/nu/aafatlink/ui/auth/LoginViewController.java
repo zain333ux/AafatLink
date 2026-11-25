@@ -66,12 +66,14 @@ public final class LoginViewController {
         demoRoleBox.getSelectionModel().select(UserRole.REQUESTER);
         configurationModeLabel.setText(configuration.modeLabel());
         boolean connected = configuration.isRemoteConfigured() && authentication != null;
+        configurationModeLabel.setVisible(!connected);
+        configurationModeLabel.setManaged(!connected);
         emailField.setDisable(!connected);
         passwordField.setDisable(!connected);
         signInButton.setDisable(!connected);
         registrationButton.setDisable(!connected);
         recoveryButton.setDisable(!connected);
-        signInButton.setText(connected ? "Sign in securely" : "Sign-in unavailable");
+        signInButton.setText(connected ? "Sign in" : "Sign-in unavailable");
     }
 
     @FXML

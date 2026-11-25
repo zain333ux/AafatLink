@@ -6,7 +6,7 @@
 <VBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="pk.edu.nu.aafatlink.ui.access.ReferenceDataViewController"
       spacing="18" styleClass="content-area request-list-page">
-    <padding><Insets top="26" right="30" bottom="30" left="30"/></padding>
+    <padding><Insets top="26" right="26" bottom="30" left="26"/></padding>
     <VBox spacing="12">
         <VBox spacing="5"><Label text="Controlled reference data" styleClass="welcome-title"/><Label text="Maintain the values used by requests and volunteer coordination without deleting historical records." wrapText="true" styleClass="welcome-copy"/></VBox>
         <HBox alignment="CENTER_LEFT" spacing="12">
@@ -23,10 +23,10 @@
                 <TableView fx:id="valueTable" styleClass="request-table">
                     <columns><TableColumn fx:id="nameColumn" text="Reference value" prefWidth="310"/><TableColumn fx:id="stateColumn" text="State" prefWidth="110"/></columns>
                 </TableView>
-                <VBox fx:id="emptyState" visible="false" managed="false" alignment="CENTER" spacing="10" styleClass="empty-state"><Label text="No values available" styleClass="empty-state-title"/><Label text="Demonstration mode does not load or change operational reference data." wrapText="true" textAlignment="CENTER" styleClass="empty-state-copy"/></VBox>
+                <VBox fx:id="emptyState" visible="false" managed="false" alignment="CENTER" spacing="10" styleClass="empty-state"><Label text="No values available" wrapText="true" textAlignment="CENTER" styleClass="empty-state-title"/><Label text="Demonstration mode does not load or change operational reference data." wrapText="true" textAlignment="CENTER" styleClass="empty-state-copy"/></VBox>
             </StackPane>
             <VBox fx:id="editor" visible="false" managed="false" spacing="14" styleClass="panel-card request-detail-panel">
-                <Label text="CONTROLLED VALUE" styleClass="card-kicker"/>
+                <Label text="Controlled value" styleClass="card-kicker"/>
                 <Label fx:id="editorTitle" styleClass="panel-title"/>
                 <VBox spacing="5"><Label text="Display name" styleClass="field-label"/><TextField fx:id="nameField" promptText="Reference value name" styleClass="form-control"/></VBox>
                 <CheckBox fx:id="activeCheck" text="Active and available for new workflow selections"/>

@@ -47,7 +47,6 @@ import pk.edu.nu.aafatlink.ui.access.ReferenceDataViewController;
 
 /** Presentation controller for the reusable role-aware application frame. */
 public final class AppShellController {
-    private static final Map<NavigationItem, String> DESCRIPTIONS = descriptions();
     private final ViewRouter router;
     private final SessionManager sessions;
     private final NavigationPolicy navigationPolicy;
@@ -72,15 +71,11 @@ public final class AppShellController {
     @FXML
     private Label pageTitleLabel;
     @FXML
-    private Label pageDescriptionLabel;
-    @FXML
     private Button logoutButton;
     @FXML
     private StackPane contentHost;
     @FXML
     private Label demoNoticeLabel;
-    @FXML
-    private Label sessionNoticeTitle;
 
     public AppShellController(ViewRouter router, SessionManager sessions, NavigationPolicy navigationPolicy,
             AuthenticationController authentication, RequestController requests, RequestReviewController reviews,
@@ -109,10 +104,8 @@ public final class AppShellController {
                 .map(part -> part.substring(0, part.offsetByCodePoints(0, 1)))
                 .collect(java.util.stream.Collectors.joining()).toUpperCase(java.util.Locale.ROOT));
         roleLabel.setText(user.role().displayName());
-        sessionNoticeTitle.setText(user.demonstrationAccount() ? "DEMONSTRATION" : "SECURE SESSION");
-        demoNoticeLabel.setText(user.demonstrationAccount()
-                ? "Read-only workspace."
-                : "Signed in as " + user.displayName() + ".");
+        demoNoticeLabel.setVisible(user.demonstrationAccount());
+        demoNoticeLabel.managedProperty().bind(demoNoticeLabel.visibleProperty());
 
         for (NavigationItem item : navigationPolicy.itemsFor(user.role())) {
             Button button = createNavigationButton(item);
@@ -124,7 +117,7 @@ public final class AppShellController {
 
     private Button createNavigationButton(NavigationItem item) {
         FontIcon icon = new FontIcon(item.iconLiteral());
-        icon.setIconSize(20);
+        icon.setIconSize(17);
         Label text = new Label(item.label());
         HBox content = new HBox(12, icon, text);
         content.setAlignment(Pos.CENTER_LEFT);
@@ -155,7 +148,6 @@ public final class AppShellController {
         navigationBox.getChildren().forEach(node -> node.getStyleClass().remove("navigation-button-selected"));
         selectedButton.getStyleClass().add("navigation-button-selected");
         pageTitleLabel.setText(item.label());
-        pageDescriptionLabel.setText(DESCRIPTIONS.get(item));
         switch (item) {
             case DASHBOARD -> setContent(load("dashboard-view.fxml", type ->
                     new DashboardViewController(sessions, dashboard, this::navigate)));
@@ -189,7 +181,6 @@ public final class AppShellController {
         if (existingRequest != null) {
             controller.prepareResubmission(existingRequest);
             pageTitleLabel.setText("Update and resubmit");
-            pageDescriptionLabel.setText("Amend the returned request while keeping its original request ID.");
         }
         setContent(content);
     }
@@ -358,25 +349,5 @@ public final class AppShellController {
         Thread worker = new Thread(task, "aafatlink-auth-logout");
         worker.setDaemon(true);
         worker.start();
-    }
-
-    private static Map<NavigationItem, String> descriptions() {
-        Map<NavigationItem, String> descriptions = new EnumMap<>(NavigationItem.class);
-        descriptions.put(NavigationItem.DASHBOARD,
-                "See what needs your attention.");
-        descriptions.put(NavigationItem.SUBMIT_REQUEST, "Create a validated assistance request or resubmit one returned for more information.");
-        descriptions.put(NavigationItem.RECORD_REQUEST, "Record a request on behalf of someone calling for assistance.");
-        descriptions.put(NavigationItem.MY_REQUESTS, "Review your requests, current status, priority and latest available progress.");
-        descriptions.put(NavigationItem.READINESS_PROFILE, "Maintain availability, skills, service areas and contact details.");
-        descriptions.put(NavigationItem.ASSIGNMENTS, "Review and respond to assignments awaiting your decision.");
-        descriptions.put(NavigationItem.TASK_PROGRESS, "Record progress or submit completion evidence for review.");
-        descriptions.put(NavigationItem.VERIFICATION_QUEUE, "Review pending requests and record an auditable decision.");
-        descriptions.put(NavigationItem.PRIORITY_QUEUE, "Apply priority rules and record the coordinator's final decision.");
-        descriptions.put(NavigationItem.VOLUNTEER_ASSIGNMENT, "Match and reassign volunteers using eligibility and conflict rules.");
-        descriptions.put(NavigationItem.CLOSURE_REVIEW, "Approve closure or return incomplete assistance for rework.");
-        descriptions.put(NavigationItem.REPORTS, "Review response activity and export reports.");
-        descriptions.put(NavigationItem.ACCESS_MANAGEMENT, "Apply audited role, status and volunteer-approval changes.");
-        descriptions.put(NavigationItem.REFERENCE_DATA, "Maintain the controlled values used by request and volunteer workflows.");
-        return Map.copyOf(descriptions);
     }
 }

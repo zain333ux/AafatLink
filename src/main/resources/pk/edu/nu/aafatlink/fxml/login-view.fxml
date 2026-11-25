@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
+<?import pk.edu.nu.aafatlink.ui.brand.ContourArtwork?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.PasswordField?>
-<?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
@@ -17,78 +18,56 @@
 <BorderPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="pk.edu.nu.aafatlink.ui.auth.LoginViewController" styleClass="auth-root">
     <left>
-        <VBox prefWidth="460.0" minWidth="390.0" spacing="28.0" styleClass="auth-brand-panel">
-            <padding><Insets top="48.0" right="48.0" bottom="40.0" left="48.0" /></padding>
-            <HBox alignment="CENTER_LEFT" spacing="14.0">
-                <StackPane minWidth="46.0" minHeight="46.0" styleClass="brand-mark">
-                    <Label text="A" styleClass="brand-mark-text" />
-                </StackPane>
-                <VBox spacing="1.0">
-                    <Label text="AafatLink" styleClass="brand-name-light" />
-                    <Label text="RESPONSE COORDINATION" styleClass="brand-kicker-light" />
-                </VBox>
+        <VBox prefWidth="432" minWidth="350" spacing="20" styleClass="auth-brand-panel">
+            <padding><Insets top="34" right="34" bottom="34" left="34"/></padding>
+            <HBox spacing="10" alignment="CENTER_LEFT">
+                <fx:include source="aafatlink-mark.fxml"/>
+                <Label text="AafatLink" styleClass="brand-name-light"/>
             </HBox>
-            <Region VBox.vgrow="ALWAYS" />
-            <VBox spacing="16.0">
-                <Label text="Help reaches people faster when every response is connected."
-                       wrapText="true" styleClass="auth-hero-title" />
-                <Label text="A shared operational workspace for assistance requests, volunteer readiness and accountable disaster response."
-                       wrapText="true" styleClass="auth-hero-copy" />
-            </VBox>
-            <VBox spacing="13.0">
-                <Label text="✓  Traceable request decisions" styleClass="feature-line" />
-                <Label text="✓  Role-based coordination" styleClass="feature-line" />
-                <Label text="✓  Volunteer assignments and progress" styleClass="feature-line" />
-            </VBox>
-            <Region VBox.vgrow="ALWAYS" />
+            <Region minHeight="22" maxHeight="72" VBox.vgrow="ALWAYS"/>
+            <Label text="Disaster&#10;response" wrapText="true" styleClass="auth-hero-title"/>
+            <Label text="Request assistance, coordinate volunteers and track work through completion." wrapText="true" styleClass="auth-hero-copy"/>
+            <ContourArtwork prefHeight="180" minHeight="120" maxHeight="220"
+                            VBox.vgrow="ALWAYS" styleClass="auth-contours"/>
         </VBox>
     </left>
     <center>
-        <StackPane styleClass="auth-content">
-            <VBox maxWidth="470.0" spacing="22.0" styleClass="auth-card">
-                <VBox spacing="7.0">
-                    <HBox alignment="CENTER_LEFT" spacing="10.0">
-                    <Label text="SECURE ACCESS" styleClass="eyebrow" />
-                        <Region HBox.hgrow="ALWAYS" />
-                        <Label fx:id="configurationModeLabel" text="Demonstration mode" styleClass="status-chip" />
+        <ScrollPane fitToWidth="true" fitToHeight="true" hbarPolicy="NEVER" styleClass="auth-scroll">
+            <StackPane styleClass="auth-content">
+                <VBox maxWidth="470.0" spacing="12" styleClass="auth-card">
+                    <Label text="Sign in" styleClass="auth-title"/>
+                    <Label fx:id="configurationModeLabel" text="Demonstration mode" styleClass="helper-text"/>
+
+                    <VBox spacing="9.0">
+                        <Label text="Email address" styleClass="field-label" />
+                        <TextField fx:id="emailField" promptText="you@example.com" disable="true" styleClass="text-input" />
+                    </VBox>
+                    <VBox spacing="9.0">
+                        <Label text="Password" styleClass="field-label" />
+                        <PasswordField fx:id="passwordField" promptText="••••••••" disable="true"
+                                       onAction="#signIn" styleClass="text-input" />
+                    </VBox>
+                    <Button fx:id="signInButton" text="Sign-in unavailable" disable="true"
+                            onAction="#signIn" maxWidth="Infinity" styleClass="primary-button" />
+                    <Label fx:id="loginMessageLabel" text="" wrapText="true" styleClass="form-message" />
+                    <HBox spacing="12" alignment="CENTER_LEFT">
+                        <Button fx:id="registrationButton" text="Create an account" onAction="#openRegistration"
+                                maxWidth="Infinity" styleClass="text-button" />
+                        <Button fx:id="recoveryButton" text="Forgot your password?" onAction="#openPasswordRecovery"
+                                maxWidth="Infinity" styleClass="text-button" />
                     </HBox>
-                    <Label text="Welcome to AafatLink" styleClass="auth-title" />
-                    <Label text="Sign in to your workspace or explore a read-only demo."
-                           wrapText="true" styleClass="auth-subtitle" />
-                </VBox>
 
-                <VBox spacing="9.0">
-                    <Label text="Email address" styleClass="field-label" />
-                    <TextField fx:id="emailField" promptText="you@example.com" disable="true" styleClass="text-input" />
+                    <VBox spacing="10" styleClass="demo-entry">
+                        <Label text="Read-only demo" styleClass="panel-title"/>
+                        <HBox spacing="9" alignment="CENTER_LEFT">
+                            <ComboBox fx:id="demoRoleBox" maxWidth="Infinity" HBox.hgrow="ALWAYS"
+                                      accessibleText="Demo role" styleClass="role-combo"/>
+                            <Button text="Open demonstration workspace" onAction="#openDemonstrationWorkspace"
+                                    styleClass="outline-button"/>
+                        </HBox>
+                    </VBox>
                 </VBox>
-                <VBox spacing="9.0">
-                    <Label text="Password" styleClass="field-label" />
-                    <PasswordField fx:id="passwordField" promptText="••••••••" disable="true"
-                                   onAction="#signIn" styleClass="text-input" />
-                </VBox>
-                <Button fx:id="signInButton" text="Sign-in unavailable" disable="true"
-                        onAction="#signIn" maxWidth="Infinity" styleClass="primary-button" />
-                <Label fx:id="loginMessageLabel" text="" wrapText="true" styleClass="form-message" />
-                <Button fx:id="registrationButton" text="Create a Requester or Volunteer account" onAction="#openRegistration"
-                        maxWidth="Infinity" styleClass="text-button" />
-                <Button fx:id="recoveryButton" text="Forgot your password?" onAction="#openPasswordRecovery"
-                        maxWidth="Infinity" styleClass="text-button" />
-
-                <HBox alignment="CENTER" spacing="14.0">
-                    <Separator HBox.hgrow="ALWAYS" />
-                    <Label text="DEMONSTRATION ACCESS" styleClass="separator-label" />
-                    <Separator HBox.hgrow="ALWAYS" />
-                </HBox>
-
-                <VBox spacing="9.0">
-                    <Label text="Preview as role" styleClass="field-label" />
-                    <ComboBox fx:id="demoRoleBox" maxWidth="Infinity" styleClass="role-combo" />
-                </VBox>
-                <Button text="Open demonstration workspace" onAction="#openDemonstrationWorkspace"
-                        maxWidth="Infinity" styleClass="secondary-button" />
-                <Label text="Demonstration access contains no real accounts, credentials or operational data."
-                       wrapText="true" styleClass="helper-text" />
-            </VBox>
-        </StackPane>
+            </StackPane>
+        </ScrollPane>
     </center>
 </BorderPane>

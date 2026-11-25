@@ -1,5 +1,13 @@
 # Work log
 
+## AafatLink visual identity, November 24
+
+Added the original ridge mark to authentication and workspace navigation, and authored fictional contour artwork for the authentication screens. Reworked the dashboard layout so the role heading, primary actions, worklist and record links each have a distinct place. Condensed the read-only demo entry on sign-in.
+
+## Desktop visual refresh, November 24
+
+Redesigned authentication screens, the shell and the operational dashboard. Reworked the shared JavaFX theme and adjusted split panes and empty states for the minimum window width. The dashboard continues to use the existing role-specific data and record links. Maven clean test and package passed in an isolated copy with 130 tests. JavaFX rendered all role routes at three window sizes and verified dashboard retry, empty and populated states, and linked record selection.
+
 ## Operational dashboards, November 24
 
 Replaced the static dashboard with role-specific queue counts, record previews and workflow navigation. Removed course and implementation references from visible screens. The 130 Java tests and Maven package passed. The PostgreSQL regression ran under authenticated role policies. A JavaFX fixture verified retry, empty and populated queues, and selection of a linked request in the second row. The login screen and all four demo shells rendered at two window sizes. The hosted migration was applied and a subsequent remote dry run found no pending migrations.

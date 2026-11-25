@@ -6,9 +6,9 @@
 <VBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="pk.edu.nu.aafatlink.ui.assignment.VolunteerAssignmentViewController"
       spacing="16" styleClass="content-area workflow-page">
-    <padding><Insets top="24" right="28" bottom="28" left="28"/></padding>
+    <padding><Insets top="24" right="26" bottom="28" left="26"/></padding>
     <HBox alignment="CENTER_LEFT">
-        <VBox spacing="4"><Label text="Volunteer coordination" styleClass="welcome-title"/><Label text="Match verified requests to approved, available and nonconflicting volunteers." styleClass="welcome-copy"/></VBox>
+        <VBox spacing="4"><Label text="Volunteer coordination" styleClass="welcome-title"/><Label text="Match verified requests to approved, available and nonconflicting volunteers." wrapText="true" styleClass="welcome-copy"/></VBox>
         <Region HBox.hgrow="ALWAYS"/>
         <Button fx:id="refreshButton" text="Refresh all" onAction="#loadData" styleClass="outline-button"/>
     </HBox>
@@ -18,14 +18,14 @@
                 <SplitPane dividerPositions="0.42" styleClass="request-split-pane">
                     <items>
                         <VBox spacing="12" styleClass="panel-card request-list-panel">
-                            <Label text="VERIFIED PRIORITY QUEUE" styleClass="card-kicker"/>
+                            <Label text="Verified priority queue" styleClass="card-kicker"/>
                             <TableView fx:id="requestTable" VBox.vgrow="ALWAYS" styleClass="request-table">
                                 <columns><TableColumn fx:id="requestIdColumn" text="Request" prefWidth="90"/><TableColumn fx:id="requestPriorityColumn" text="Priority" prefWidth="80"/><TableColumn fx:id="requestLocationColumn" text="Location" prefWidth="220"/></columns>
                             </TableView>
                         </VBox>
                         <ScrollPane fitToWidth="true" hbarPolicy="NEVER" styleClass="detail-scroll">
                             <VBox spacing="14" styleClass="panel-card request-detail-panel">
-                                <Label text="REQUEST REQUIREMENTS" styleClass="card-kicker"/>
+                                <Label text="Request requirements" styleClass="card-kicker"/>
                                 <VBox spacing="4"><Label text="Required assistance" styleClass="detail-label"/><Label fx:id="assistanceLabel" wrapText="true" styleClass="detail-value"/></VBox>
                                 <VBox spacing="4"><Label text="Situation" styleClass="detail-label"/><Label fx:id="situationLabel" wrapText="true" styleClass="detail-value"/></VBox>
                                 <GridPane hgap="12"><columnConstraints><ColumnConstraints percentWidth="50"/><ColumnConstraints percentWidth="50"/></columnConstraints>
@@ -44,7 +44,7 @@
             </Tab>
             <Tab text="Reassign active work">
                 <VBox spacing="14" styleClass="panel-card">
-                    <Label text="ACTIVE ASSIGNMENTS" styleClass="card-kicker"/>
+                    <Label text="Active assignments" styleClass="card-kicker"/>
                     <Label text="Reassignment records the reason, releases the current volunteer and returns the request to Verified without changing its priority." wrapText="true" styleClass="panel-subtitle"/>
                     <TableView fx:id="activeTable" VBox.vgrow="ALWAYS" styleClass="request-table">
                         <columns><TableColumn fx:id="activeRequestColumn" text="Request" prefWidth="150"/><TableColumn fx:id="activeVolunteerColumn" text="Volunteer" prefWidth="150"/><TableColumn fx:id="activeStatusColumn" text="Assignment status" prefWidth="180"/></columns>

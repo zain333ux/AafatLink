@@ -6,7 +6,7 @@
 <VBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="pk.edu.nu.aafatlink.ui.volunteer.TaskProgressViewController"
       spacing="18" styleClass="content-area request-list-page">
-    <padding><Insets top="28" right="30" bottom="32" left="30"/></padding>
+    <padding><Insets top="28" right="26" bottom="32" left="26"/></padding>
     <HBox alignment="CENTER_LEFT">
         <VBox spacing="5"><Label text="Active task execution" styleClass="welcome-title"/><Label text="Keep coordinators and requesters informed, then submit completed work for review." wrapText="true" styleClass="welcome-copy"/></VBox>
         <Region HBox.hgrow="ALWAYS"/>
@@ -23,16 +23,16 @@
                     </columns>
                 </TableView>
                 <VBox fx:id="emptyState" visible="false" managed="false" alignment="CENTER" spacing="10" styleClass="empty-state">
-                    <Label text="No active tasks" styleClass="empty-state-title"/>
+                    <Label text="No active tasks" wrapText="true" textAlignment="CENTER" styleClass="empty-state-title"/>
                     <Label text="No accepted or in-progress task needs an update." wrapText="true" textAlignment="CENTER" styleClass="empty-state-copy"/>
                 </VBox>
             </StackPane>
-            <StackPane minWidth="520">
-                <VBox fx:id="detailPlaceholder" alignment="CENTER" spacing="10" styleClass="empty-state"><Label text="Select an active task" styleClass="empty-state-title"/><Label text="Progress history and task controls will appear here." wrapText="true" styleClass="empty-state-copy"/></VBox>
+            <StackPane minWidth="360">
+                <VBox fx:id="detailPlaceholder" alignment="CENTER" spacing="10" styleClass="empty-state"><Label text="Select an active task" wrapText="true" textAlignment="CENTER" styleClass="empty-state-title"/><Label text="Progress history and task controls will appear here." wrapText="true" styleClass="empty-state-copy"/></VBox>
                 <ScrollPane fx:id="detailScroll" visible="false" managed="false" fitToWidth="true" styleClass="detail-scroll">
                     <content>
                         <VBox fx:id="detailContent" spacing="16" styleClass="panel-card request-detail-panel">
-                            <Label text="TASK DETAILS" styleClass="card-kicker"/>
+                            <Label text="Task details" styleClass="card-kicker"/>
                             <HBox spacing="18"><VBox spacing="4" HBox.hgrow="ALWAYS"><Label text="Request ID" styleClass="detail-label"/><Label fx:id="requestIdLabel" styleClass="request-id"/></VBox><VBox spacing="4"><Label text="Assignment state" styleClass="detail-label"/><Label fx:id="assignmentStatusLabel" styleClass="status-chip"/></VBox></HBox>
                             <VBox spacing="4"><Label text="Required assistance" styleClass="detail-label"/><Label fx:id="assistanceLabel" wrapText="true" styleClass="detail-value"/></VBox>
                             <VBox spacing="4"><Label text="Location" styleClass="detail-label"/><Label fx:id="locationLabel" wrapText="true" styleClass="detail-value"/></VBox>
@@ -40,13 +40,13 @@
                             <Separator/>
                             <VBox spacing="7"><Label text="Progress history" styleClass="field-label"/><ListView fx:id="progressList" prefHeight="115"/></VBox>
                             <VBox spacing="10" styleClass="decision-panel">
-                                <Label text="RECORD PROGRESS" styleClass="card-kicker"/>
+                                <Label text="Record progress" styleClass="card-kicker"/>
                                 <TextArea fx:id="progressNoteArea" promptText="Progress note (required, up to 500 characters)" prefRowCount="3" wrapText="true" styleClass="form-text-area"/>
                                 <TextField fx:id="percentageField" promptText="Estimated completion 0–99 (optional)" styleClass="form-control"/>
                                 <Button fx:id="recordButton" text="Record progress" onAction="#recordProgress" styleClass="secondary-button"/>
                             </VBox>
                             <VBox spacing="10" styleClass="decision-panel">
-                                <Label text="COMPLETE TASK" styleClass="card-kicker"/>
+                                <Label text="Complete task" styleClass="card-kicker"/>
                                 <TextArea fx:id="completionRemarksArea" promptText="Completion remarks (required)" prefRowCount="3" wrapText="true" styleClass="form-text-area"/>
                                 <HBox spacing="10" alignment="CENTER_LEFT"><Button text="Choose evidence" onAction="#chooseEvidence" styleClass="outline-button"/><Button text="Remove" onAction="#removeEvidence" styleClass="text-button"/><Label fx:id="evidenceNameLabel" wrapText="true" styleClass="helper-text" HBox.hgrow="ALWAYS"/></HBox>
                                 <Button fx:id="completeButton" text="Submit for closure review" onAction="#completeTask" styleClass="primary-button"/>

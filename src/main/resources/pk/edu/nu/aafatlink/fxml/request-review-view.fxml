@@ -6,7 +6,7 @@
 <VBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="pk.edu.nu.aafatlink.ui.request.RequestReviewViewController"
       spacing="18.0" styleClass="content-area request-list-page">
-    <padding><Insets top="28" right="30" bottom="32" left="30"/></padding>
+    <padding><Insets top="28" right="26" bottom="32" left="26"/></padding>
     <HBox alignment="CENTER_LEFT" spacing="14">
         <VBox spacing="5">
             <Label fx:id="headingLabel" styleClass="welcome-title"/>
@@ -17,8 +17,8 @@
     </HBox>
     <SplitPane dividerPositions="0.48" VBox.vgrow="ALWAYS" styleClass="request-split-pane">
         <items>
-            <VBox minWidth="410" spacing="12" styleClass="panel-card request-list-panel">
-                <Label text="DECISION QUEUE" styleClass="card-kicker"/>
+            <VBox minWidth="290" spacing="12" styleClass="panel-card request-list-panel">
+                <Label text="Decision queue" styleClass="card-kicker"/>
                 <StackPane VBox.vgrow="ALWAYS">
                     <TableView fx:id="requestTable" styleClass="request-table">
                         <columns>
@@ -30,33 +30,33 @@
                     </TableView>
                     <ProgressIndicator fx:id="loadingIndicator" maxWidth="34" maxHeight="34"/>
                     <VBox fx:id="emptyState" visible="false" managed="false" alignment="CENTER" spacing="10" styleClass="empty-state">
-                        <Label text="Queue is clear" styleClass="empty-state-title"/>
+                        <Label text="Queue is clear" wrapText="true" textAlignment="CENTER" styleClass="empty-state-title"/>
                         <Label fx:id="emptyStateLabel" wrapText="true" textAlignment="CENTER" styleClass="empty-state-copy"/>
                     </VBox>
                     <VBox fx:id="errorState" visible="false" managed="false" alignment="CENTER" spacing="12" styleClass="empty-state">
-                        <Label text="Queue unavailable" styleClass="empty-state-title"/>
+                        <Label text="Queue unavailable" wrapText="true" textAlignment="CENTER" styleClass="empty-state-title"/>
                         <Label fx:id="errorLabel" wrapText="true" textAlignment="CENTER" styleClass="empty-state-copy form-error"/>
                         <Button text="Retry" onAction="#loadRequests" styleClass="outline-button"/>
                     </VBox>
                 </StackPane>
             </VBox>
             <ScrollPane fitToWidth="true" hbarPolicy="NEVER" styleClass="detail-scroll">
-                <StackPane minWidth="430">
+                <StackPane minWidth="320">
                     <VBox fx:id="detailPlaceholder" alignment="CENTER" spacing="10" styleClass="empty-state">
-                        <Label text="Select a request" styleClass="empty-state-title"/>
+                        <Label text="Select a request" wrapText="true" textAlignment="CENTER" styleClass="empty-state-title"/>
                         <Label text="Select a request to review its details." wrapText="true" styleClass="empty-state-copy"/>
                     </VBox>
                     <VBox fx:id="detailContent" visible="false" managed="false" spacing="16" styleClass="panel-card request-detail-panel">
                         <HBox alignment="CENTER_LEFT" spacing="12">
                             <VBox spacing="4" HBox.hgrow="ALWAYS">
-                                <Label text="REQUEST REVIEW" styleClass="card-kicker"/>
+                                <Label text="Request review" styleClass="card-kicker"/>
                                 <Label fx:id="detailIdLabel" styleClass="request-id"/>
                             </VBox>
                             <Label fx:id="detailStatusLabel" styleClass="status-chip"/>
                         </HBox>
                         <Label fx:id="duplicateLabel" wrapText="true" styleClass="warning-copy"/>
                         <VBox fx:id="verificationContextBox" spacing="10" styleClass="decision-panel">
-                            <Label text="REQUESTER AND REVIEW MATERIAL" styleClass="card-kicker"/>
+                            <Label text="Requester and review material" styleClass="card-kicker"/>
                             <HBox spacing="18">
                                 <VBox spacing="4" HBox.hgrow="ALWAYS"><Label text="Requester" styleClass="detail-label"/><Label fx:id="requesterNameLabel" wrapText="true" styleClass="detail-value"/></VBox>
                                 <VBox spacing="4" HBox.hgrow="ALWAYS"><Label text="Contact" styleClass="detail-label"/><Label fx:id="requesterContactLabel" wrapText="true" styleClass="detail-value"/></VBox>
@@ -73,7 +73,7 @@
                         <VBox spacing="4"><Label text="Affected persons" styleClass="detail-label"/><Label fx:id="detailAffectedLabel" wrapText="true" styleClass="detail-value"/></VBox>
 
                         <VBox fx:id="verificationActions" spacing="10" styleClass="decision-panel">
-                            <Label text="VERIFICATION DECISION" styleClass="card-kicker"/>
+                            <Label text="Verification decision" styleClass="card-kicker"/>
                             <Label text="A reason is mandatory when returning or rejecting a request." wrapText="true" styleClass="helper-text"/>
                             <TextArea fx:id="decisionReasonArea" promptText="Reason for return or rejection" prefRowCount="3" wrapText="true"/>
                             <HBox spacing="8">
@@ -84,7 +84,7 @@
                         </VBox>
 
                         <VBox fx:id="priorityActions" spacing="10" styleClass="decision-panel">
-                            <Label text="PRIORITY DECISION" styleClass="card-kicker"/>
+                            <Label text="Priority decision" styleClass="card-kicker"/>
                             <HBox spacing="18">
                                 <VBox spacing="4" HBox.hgrow="ALWAYS"><Label text="Rule-based suggestion" styleClass="detail-label"/><Label fx:id="suggestedPriorityLabel" styleClass="detail-value"/></VBox>
                                 <VBox spacing="4" HBox.hgrow="ALWAYS"><Label text="Selected priority" styleClass="detail-label"/><ComboBox fx:id="selectedPriorityBox" maxWidth="Infinity"/></VBox>

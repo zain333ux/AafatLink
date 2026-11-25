@@ -6,10 +6,10 @@
 <VBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="pk.edu.nu.aafatlink.ui.reporting.ReportViewController"
       spacing="18" styleClass="content-area request-list-page">
-    <padding><Insets top="26" right="30" bottom="30" left="30"/></padding>
+    <padding><Insets top="26" right="26" bottom="30" left="26"/></padding>
     <VBox spacing="5"><Label text="Disaster response reports" styleClass="welcome-title"/><Label text="Choose a report to review request, assignment and response activity." wrapText="true" styleClass="welcome-copy"/></VBox>
     <VBox spacing="14" styleClass="panel-card">
-        <Label text="REPORT PARAMETERS" styleClass="card-kicker"/>
+        <Label text="Report parameters" styleClass="card-kicker"/>
         <FlowPane hgap="12" vgap="12">
             <VBox spacing="5" prefWidth="220"><Label text="Report type" styleClass="field-label"/><ComboBox fx:id="reportTypeBox" maxWidth="Infinity" styleClass="form-control"/></VBox>
             <VBox spacing="5" prefWidth="150"><Label text="Start date" styleClass="field-label"/><DatePicker fx:id="startDatePicker" maxWidth="Infinity"/></VBox>
@@ -24,7 +24,7 @@
     <FlowPane fx:id="summaryPane" hgap="10" vgap="8"/>
     <StackPane VBox.vgrow="ALWAYS" styleClass="panel-card request-list-panel">
         <TableView fx:id="reportTable" styleClass="request-table"/>
-        <VBox fx:id="emptyState" alignment="CENTER" spacing="10" styleClass="empty-state"><Label fx:id="emptyTitle" text="Choose a report" styleClass="empty-state-title"/><Label fx:id="emptyCopy" text="Select filters and generate a report." wrapText="true" textAlignment="CENTER" styleClass="empty-state-copy"/></VBox>
+        <VBox fx:id="emptyState" alignment="CENTER" spacing="10" styleClass="empty-state"><Label fx:id="emptyTitle" text="Choose a report" wrapText="true" textAlignment="CENTER" styleClass="empty-state-title"/><Label fx:id="emptyCopy" text="Select filters and generate a report." wrapText="true" textAlignment="CENTER" styleClass="empty-state-copy"/></VBox>
     </StackPane>
     <Label fx:id="messageLabel" wrapText="true" styleClass="form-message"/>
 </VBox>

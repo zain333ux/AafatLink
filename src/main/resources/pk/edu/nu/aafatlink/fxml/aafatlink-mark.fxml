@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.shape.Circle?>
+<?import javafx.scene.shape.Polyline?>
+<Pane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+      minWidth="33" minHeight="33" maxWidth="33" maxHeight="33" styleClass="aafatlink-mark"
+      mouseTransparent="true">
+    <Polyline points="5,25, 13,11, 20,23, 26,13" strokeWidth="2"
+              strokeLineCap="ROUND" strokeLineJoin="ROUND" styleClass="mark-ridge"/>
+    <Circle centerX="26" centerY="13" radius="2.1" styleClass="mark-point"/>
+</Pane>

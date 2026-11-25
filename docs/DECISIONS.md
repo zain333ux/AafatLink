@@ -1,5 +1,9 @@
 # Engineering decisions
 
+## Desktop visual design
+
+Use the AafatLink ridge mark and fictional contour artwork as a visual identity. Pair a deep ink rail with warm paper surfaces and reserve rust for primary actions. Give operational queues a worklist layout with aligned counts, preview links and workflow actions. Reuse typography, spacing and control styles across roles.
+
 ## Operational dashboards
 
 Show the work available to each role on sign-in. Load counts and a single linked record per nonempty queue in one read-only Supabase call. The database checks the active role and applies the session’s row policies. Keep implementation coverage in the traceability document. Demo sessions show navigation without requesting or inventing operational records.

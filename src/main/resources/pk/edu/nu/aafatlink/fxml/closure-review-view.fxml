@@ -6,7 +6,7 @@
 <VBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="pk.edu.nu.aafatlink.ui.request.ClosureReviewViewController"
       spacing="18" styleClass="content-area request-list-page">
-    <padding><Insets top="28" right="30" bottom="32" left="30"/></padding>
+    <padding><Insets top="28" right="26" bottom="32" left="26"/></padding>
     <HBox alignment="CENTER_LEFT">
         <VBox spacing="5"><Label text="Closure review" styleClass="welcome-title"/><Label text="Confirm delivered assistance or return incomplete work with an auditable reason." wrapText="true" styleClass="welcome-copy"/></VBox>
         <Region HBox.hgrow="ALWAYS"/>
@@ -23,16 +23,16 @@
                     </columns>
                 </TableView>
                 <VBox fx:id="emptyState" visible="false" managed="false" alignment="CENTER" spacing="10" styleClass="empty-state">
-                    <Label text="Closure queue is clear" styleClass="empty-state-title"/>
+                    <Label text="Closure queue is clear" wrapText="true" textAlignment="CENTER" styleClass="empty-state-title"/>
                     <Label text="No request is awaiting closure review." wrapText="true" textAlignment="CENTER" styleClass="empty-state-copy"/>
                 </VBox>
             </StackPane>
-            <StackPane minWidth="520">
-                <VBox fx:id="detailPlaceholder" alignment="CENTER" spacing="10" styleClass="empty-state"><Label text="Select a request" styleClass="empty-state-title"/><Label text="Completion remarks, evidence and decision controls will appear here." wrapText="true" styleClass="empty-state-copy"/></VBox>
+            <StackPane minWidth="360">
+                <VBox fx:id="detailPlaceholder" alignment="CENTER" spacing="10" styleClass="empty-state"><Label text="Select a request" wrapText="true" textAlignment="CENTER" styleClass="empty-state-title"/><Label text="Completion remarks, evidence and decision controls will appear here." wrapText="true" styleClass="empty-state-copy"/></VBox>
                 <ScrollPane fx:id="detailScroll" visible="false" managed="false" fitToWidth="true" styleClass="detail-scroll">
                     <content>
                         <VBox fx:id="detailContent" spacing="16" styleClass="panel-card request-detail-panel">
-                            <Label text="CLOSURE CONTEXT" styleClass="card-kicker"/>
+                            <Label text="Closure context" styleClass="card-kicker"/>
                             <VBox spacing="4"><Label text="Request ID" styleClass="detail-label"/><Label fx:id="requestIdLabel" styleClass="request-id"/></VBox>
                             <VBox spacing="4"><Label text="Required assistance" styleClass="detail-label"/><Label fx:id="assistanceLabel" wrapText="true" styleClass="detail-value"/></VBox>
                             <VBox spacing="4"><Label text="Location" styleClass="detail-label"/><Label fx:id="locationLabel" wrapText="true" styleClass="detail-value"/></VBox>
@@ -41,7 +41,7 @@
                             <VBox spacing="7"><Label text="Progress history" styleClass="field-label"/><ListView fx:id="progressList" prefHeight="105"/></VBox>
                             <VBox spacing="7"><Label text="Completion evidence" styleClass="field-label"/><ListView fx:id="evidenceList" prefHeight="82"/><Button text="Open selected attachment" onAction="#openEvidence" styleClass="outline-button"/></VBox>
                             <VBox spacing="10" styleClass="decision-panel">
-                                <Label text="COORDINATOR DECISION" styleClass="card-kicker"/>
+                                <Label text="Coordinator decision" styleClass="card-kicker"/>
                                 <TextArea fx:id="remarksArea" promptText="Closing remarks are optional; a rework reason is mandatory" prefRowCount="3" wrapText="true" styleClass="form-text-area"/>
                                 <HBox spacing="10"><Button fx:id="approveButton" text="Approve closure" onAction="#approveClosure" styleClass="primary-button"/><Button fx:id="reworkButton" text="Return for rework" onAction="#returnForRework" styleClass="danger-button"/></HBox>
                             </VBox>

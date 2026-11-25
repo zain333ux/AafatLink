@@ -8,10 +8,14 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import javafx.concurrent.Task;
+import org.kordamp.ikonli.javafx.FontIcon;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.geometry.Pos;
 import javafx.scene.layout.FlowPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import pk.edu.nu.aafatlink.app.SessionManager;
 import pk.edu.nu.aafatlink.app.navigation.NavigationItem;
@@ -32,7 +36,7 @@ public final class DashboardViewController {
     @FXML private Label message;
     @FXML private Button refresh;
     @FXML private FlowPane actions;
-    @FXML private FlowPane cards;
+    @FXML private VBox queueList;
 
     public DashboardViewController(SessionManager sessions, DashboardController dashboard,
             BiConsumer<NavigationItem, UUID> navigate) {
@@ -67,7 +71,7 @@ public final class DashboardViewController {
                         new Queue("close", "Awaiting closure", CLOSURE_REVIEW, "No completions await review."));
             }
             case ADMINISTRATOR -> {
-                heading.setText("Account administration");
+                heading.setText("Access and approvals");
                 action(ACCESS_MANAGEMENT);
                 action(REFERENCE_DATA);
                 action(REPORTS);
@@ -79,7 +83,8 @@ public final class DashboardViewController {
 
     private void action(NavigationItem item) {
         Button button = new Button(item.label());
-        button.getStyleClass().add("outline-button");
+        button.getStyleClass().add(item == SUBMIT_REQUEST || item == RECORD_REQUEST
+                ? "primary-button" : "outline-button");
         button.setOnAction(event -> navigate.accept(item, null));
         actions.getChildren().add(button);
     }
@@ -87,11 +92,11 @@ public final class DashboardViewController {
     @FXML
     private void reload() {
         var user = sessions.currentUser().orElseThrow();
-        cards.getChildren().clear();
+        queueList.getChildren().clear();
         if (user.demonstrationAccount()) {
             refresh.setVisible(false);
             refresh.setManaged(false);
-            message.setText("Preview mode. Sign in to see live records.");
+            message.setText("Read-only preview");
             render(Map.of(), true);
             return;
         }
@@ -123,36 +128,51 @@ public final class DashboardViewController {
     private void render(Map<String, DashboardEntry> entries, boolean demo) {
         for (Queue queue : queues) {
             DashboardEntry entry = entries.get(queue.key());
-            VBox card = new VBox(10);
-            card.setPrefWidth(246);
-            card.getStyleClass().add("summary-card");
+            HBox row = new HBox(16);
+            row.setAlignment(Pos.CENTER_LEFT);
+            row.getStyleClass().add("queue-row");
+            FontIcon icon = new FontIcon(queue.destination().iconLiteral());
+            icon.setIconSize(20);
+            icon.getStyleClass().add("queue-icon");
+
             Label title = new Label(queue.title());
-            title.getStyleClass().add("banner-title");
+            title.getStyleClass().add("queue-label");
             title.setWrapText(true);
-            card.getChildren().add(title);
-            if (!demo) {
-                Label count = new Label(entry == null ? "0" : Long.toString(entry.total()));
-                count.getStyleClass().add("card-value");
-                card.getChildren().add(count);
-                if (entry == null) {
-                    Label empty = new Label(queue.empty());
-                    empty.setWrapText(true);
-                    card.getChildren().add(empty);
-                } else {
-                    Button record = new Button(entry.caption());
-                    record.getStyleClass().add("text-button");
-                    record.setWrapText(true);
-                    record.setMaxWidth(Double.MAX_VALUE);
-                    record.setOnAction(event -> navigate.accept(queue.destination(), entry.recordId()));
-                    card.getChildren().add(record);
-                }
+            VBox details = new VBox(3, title);
+            HBox.setHgrow(details, Priority.ALWAYS);
+            if (!demo && entry == null) {
+                Label empty = new Label(queue.empty());
+                empty.getStyleClass().add("helper-text");
+                empty.setWrapText(true);
+                details.getChildren().add(empty);
+            } else if (entry != null) {
+                Button record = new Button(entry.caption());
+                record.getStyleClass().addAll("text-button", "queue-record");
+                record.setWrapText(true);
+                record.setOnAction(event -> navigate.accept(queue.destination(), entry.recordId()));
+                details.getChildren().add(record);
             }
+
             Button open = new Button(queue.destination() == VOLUNTEER_ASSIGNMENT ? "Assign a volunteer"
                     : "Open " + queue.destination().label().toLowerCase(java.util.Locale.ROOT));
-            open.getStyleClass().add("outline-button");
+            open.getStyleClass().addAll("text-button", "queue-open");
+            var arrow = new FontIcon("mdi2a-arrow-right");
+            arrow.setIconSize(16);
+            open.setGraphic(arrow);
+            open.setContentDisplay(javafx.scene.control.ContentDisplay.RIGHT);
+            open.setMinWidth(javafx.scene.layout.Region.USE_PREF_SIZE);
             open.setOnAction(event -> navigate.accept(queue.destination(), null));
-            card.getChildren().add(open);
-            cards.getChildren().add(card);
+            row.getChildren().addAll(icon, details);
+            if (!demo) {
+                Label count = new Label(entry == null ? "0" : Long.toString(entry.total()));
+                count.setAlignment(Pos.CENTER_RIGHT);
+                count.setMinWidth(62);
+                count.getStyleClass().add(entry == null ? "queue-count-empty" : "queue-count");
+                count.setAccessibleText(count.getText() + " records in " + queue.title());
+                row.getChildren().add(count);
+            }
+            row.getChildren().add(open);
+            queueList.getChildren().add(row);
         }
     }
 }

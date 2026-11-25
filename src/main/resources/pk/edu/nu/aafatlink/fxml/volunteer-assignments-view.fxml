@@ -6,7 +6,7 @@
 <VBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="pk.edu.nu.aafatlink.ui.volunteer.VolunteerAssignmentsViewController"
       spacing="18" styleClass="content-area request-list-page">
-    <padding><Insets top="28" right="30" bottom="32" left="30"/></padding>
+    <padding><Insets top="28" right="26" bottom="32" left="26"/></padding>
     <HBox alignment="CENTER_LEFT">
         <VBox spacing="5"><Label text="Assignment response" styleClass="welcome-title"/><Label text="Review the assistance need, location and priority before accepting or declining." wrapText="true" styleClass="welcome-copy"/></VBox>
         <Region HBox.hgrow="ALWAYS"/>
@@ -25,14 +25,14 @@
                     </columns>
                 </TableView>
                 <VBox fx:id="emptyState" visible="false" managed="false" alignment="CENTER" spacing="10" styleClass="empty-state">
-                    <Label text="No pending response" styleClass="empty-state-title"/>
+                    <Label text="No pending response" wrapText="true" textAlignment="CENTER" styleClass="empty-state-title"/>
                     <Label fx:id="emptyMessageLabel" text="No assignment currently needs your response." wrapText="true" textAlignment="CENTER" styleClass="empty-state-copy"/>
                 </VBox>
             </StackPane>
             <StackPane minWidth="390">
-                <VBox fx:id="detailPlaceholder" alignment="CENTER" spacing="10" styleClass="empty-state"><Label text="Select an assignment" styleClass="empty-state-title"/><Label text="Its request details and decision controls will appear here." wrapText="true" styleClass="empty-state-copy"/></VBox>
+                <VBox fx:id="detailPlaceholder" alignment="CENTER" spacing="10" styleClass="empty-state"><Label text="Select an assignment" wrapText="true" textAlignment="CENTER" styleClass="empty-state-title"/><Label text="Its request details and decision controls will appear here." wrapText="true" styleClass="empty-state-copy"/></VBox>
                 <VBox fx:id="detailContent" visible="false" managed="false" spacing="16" styleClass="panel-card request-detail-panel">
-                    <Label text="ASSIGNMENT DETAILS" styleClass="card-kicker"/>
+                    <Label text="Assignment details" styleClass="card-kicker"/>
                     <VBox spacing="4"><Label text="Request ID" styleClass="detail-label"/><Label fx:id="requestIdLabel" styleClass="request-id"/></VBox>
                     <VBox spacing="4"><Label text="Required assistance" styleClass="detail-label"/><Label fx:id="assistanceLabel" wrapText="true" styleClass="detail-value"/></VBox>
                     <VBox spacing="4"><Label text="Location" styleClass="detail-label"/><Label fx:id="locationLabel" wrapText="true" styleClass="detail-value"/></VBox>

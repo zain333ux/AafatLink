@@ -32,8 +32,8 @@
 
     <SplitPane dividerPositions="0.52" VBox.vgrow="ALWAYS" styleClass="request-split-pane">
         <items>
-            <VBox minWidth="430.0" spacing="12.0" styleClass="panel-card request-list-panel">
-                <Label text="REQUESTS" styleClass="card-kicker" />
+            <VBox minWidth="300" spacing="12.0" styleClass="panel-card request-list-panel">
+                <Label text="Requests" styleClass="card-kicker" />
                 <StackPane VBox.vgrow="ALWAYS">
                     <TableView fx:id="requestTable" VBox.vgrow="ALWAYS" styleClass="request-table">
                         <columns>
@@ -46,13 +46,13 @@
                     <ProgressIndicator fx:id="loadingIndicator" maxWidth="34.0" maxHeight="34.0" />
                     <VBox fx:id="emptyState" visible="false" managed="false" alignment="CENTER" spacing="10.0"
                           styleClass="empty-state">
-                        <Label text="No requests yet" styleClass="empty-state-title" />
+                        <Label text="No requests yet" wrapText="true" textAlignment="CENTER" styleClass="empty-state-title" />
                         <Label fx:id="emptyStateLabel" text="No assistance requests found."
                                textAlignment="CENTER" wrapText="true" styleClass="empty-state-copy" />
                     </VBox>
                     <VBox fx:id="errorState" visible="false" managed="false" alignment="CENTER" spacing="12.0"
                           styleClass="empty-state">
-                        <Label text="Requests could not be loaded" styleClass="empty-state-title" />
+                        <Label text="Requests could not be loaded" wrapText="true" textAlignment="CENTER" styleClass="empty-state-title" />
                         <Label fx:id="errorLabel" text="Check the connection and retry."
                                textAlignment="CENTER" wrapText="true" styleClass="empty-state-copy form-error" />
                         <Button text="Retry" onAction="#loadRequests" styleClass="outline-button" />
@@ -63,7 +63,7 @@
             <ScrollPane fitToWidth="true" hbarPolicy="NEVER" styleClass="detail-scroll">
                 <StackPane minWidth="390.0">
                     <VBox fx:id="detailPlaceholder" alignment="CENTER" spacing="10.0" styleClass="empty-state">
-                        <Label text="Select a request" styleClass="empty-state-title" />
+                        <Label text="Select a request" wrapText="true" textAlignment="CENTER" styleClass="empty-state-title" />
                         <Label text="Its status, details and response journey will appear here."
                                wrapText="true" textAlignment="CENTER" styleClass="empty-state-copy" />
                     </VBox>
@@ -71,7 +71,7 @@
                           styleClass="panel-card request-detail-panel">
                         <HBox alignment="CENTER_LEFT" spacing="12.0">
                             <VBox spacing="4.0" HBox.hgrow="ALWAYS">
-                                <Label text="REQUEST DETAILS" styleClass="card-kicker" />
+                                <Label text="Request details" styleClass="card-kicker" />
                                 <Label fx:id="detailIdLabel" styleClass="request-id" />
                             </VBox>
                             <Label fx:id="detailStatusLabel" styleClass="status-chip" />
